@@ -451,6 +451,31 @@ def cmd_audit(args):
     return 0
 
 
+def cmd_encrypt(args):
+    """AliceLabs addition: manage encryption at rest."""
+    from memex.encryption import is_enabled, generate_key
+
+    if args.generate_key:
+        key = generate_key()
+        if key:
+            print(key)
+            print("\nSet this as MEMEX_ENCRYPTION_KEY in your environment.", file=sys.stderr)
+        else:
+            print("Error: cryptography library not installed. Run: pip install cryptography", file=sys.stderr)
+            return 1
+        return 0
+
+    if args.status or True:  # default to status
+        enabled = is_enabled()
+        print(f"Encryption at rest: {'ENABLED' if enabled else 'DISABLED'}")
+        if not enabled:
+            print("\nTo enable:")
+            print("  1. Generate a key: memex encrypt --generate-key")
+            print("  2. Set env var:    export MEMEX_ENCRYPTION_KEY=<key>")
+            print("  3. Restart server: memex init")
+        return 0
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="memex",
@@ -655,6 +680,19 @@ def main():
     p_audit.add_argument("--stats", action="store_true", help="Show summary statistics")
     p_audit.add_argument("--json", action="store_true", help="Output JSON")
     p_audit.set_defaults(func=cmd_audit)
+
+    # update — auto-update checker (AliceLabs addition)
+    from memex.autoupdate import register_parser as register_update
+    register_update(sub)
+
+    # encrypt — encryption management (AliceLabs addition)
+    p_encrypt = sub.add_parser(
+        "encrypt",
+        help="Manage encryption at rest (AliceLabs addition)",
+    )
+    p_encrypt.add_argument("--status", action="store_true", help="Check encryption status")
+    p_encrypt.add_argument("--generate-key", action="store_true", help="Generate a new encryption key")
+    p_encrypt.set_defaults(func=cmd_encrypt)
 
     # init — install + start memex-server as a system service
     p_init = sub.add_parser(

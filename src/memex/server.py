@@ -1772,6 +1772,20 @@ def main():
     except Exception as e:
         logger.debug("watchdog startup failed: %s", e)
 
+    # AliceLabs addition: start auto-backup
+    try:
+        from memex.autobackup import start_autobackup
+        start_autobackup(f"http://127.0.0.1:{cfg['port']}")
+    except Exception as e:
+        logger.debug("autobackup startup failed: %s", e)
+
+    # AliceLabs addition: start auto-cleanup
+    try:
+        from memex.autocleanup import start_autocleanup
+        start_autocleanup(memory, cfg)
+    except Exception as e:
+        logger.debug("autocleanup startup failed: %s", e)
+
     port = cfg["port"]
     handler = make_handler(memory, cfg)
     httpd = _BoundedThreadingHTTPServer((args.host, port), handler)
@@ -1808,6 +1822,22 @@ def main():
         # WAL frames are checkpointed before process exit.
         stop_event.set()
         replay_thread.join(timeout=5)
+        # AliceLabs addition: stop background services
+        try:
+            from memex.watchdog import stop_watchdog
+            stop_watchdog()
+        except Exception:
+            pass
+        try:
+            from memex.autobackup import stop_autobackup
+            stop_autobackup()
+        except Exception:
+            pass
+        try:
+            from memex.autocleanup import stop_autocleanup
+            stop_autocleanup()
+        except Exception:
+            pass
         try:
             httpd.server_close()
         except Exception as e:  # noqa: silent — best-effort socket close

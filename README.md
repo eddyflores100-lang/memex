@@ -55,6 +55,9 @@ memex mcp install            # wire MCP client
 - **Rate limiting** — 60 req/min per IP (configurable)
 - **Security headers** — X-Frame-Options, X-Content-Type-Options, X-XSS-Protection
 - **Audit logging** — set `MEMEX_AUDIT_LOG=true` to log all operations (queries hashed, never raw content)
+- **Encryption at rest** — set `MEMEX_ENCRYPTION_KEY` to encrypt memory content with Fernet (AES-128-CBC)
+- **Request validation** — Content-Type, query length, user_id format, null byte injection prevention
+- **CORS hardening** — configurable origin via `MEMEX_CORS_ORIGIN`
 - **Loopback-only** — binds to 127.0.0.1 by default
 
 ## Autonomy features
@@ -62,6 +65,9 @@ memex mcp install            # wire MCP client
 - **Auto-start on boot** — launchd (macOS) or systemd (Linux) service
 - **Self-healing watchdog** — monitors Ollama, ChromaDB, disk space, queue depth
 - **Auto-recovery queue** — writes queued if Ollama down, auto-replayed on recovery
+- **Auto-backup** — `MEMEX_AUTO_BACKUP=true` creates daily compressed backups with retention
+- **Auto-cleanup** — `MEMEX_AUTO_CLEANUP=true` purges stale memories, dead-letters, old backups, rotates logs
+- **Auto-update** — `MEMEX_AUTO_UPDATE=true` checks for new releases daily and applies them
 - **Dead-letter handling** — permanently failed writes move to `~/.memex/queue/dead/`
 - **Graceful shutdown** — SIGTERM/SIGINT handlers checkpoint SQLite WAL before exit
 
