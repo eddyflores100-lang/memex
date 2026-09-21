@@ -1,0 +1,35 @@
+{
+  "name": "@alicelabs/memex-sdk",
+  "version": "0.3.0",
+  "description": "Memex — local-first, zero-LLM agent memory SDK for TypeScript",
+  "license": "AliceLabs Proprietary v1.0",
+  "author": "AliceLabs <eddyflores100-lang@users.noreply.github.com>",
+  "homepage": "https://github.com/eddyflores100-lang/memex",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eddyflores100-lang/memex",
+    "directory": "sdk/typescript"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "keywords": [
+    "memex",
+    "agent-memory",
+    "zero-llm",
+    "local-first",
+    "rag",
+    "retrieval",
+    "mcp",
+    "ai",
+    "agents"
+  ],
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "jest": "^29.7.0",
+    "@types/node": "^20.0.0"
+  }
+}
