@@ -10,6 +10,9 @@ Does NOT modify embeddings or BM25 — only affects the LLM prompt.
 import json
 from datetime import datetime
 from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+from bench._paths import longmemeval_s_json
 
 
 def parse_date(date_str: str) -> datetime | None:
@@ -91,7 +94,7 @@ def is_temporal_query(query: str) -> bool:
 def test_on_hardset():
     """Print temporal scaffold for hardset temporal questions."""
     hardset = json.load(open(Path(__file__).parent.parent / "hardset.json"))
-    data = json.load(open(Path.home() / "Documents/projects/LongMemEval/data/longmemeval_s_cleaned.json"))
+    data = json.load(open(longmemeval_s_json()))
     data = [e for e in data if "_abs" not in e["question_id"]]
 
     temporal_hard = [h for h in hardset if h["qtype"] == "temporal-reasoning"]

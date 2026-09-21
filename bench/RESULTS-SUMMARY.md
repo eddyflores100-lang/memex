@@ -1,4 +1,4 @@
-# cogito-ergo LongMemEval Benchmark Results
+# Fidelis LongMemEval Benchmark Results
 
 Last updated: 2026-04-18
 

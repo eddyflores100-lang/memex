@@ -1,17 +1,15 @@
 {
   "@context": "https://w3id.org/codemeta/3.1",
   "@type": "SoftwareSourceCode",
-  "name": "fidelis",
-  "description": "Local-first, zero-LLM memory for Claude Code and AI agents. The source project, import package, and CLI are named fidelis; the PyPI distribution is fidelis-memory.",
-  "codeRepository": "https://github.com/hermes-labs-ai/fidelis",
-  "issueTracker": "https://github.com/hermes-labs-ai/fidelis/issues",
-  "readme": "https://github.com/hermes-labs-ai/fidelis/blob/main/README.md",
-  "continuousIntegration": "https://github.com/hermes-labs-ai/fidelis/actions",
-  "license": "https://spdx.org/licenses/MIT",
-  "version": "0.3.0rc1",
-  "url": "https://github.com/hermes-labs-ai/fidelis",
-  "downloadUrl": "https://pypi.org/project/fidelis-memory/0.3.0rc1/",
-  "releaseNotes": "https://github.com/hermes-labs-ai/fidelis/releases/tag/v0.3.0rc1",
+  "name": "fidelis-alicelabs",
+  "description": "AliceLabs proprietary fork of Fidelis Memory: local-first, zero-LLM memory for AI agents with integer-pointer fidelity. Licensed under AliceLabs Proprietary License v1.0.",
+  "codeRepository": "https://github.com/eddyflores100-lang/fidelis-alicelabs",
+  "issueTracker": "https://github.com/eddyflores100-lang/fidelis-alicelabs/issues",
+  "readme": "https://github.com/eddyflores100-lang/fidelis-alicelabs/blob/main/README.md",
+  "continuousIntegration": "https://github.com/eddyflores100-lang/fidelis-alicelabs/actions",
+  "license": "AliceLabs Proprietary License v1.0",
+  "version": "0.3.0rc1-alicelabs",
+  "url": "https://github.com/eddyflores100-lang/fidelis-alicelabs",
   "programmingLanguage": "Python",
   "runtimePlatform": "Python >=3.10",
   "operatingSystem": [
@@ -24,24 +22,27 @@
     "local-first",
     "Claude Code",
     "verbatim retrieval",
-    "fidelis-memory"
+    "fidelis-alicelabs",
+    "alice-labs",
+    "integer-pointer fidelity"
   ],
   "author": [
     {
-      "identifier": "https://orcid.org/0009-0005-4896-1112",
       "@type": "Person",
-      "givenName": "Rolando",
-      "familyName": "Bosch Rodriguez",
+      "givenName": "Eddy",
+      "familyName": "Flores",
       "affiliation": {
         "@type": "Organization",
-        "name": "Hermes Labs",
-        "url": "https://hermes-labs.ai"
+        "name": "AliceLabs",
+        "url": "https://github.com/eddyflores100-lang"
       }
     }
   ],
   "publisher": {
     "@type": "Organization",
-    "name": "Hermes Labs",
-    "url": "https://hermes-labs.ai"
-  }
+    "name": "AliceLabs",
+    "url": "https://github.com/eddyflores100-lang"
+  },
+  "creditText": "Incorporates code originally licensed under MIT from the Fidelis Memory project by Hermes Labs (Roli Bosch).",
+  "derivativeWork": "https://github.com/hermes-labs-ai/fidelis"
 }

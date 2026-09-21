@@ -1093,7 +1093,7 @@ def main():
     print(f"\n  {'='*60}")
     if s2_r1_v >= 0.950:
         print(f"  *** VERDICT: #1 on LongMemEval_S — {s2_r1_v:.3%} >= 95.0% ***")
-        print(f"  *** cogito-ergo BEATS Mastra ({mastra_r1:.3%}) ***")
+        print(f"  *** Fidelis BEATS Mastra ({mastra_r1:.3%}) ***")
     elif s2_r1_v >= 0.941:
         print(f"  VERDICT: CONTENDER — {s2_r1_v:.3%} > runC-guard (94.0%) but < 95.0%")
         print(f"  Delta vs Mastra: {delta_from_mastra:+.3%}")

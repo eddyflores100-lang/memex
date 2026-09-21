@@ -11,6 +11,9 @@ import math
 import urllib.request
 import numpy as np
 from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+from bench._paths import longmemeval_s_json
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import StratifiedKFold
@@ -57,7 +60,7 @@ def extract_features(questions: list[str], embeddings: np.ndarray) -> np.ndarray
 def main():
     # Load Phase 0 baseline data
     pq = json.load(open(BENCH / "runs/baseline/per_question.json"))
-    data = json.load(open(Path.home() / "Documents/projects/LongMemEval/data/longmemeval_s_cleaned.json"))
+    data = json.load(open(longmemeval_s_json()))
     data = [e for e in data if "_abs" not in e["question_id"]]
 
     questions = [data[q["qi"]]["question"] for q in pq]

@@ -3,14 +3,14 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "fidelis-memory"
-version = "0.3.0rc1"
-description = "Fidelis Memory: faithful agent memory with zero-LLM retrieval by default. By Hermes Labs."
+name = "fidelis-alicelabs"
+version = "0.3.0rc1-alicelabs"
+description = "AliceLabs proprietary fork of Fidelis Memory: faithful agent memory with zero-LLM retrieval by default."
 readme = "README.md"
-license = { text = "MIT" }
+license = { text = "AliceLabs Proprietary v1.0" }
 requires-python = ">=3.10"
 authors = [
-  { name = "Hermes Labs", email = "roli@hermes-labs.ai" },
+  { name = "AliceLabs", email = "eddyflores100-lang@users.noreply.github.com" },
 ]
 keywords = [
   "ai", "agents", "memory", "rag", "retrieval", "llm",
@@ -29,6 +29,7 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
   "Typing :: Typed",
+  "License :: Other/Proprietary License",
 ]
 dependencies = [
   "mem0ai>=2.0.0,<3.0",

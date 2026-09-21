@@ -568,7 +568,7 @@ def _hybrid_stage1(
 
 
 # ---------------------------------------------------------------------------
-# Stage 2: cheap filter LLM (reuses cogito.recall._filter for consistency)
+# Stage 2: cheap filter LLM (reuses fidelis.recall._filter for consistency)
 # ---------------------------------------------------------------------------
 def _parse_indices_1based(raw: str, n_candidates: int) -> list[int] | None:
     """Parse an LLM output to a list of 0-based indices (drop out-of-range)."""
@@ -794,7 +794,7 @@ def recall_hybrid(
     user_id:
         Memory namespace.
     cfg:
-        cogito config dict (from ``cogito.config.load()``).
+        cogito config dict (from ``fidelis.config.load()``).
     limit:
         Max candidates to return (defaults to ``cfg['recall_limit']``).
     tier:

@@ -1,5 +1,5 @@
 """
-cogito recall — two-stage retrieval with integer-pointer fidelity filter.
+fidelis recall — two-stage retrieval with integer-pointer fidelity filter.
 
 Stage 1: recall_b (zero-LLM multi-query RRF) — broad candidate pool, no threshold cut.
          Uses sub-query decomposition + vocab expansion to maximise recall.

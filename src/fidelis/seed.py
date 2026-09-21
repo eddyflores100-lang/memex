@@ -1,5 +1,5 @@
 """
-cogito seed — bulk-seed the memory store from markdown/text files.
+fidelis seed — bulk-seed the memory store from markdown/text files.
 
 The agent (or a capable LLM) decides what to remember. Raw text is read,
 a curation LLM (default: same filter endpoint as /recall) extracts a list
@@ -12,12 +12,12 @@ deduped by content hash in ~/.cogito/seeded_chunks.json so re-seeding an
 edited file does not duplicate its unchanged sections.
 
 Usage:
-    cogito seed ~/memory/                          # seed all .md files
-    cogito seed ~/memory/ ~/notes/sessions/        # multiple dirs
-    cogito seed ~/memory/ --dry-run                # show facts without writing
-    cogito seed ~/memory/ --force                  # re-seed even unchanged files
-    cogito seed ~/memory/ --glob "*.md"            # filter by pattern
-    cogito seed ~/memory/ --add                    # use /add (mem0 extraction) instead
+    fidelis seed ~/memory/                          # seed all .md files
+    fidelis seed ~/memory/ ~/notes/sessions/        # multiple dirs
+    fidelis seed ~/memory/ --dry-run                # show facts without writing
+    fidelis seed ~/memory/ --force                  # re-seed even unchanged files
+    fidelis seed ~/memory/ --glob "*.md"            # filter by pattern
+    fidelis seed ~/memory/ --add                    # use /add (mem0 extraction) instead
 
 State is tracked in ~/.cogito/seeded.json (file path → mtime hash).
 Re-run at any time — only changed or new files are seeded.
@@ -242,7 +242,7 @@ def _check_server(base_url: str) -> int:
         with urllib.request.urlopen(f"{base_url}/health", timeout=5) as resp:
             return json.loads(resp.read()).get("count", 0)
     except urllib.error.URLError as e:
-        raise RuntimeError(f"cogito server not reachable at {base_url}") from e
+        raise RuntimeError(f"fidelis server not reachable at {base_url}") from e
 
 
 # ── core ────────────────────────────────────────────────────────────────────
@@ -307,7 +307,7 @@ def seed(
     if not dry_run:
         try:
             count_before = _check_server(base_url)
-            print(f"[cogito seed] Server OK — {count_before} memories before seeding")
+            print(f"[fidelis seed] Server OK — {count_before} memories before seeding")
         except RuntimeError as e:
             print(f"Error: {e}", file=sys.stderr)
             sys.exit(1)
@@ -318,7 +318,7 @@ def seed(
         mode = "/store (verbatim chunks, no LLM)"
     else:
         mode = "/store (agent-curated, verbatim)"
-    print(f"[cogito seed] {len(all_files)} file(s) — write path: {mode}\n")
+    print(f"[fidelis seed] {len(all_files)} file(s) — write path: {mode}\n")
 
     for path in all_files:
         file_key = str(path)
@@ -427,7 +427,7 @@ def seed(
         _save_chunk_state(chunk_state)
         try:
             count_after = _check_server(base_url)
-            print(f"\n[cogito seed] Done. {count_after} memories in store.")
+            print(f"\n[fidelis seed] Done. {count_after} memories in store.")
         except Exception:  # noqa: silent — final count is informational; seed itself succeeded
             pass
 

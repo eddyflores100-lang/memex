@@ -8,7 +8,7 @@ Usage:
     cd /path/to/fidelis
     python3 bench/claude_code_session_eval.py
 
-Requires: cogito-ergo installed (pip install -e .), Ollama running with nomic-embed-text.
+Requires: Fidelis installed (pip install -e .), Ollama running with nomic-embed-text.
 """
 from __future__ import annotations
 
@@ -69,7 +69,7 @@ def _synthesize_queries(sessions) -> list[tuple[str, str]]:
 
 
 def run_eval():
-    print("=== cogito-ergo Claude Code Session Retrieval Eval ===\n")
+    print("=== Fidelis Claude Code Session Retrieval Eval ===\n")
     try:
         sessions = _get_sessions()
     except Exception as e:

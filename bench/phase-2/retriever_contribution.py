@@ -8,6 +8,9 @@ For now, analyze what we can from existing data.
 """
 import json
 from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+from bench._paths import longmemeval_s_json
 from collections import defaultdict
 
 BENCH = Path(__file__).parent.parent
@@ -17,7 +20,7 @@ def main():
     hardset = json.load(open(BENCH / "hardset.json"))
     hard_qids = {h["qid"] for h in hardset}
 
-    data = json.load(open(Path.home() / "Documents/projects/LongMemEval/data/longmemeval_s_cleaned.json"))
+    data = json.load(open(longmemeval_s_json()))
     data = [e for e in data if "_abs" not in e["question_id"]]
 
     print("RETRIEVER CONTRIBUTION ANALYSIS")

@@ -1,5 +1,5 @@
 """
-Run cogito-ergo's recall_b retrieval against LongMemEval benchmark.
+Run Fidelis's recall_b retrieval against LongMemEval benchmark.
 
 For each question:
   1. Build a corpus from the haystack sessions (session-level granularity)

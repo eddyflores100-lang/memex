@@ -1,5 +1,5 @@
 """
-cogito server — HTTP server keeping memory warm in process.
+fidelis server — HTTP server keeping memory warm in process.
 
 Endpoints:
   GET  /health
@@ -125,7 +125,7 @@ from fidelis.supersession import (
 from fidelis.temporal import format_instant
 from fidelis.temporal_recall import carry_payload, overfetch, parse_as_of, temporal_view
 
-logger = logging.getLogger("cogito.server")
+logger = logging.getLogger("fidelis.server")
 
 _TEMPORAL_STORE_KEYS = ("event_at", "valid_from", "valid_to", "supersedes", "source")
 
@@ -1158,7 +1158,7 @@ def make_handler(memory: object, cfg: dict) -> type:
                 elif self.path == "/snapshot":
                     text = _read_snapshot(cfg)
                     if text is None:
-                        self._json({"error": "no snapshot — run `cogito snapshot` first"}, 404)
+                        self._json({"error": "no snapshot — run `fidelis snapshot` first"}, 404)
                     else:
                         self._json({"snapshot": text, "path": str(_snapshot_path(cfg))})
                 elif self.path == "/replay":
@@ -1293,7 +1293,7 @@ def make_handler(memory: object, cfg: dict) -> type:
                         ]
                         method = "vector-only-fallback"
                         degraded = True
-                    print(f"[cogito] /recall '{text[:50]}' → {len(memories)} results ({method})", flush=True)
+                    print(f"[fidelis] /recall '{text[:50]}' → {len(memories)} results ({method})", flush=True)
                     memories = temporal_view(
                         filter_ephemera(memories, cfg), memory=memory,
                         index=temporal_index(), as_of=as_of,
@@ -1315,7 +1315,7 @@ def make_handler(memory: object, cfg: dict) -> type:
                         limit=limit,
                     )
                     memories = filter_ephemera(memories, cfg)
-                    print(f"[cogito] /recall_b '{text[:50]}' → {len(memories)} results ({method})", flush=True)
+                    print(f"[fidelis] /recall_b '{text[:50]}' → {len(memories)} results ({method})", flush=True)
                     self._json({"memories": mark_superseded(memories, cfg), "method": method})
 
                 elif self.path in ("/orient", "/cogito-hermeneutics"):
@@ -1448,7 +1448,7 @@ def make_handler(memory: object, cfg: dict) -> type:
                         index=temporal_index(), as_of=as_of,
                         historical=historical, limit=top_k,
                     )
-                    print(f"[cogito] /recall_hybrid '{text[:50]}' tier={tier} → {len(memories)} results ({method})", flush=True)
+                    print(f"[fidelis] /recall_hybrid '{text[:50]}' tier={tier} → {len(memories)} results ({method})", flush=True)
                     self._json({"memories": mark_superseded(memories, cfg), "method": method})
 
                 elif self.path == "/store":
@@ -1633,7 +1633,7 @@ def main():
         cfg["port"] = args.port
 
     src = cfg.get("_config_file", "defaults + env")
-    print(f"[cogito] Starting server v{__version__} (config: {src})", flush=True)
+    print(f"[fidelis] Starting server v{__version__} (config: {src})", flush=True)
 
     # Lazy memory construction: the historical eager `_boot(cfg)` call here
     # required a reachable Ollama before the HTTP server even bound, so a

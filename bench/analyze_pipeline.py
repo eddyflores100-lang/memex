@@ -9,9 +9,10 @@ Outputs: bench/analysis-pipeline-2026-04-15.json with per-question detail.
 import json
 import sys
 from pathlib import Path
+from bench._paths import longmemeval_data_dir
 from collections import defaultdict
 
-DATA_DIR = Path.home() / "Documents/projects/LongMemEval/data"
+DATA_DIR = longmemeval_data_dir()
 BENCH_DIR = Path(__file__).parent
 
 

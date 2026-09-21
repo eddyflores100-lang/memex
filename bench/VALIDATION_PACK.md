@@ -1,4 +1,4 @@
-# VALIDATION_PACK — cogito-ergo LongMemEval (April 2026)
+# VALIDATION_PACK — Fidelis LongMemEval (April 2026)
 
 ## Summary
 

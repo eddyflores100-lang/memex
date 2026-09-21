@@ -384,7 +384,7 @@ def query_both(query: str, atomic_k: int = 3, session_k: int = 3) -> BothResult:
     """
     Return atomic + session results side-by-side. No auto-merge.
 
-    Atomic results come from the live cogito server (via HTTP, preserves filter logic).
+    Atomic results come from the live fidelis server (via HTTP, preserves filter logic).
     Session results come from recall_sessions.query_sessions.
     """
     # Atomic results via server (preserves the integer-pointer filter)

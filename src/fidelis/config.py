@@ -58,7 +58,7 @@ _DEFAULTS: dict[str, Any] = {
     "flagship_token": "",
     "flagship_model": "",
     "flagship_timeout_ms": 30000,
-    # Hybrid retrieval tuning (see cogito.recall_hybrid)
+    # Hybrid retrieval tuning (see fidelis.recall_hybrid)
     "hybrid_cosine_weight": 0.7,
     "store_path": str(Path.home() / ".cogito" / "store"),
     "collection": "cogito_memory",
@@ -87,7 +87,7 @@ _ENV_MAP = {
     "COGITO_FILTER_TOKEN": ("filter_token", str),
     "COGITO_FILTER_MODEL": ("filter_model", str),
     "COGITO_FILTER_TIMEOUT_MS": ("filter_timeout_ms", int),
-    # Flagship tier (see cogito.recall_hybrid)
+    # Flagship tier (see fidelis.recall_hybrid)
     "COGITO_FLAGSHIP_ENDPOINT": ("flagship_endpoint", str),
     "COGITO_FLAGSHIP_TOKEN": ("flagship_token", str),
     "COGITO_FLAGSHIP_MODEL": ("flagship_model", str),

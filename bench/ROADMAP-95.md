@@ -1,4 +1,4 @@
-# cogito-ergo Retrieval R&D Roadmap: 83% → 95%+ R@1
+# Fidelis Retrieval R&D Roadmap: 83% → 95%+ R@1
 
 ## Current State (2026-04-16)
 - **Zero-LLM combined**: R@1=83.2%, R@5=98.3%, R@10=99.1% (296ms)

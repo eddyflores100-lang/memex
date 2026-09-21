@@ -167,7 +167,7 @@ def make_handler(sessions: dict[str, SessionState], cfg: dict) -> type:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="cogito scaffold memory server")
+    parser = argparse.ArgumentParser(description="fidelis scaffold memory server")
     parser.add_argument("--config", help="Path to .cogito.json")
     parser.add_argument("--port", type=int, default=19421, help="Port (default: 19421)")
     parser.add_argument("--host", default="127.0.0.1", help="Host (default: 127.0.0.1)")

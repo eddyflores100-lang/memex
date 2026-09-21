@@ -1,0 +1,61 @@
+name: naming-audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  naming-audit:
+    name: cogito-ergo naming audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Audit for stale cogito-ergo references
+        run: |
+          set -euo pipefail
+
+          EXCLUDES=(
+            --exclude="CHANGELOG.md"
+            --exclude="LICENSE-ALICELABS.txt"
+            --exclude="claude_code_user_eval.json"
+            --exclude="test_session_memory.py"
+            --exclude="test_recall_hybrid.py"
+          )
+
+          hits=$(grep -rEn --include="*.py" --include="*.md" --include="*.json" --include="*.sh" --include="*.toml" --include="*.yml" --include="*.yaml" --include="*.rb" \
+            "${EXCLUDES[@]}" \
+            "\bcogito-ergo\b|\bcogito_ergo\b" \
+            . 2>/dev/null || true)
+
+          if [ -n "$hits" ]; then
+            echo "::error::Found stale 'cogito-ergo' references"
+            echo "$hits"
+            exit 1
+          fi
+
+          hits=$(grep -rEn --include="*.py" \
+            --exclude="init_cmd.py" \
+            "\[cogito\]|\[cogito [a-z]+\]" \
+            src/ 2>/dev/null || true)
+
+          if [ -n "$hits" ]; then
+            echo "::error::Found stale '[cogito]' log prefixes in src/"
+            echo "$hits"
+            exit 1
+          fi
+
+          hits=$(grep -rEn --include="*.py" \
+            --exclude="init_cmd.py" \
+            "\bcogito\.(server|recall|recall_b|recall_hybrid|config|snapshot|seed|calibrate|degrade|augment|context|telemetry|scaffold)" \
+            src/ 2>/dev/null || true)
+
+          if [ -n "$hits" ]; then
+            echo "::error::Found stale 'cogito.<module>' references in src/"
+            echo "$hits"
+            exit 1
+          fi
+
+          echo "OK - no stale references"

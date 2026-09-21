@@ -4,7 +4,7 @@ When the upstream LLM (Ollama / mem0) is unreachable, we MUST NOT lose the
 write. Instead, queue it locally as JSONL and let a sync job replay later.
 
 This module exists because of the 2026-04-19 incident: Ollama's socket layer
-broke under Python 3.14, every `cogito add` returned HTTP 500, and a full
+broke under Python 3.14, every `fidelis add` returned HTTP 500, and a full
 session of memory was silently lost. The Hermes Seal v1 made this gap explicit.
 """
 

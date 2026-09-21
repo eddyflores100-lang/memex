@@ -1,23 +1,28 @@
-<!-- mcp-name: io.github.hermes-labs-ai/fidelis-memory -->
+<!-- mcp-name: io.github.eddyflores100-lang/fidelis-alicelabs -->
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/hermes-labs-ai/fidelis/v0.3.0rc1/assets/fidelis-memory-artwork.jpg" width="420" alt="Fidelis Memory, the golden retriever mascot" />
+  <strong>AliceLabs Proprietary Fork</strong>
 </p>
 
-# Fidelis Memory
+# Fidelis Memory — AliceLabs Edition
 
 **Agent memory that brings back the source, not another summary.**
+
+This is the **AliceLabs proprietary fork** of [Fidelis Memory](https://github.com/hermes-labs-ai/fidelis) by Hermes Labs. It incorporates all upstream improvements plus AliceLabs-specific hardening, security posture, and enterprise readiness work.
 
 Fidelis is a local memory and retrieval service for Codex, Claude Code, and other AI agents. Keep your notes available across sessions and retrieve stored text without generative rewriting.
 
 A summary can preserve "we tried the migration" while dropping why it failed, what it affected, and what must change before trying again. Fidelis's verbatim ingestion path keeps those details in the stored note instead of requiring a generated fact to replace it.
 
-[![PyPI pre-release](https://img.shields.io/badge/PyPI-0.3.0rc1-blue)](https://pypi.org/project/fidelis-memory/0.3.0rc1/)
-[![CI](https://github.com/hermes-labs-ai/fidelis/actions/workflows/ci.yml/badge.svg)](https://github.com/hermes-labs-ai/fidelis/actions/workflows/ci.yml)
-[![Python](https://img.shields.io/pypi/pyversions/fidelis-memory)](https://pypi.org/project/fidelis-memory/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+## License
 
-[Quickstart](#quickstart) · [Connect your agent](#connect-your-agent) · [How it works](#how-it-works) · [Benchmarks](#benchmarks) · [Documentation](#documentation)
+This software is licensed under the **AliceLabs Proprietary License v1.0** — see [`LICENSE-ALICELABS.txt`](LICENSE-ALICELABS.txt). Commercial use, production deployment, or integration into a commercial product requires a separate commercial license from AliceLabs.
+
+[![License: AliceLabs Proprietary](https://img.shields.io/badge/license-AliceLabs%20Proprietary%20v1.0-red)](LICENSE-ALICELABS.txt)
+[![Python](https://img.shields.io/pypi/pyversions/fidelis-memory)](https://pypi.org/project/fidelis-memory/)
+[![Status: Private Fork](https://img.shields.io/badge/status-private%20fork-purple)](https://github.com/eddyflores100-lang/fidelis-alicelabs)
+
+[Quickstart](#quickstart) · [Connect your agent](#connect-your-agent) · [How it works](#how-it-works) · [Benchmarks](#benchmarks) · [Documentation](#documentation) · [Security](docs/SECURITY-POSTURE.md) · [Metrics](docs/METRICS.md)
 
 ## Quickstart
 

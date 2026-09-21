@@ -1,20 +1,25 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
-title: "fidelis: local-first, zero-LLM memory for Claude Code and AI agents"
-abstract: "Fidelis stores agent-curated records locally and retrieves their original text with stable IDs, correction history, and validity dates. Default MCP recall uses local vector search without a generative LLM. The PyPI distribution is fidelis-memory; the import name and CLI remain fidelis."
+message: "If you use this software, please cite it as below. This is an AliceLabs proprietary derivative; commercial use requires a separate license."
+title: "fidelis-alicelabs: local-first, zero-LLM memory for AI agents (AliceLabs proprietary fork)"
+abstract: "AliceLabs proprietary fork of Fidelis Memory. Stores agent-curated records locally and retrieves their original text with stable IDs, correction history, and validity dates. Default MCP recall uses local vector search without a generative LLM. Licensed under the AliceLabs Proprietary License v1.0 — commercial use requires a separate license from AliceLabs."
 type: software
 authors:
-  - family-names: "Bosch Rodriguez"
-    given-names: "Rolando"
-    orcid: "https://orcid.org/0009-0005-4896-1112"
-    affiliation: "Hermes Labs"
-license: MIT
-repository-code: "https://github.com/hermes-labs-ai/fidelis"
-version: "0.3.0rc1"
+  - family-names: "Flores"
+    given-names: "Eddy"
+    affiliation: "AliceLabs"
+license: "AliceLabs Proprietary License v1.0"
+repository-code: "https://github.com/eddyflores100-lang/fidelis-alicelabs"
+version: "0.3.0rc1-alicelabs"
 keywords:
   - "agent memory"
   - "zero-LLM retrieval"
   - "local-first"
   - "Claude Code"
   - "verbatim retrieval"
-  - "fidelis-memory"
+  - "fidelis-alicelabs"
+  - "alice-labs"
+  - "integer-pointer fidelity"
+notes:
+  - "Incorporates code originally licensed under MIT from the Fidelis Memory project by Hermes Labs (Roli Bosch)."
+  - "Derivative work: https://github.com/hermes-labs-ai/fidelis"
+  - "All modifications and additions by AliceLabs are proprietary and require a commercial license for production use."

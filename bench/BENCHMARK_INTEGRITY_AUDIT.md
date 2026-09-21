@@ -1,4 +1,4 @@
-# Benchmark Integrity Audit — cogito-ergo 95.11% on LongMemEval_S
+# Benchmark Integrity Audit — Fidelis 95.11% on LongMemEval_S
 
 **Date:** 2026-04-16  
 **Auditor:** Claude Sonnet 4.6 (read-only, zero LLM calls)  
@@ -118,7 +118,7 @@ v33's two external imports are:
 
 ### 8. Mastra Comparison Validity — UNCLEAR (HIGH RISK)
 
-**Problem:** The source of Mastra's 94.87% figure is not formally cited anywhere in the cogito-ergo repo. The figure appears in `LAUNCH_DEFENSE.md` as a reference point but without a URL, paper, or dataset version.
+**Problem:** The source of Mastra's 94.87% figure is not formally cited anywhere in the Fidelis repo. The figure appears in `LAUNCH_DEFENSE.md` as a reference point but without a URL, paper, or dataset version.
 
 **Critical ambiguity:** LongMemEval evaluates two things:
 1. **Retrieval R@1** (session retrieval) — what our pipeline measures

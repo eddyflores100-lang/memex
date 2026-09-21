@@ -1,5 +1,5 @@
 """
-cogito calibrate — one-time vocabulary bridge extraction.
+fidelis calibrate — one-time vocabulary bridge extraction.
 
 Samples memories from the store, asks the filter LLM to identify vocabulary
 gaps between natural language queries and stored technical facts, and writes
@@ -12,8 +12,8 @@ At query time, recall_b uses the vocab_map for zero-LLM expansion:
 Run once after initial seeding, and optionally after large corpus updates.
 
 Usage:
-    cogito calibrate
-    cogito calibrate --sample 300 --dry-run
+    fidelis calibrate
+    fidelis calibrate --sample 300 --dry-run
 """
 
 from __future__ import annotations
@@ -192,17 +192,17 @@ def calibrate(
     timeout = max(cfg.get("filter_timeout_ms", 30000), 90000) / 1000
     user_id = cfg.get("user_id", "agent")
 
-    print(f"[cogito calibrate] Sampling memories (n={n})...")
+    print(f"[fidelis calibrate] Sampling memories (n={n})...")
     memories = _sample_memories(memory, user_id, n)
     if not memories:
-        raise RuntimeError("No memories in store. Run `cogito seed` first.")
-    print(f"[cogito calibrate] Sampled {len(memories)} memories. Calling {model}...")
+        raise RuntimeError("No memories in store. Run `fidelis seed` first.")
+    print(f"[fidelis calibrate] Sampled {len(memories)} memories. Calling {model}...")
 
     vocab_map = _build_vocab_map(memories, endpoint, token, model, timeout)
-    print(f"[cogito calibrate] {len(vocab_map)} vocab mappings extracted.")
+    print(f"[fidelis calibrate] {len(vocab_map)} vocab mappings extracted.")
 
     if dry_run:
-        print("[cogito calibrate] DRY RUN — not writing config.")
+        print("[fidelis calibrate] DRY RUN — not writing config.")
         for k, v in list(vocab_map.items())[:20]:
             print(f"  {k!r:30s} → {v}")
         if len(vocab_map) > 20:
@@ -210,5 +210,5 @@ def calibrate(
         return vocab_map
 
     path = _write_vocab_map(vocab_map, cfg)
-    print(f"[cogito calibrate] Written to {path}")
+    print(f"[fidelis calibrate] Written to {path}")
     return vocab_map

@@ -1,5 +1,5 @@
 """
-cogito snapshot — compressed index layer (zer0dex-style).
+fidelis snapshot — compressed index layer (zer0dex-style).
 
 Builds a structured markdown summary of the entire memory store — a semantic
 table of contents that an agent loads once at session start. Solves the
@@ -15,9 +15,9 @@ The two layers are complementary:
   - Vector store: precise fact retrieval, exact wording preserved
 
 Usage:
-    cogito snapshot              # build and write snapshot
-    cogito snapshot --dry-run    # preview without writing
-    cogito snapshot --rebuild    # force rebuild even if snapshot exists
+    fidelis snapshot              # build and write snapshot
+    fidelis snapshot --dry-run    # preview without writing
+    fidelis snapshot --rebuild    # force rebuild even if snapshot exists
 """
 
 from __future__ import annotations
@@ -189,8 +189,8 @@ def snapshot(
     if not rebuild:
         existing = _read_snapshot(cfg)
         if existing:
-            print(f"[cogito snapshot] Snapshot already exists at {_snapshot_path(cfg)}")
-            print("[cogito snapshot] Use --rebuild to regenerate.")
+            print(f"[fidelis snapshot] Snapshot already exists at {_snapshot_path(cfg)}")
+            print("[fidelis snapshot] Use --rebuild to regenerate.")
             return existing
 
     endpoint, token = _resolve_filter_endpoint(cfg)
@@ -204,22 +204,22 @@ def snapshot(
     timeout = max(cfg.get("filter_timeout_ms", 30000), 120000) / 1000
     user_id = cfg.get("user_id", "agent")
 
-    print(f"[cogito snapshot] Sampling memories (n={n})...")
+    print(f"[fidelis snapshot] Sampling memories (n={n})...")
     memories = _sample_memories(memory, user_id, n)
     if not memories:
-        raise RuntimeError("No memories in store. Run `cogito seed` first.")
-    print(f"[cogito snapshot] Sampled {len(memories)} memories. Calling {model}...")
+        raise RuntimeError("No memories in store. Run `fidelis seed` first.")
+    print(f"[fidelis snapshot] Sampled {len(memories)} memories. Calling {model}...")
 
     text = _build_snapshot(memories, endpoint, token, model, timeout)
     lines = text.count("\n") + 1
     tokens_est = len(text.split())
-    print(f"[cogito snapshot] Generated {lines} lines (~{tokens_est} tokens).")
+    print(f"[fidelis snapshot] Generated {lines} lines (~{tokens_est} tokens).")
 
     if dry_run:
-        print("[cogito snapshot] DRY RUN — not writing.\n")
+        print("[fidelis snapshot] DRY RUN — not writing.\n")
         print(text)
         return text
 
     path = _write_snapshot(text, cfg)
-    print(f"[cogito snapshot] Written to {path}")
+    print(f"[fidelis snapshot] Written to {path}")
     return text

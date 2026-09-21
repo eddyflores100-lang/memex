@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-cogito-ergo combined-system eval.
+Fidelis combined-system eval.
 
 Measures the four retrieval modes independently and combined:
   A  snapshot only      — snapshot.md text, no vector query

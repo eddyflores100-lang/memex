@@ -6,9 +6,10 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from bench._paths import longmemeval_data_dir
 
 BENCH_DIR = Path(__file__).parent
-DATA_DIR = Path.home() / "Documents/projects/LongMemEval/data"
+DATA_DIR = longmemeval_data_dir()
 TOTAL_QUESTIONS = 470  # LongMemEval S non-abstention
 CHUNK = 50
 
