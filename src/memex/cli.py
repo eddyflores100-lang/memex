@@ -698,6 +698,14 @@ def main():
     p_encrypt.add_argument("--generate-key", action="store_true", help="Generate a new encryption key")
     p_encrypt.set_defaults(func=cmd_encrypt)
 
+    # tui — terminal UI (AliceLabs addition)
+    from memex.tui import register_parser as register_tui
+    register_tui(sub)
+
+    # log/diff — memory history (AliceLabs addition)
+    from memex.diff import register_parsers as register_diff
+    register_diff(sub)
+
     # init — install + start memex-server as a system service
     p_init = sub.add_parser(
         "init",
