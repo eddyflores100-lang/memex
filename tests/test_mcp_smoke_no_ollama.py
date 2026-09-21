@@ -2,7 +2,7 @@
 
 Glama (and any MCP registry inspector) builds the container image and talks
 `initialize` then `tools/list` to the container's CMD over stdio — no daemon,
-no running fidelis-server, and (per this test) no reachable Ollama either.
+no running memex-server, and (per this test) no reachable Ollama either.
 This drives the shipped mcp_server.py exactly the way such an inspector does,
 using OLLAMA_URL=http://127.0.0.1:1 (a port nothing can ever be listening on)
 to guarantee the embedder backend is unreachable.
@@ -15,10 +15,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-from fidelis import __version__
+from memex import __version__
 
 SRC = str(Path(__file__).resolve().parents[1] / "src")
-SERVER = Path(SRC) / "fidelis" / "mcp_server.py"
+SERVER = Path(SRC) / "memex" / "mcp_server.py"
 
 INITIALIZE = {
     "jsonrpc": "2.0",
@@ -38,9 +38,9 @@ def _converse(requests: list[dict], timeout: float = 20.0) -> list[dict]:
     env = {
         "PATH": "/usr/bin:/bin",
         "PYTHONPATH": SRC,
-        # Unreachable on purpose: guarantees no Ollama, no fidelis-server.
+        # Unreachable on purpose: guarantees no Ollama, no memex-server.
         "OLLAMA_URL": "http://127.0.0.1:1",
-        "FIDELIS_PORT": "0",
+        "MEMEX_PORT": "0",
     }
     proc = subprocess.run(
         [sys.executable, str(SERVER)],
@@ -63,7 +63,7 @@ def test_initialize_then_tools_list_without_ollama():
     assert init["id"] == 1
     assert init["result"]["protocolVersion"] == "2024-11-05"
     assert init["result"]["capabilities"] == {"tools": {}}
-    assert init["result"]["serverInfo"] == {"name": "fidelis", "version": __version__}
+    assert init["result"]["serverInfo"] == {"name": "memex", "version": __version__}
 
     assert tools["id"] == 2
     tool_list = tools["result"]["tools"]
@@ -74,7 +74,7 @@ def test_initialize_then_tools_list_without_ollama():
         assert "description" in tool
         assert "inputSchema" in tool
     assert {t["name"] for t in tool_list} == {
-        "fidelis_recall", "fidelis_store", "fidelis_correct", "fidelis_get", "fidelis_recent", "fidelis_health",
+        "memex_recall", "memex_store", "memex_correct", "memex_get", "memex_recent", "memex_health",
     }
 
 

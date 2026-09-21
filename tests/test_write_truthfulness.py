@@ -1,7 +1,7 @@
 """PACKET F1 — write-path truthfulness (docs/TIME-AWARE-SPEC.md).
 
 Three behaviours, all at the real HTTP `/store` boundary plus one
-`fidelis.degrade.safe_add` unit test for the store-unavailable fallback:
+`memex.degrade.safe_add` unit test for the store-unavailable fallback:
 
 (a) A declared `supersedes` id must exist, for the SAME user, or the write
     is rejected (400, nothing written or queued) naming the unknown id.
@@ -19,7 +19,7 @@ Three behaviours, all at the real HTTP `/store` boundary plus one
     envelopes off, the default) must come back with `"id_ignored": true`.
 
 Harness: a REAL mem0 Chroma vector store under `tmp_path`, a real sqlite
-temporal sidecar, and the real HTTP handler from `fidelis.server.make_handler`
+temporal sidecar, and the real HTTP handler from `memex.server.make_handler`
 on an ephemeral port -- the same real-Chroma + hashing-embedder pattern as
 `tests/test_superseded_not_dropped.py` (itself mirroring
 `tests/test_time_aware_acceptance.py`, which this file does not edit).
@@ -38,9 +38,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from fidelis import degrade, recall_b, recall_hybrid, server
-from fidelis.degrade import configure_temporal, replay_queue, safe_add
-from fidelis.relation_envelope import FEATURE_ENV
+from memex import degrade, recall_b, recall_hybrid, server
+from memex.degrade import configure_temporal, replay_queue, safe_add
+from memex.relation_envelope import FEATURE_ENV
 
 TEXT_A = "The Meridian gateway service listens on port 7711."
 TEXT_B = "The Meridian gateway service was moved to port 7722."
@@ -142,14 +142,14 @@ def harness(tmp_path, monkeypatch):
     queue_dir = tmp_path / "queue"
     monkeypatch.setenv("HOME", str(home))
     monkeypatch.setenv("COGITO_QUEUE_DIR", str(queue_dir))
-    monkeypatch.setenv("FIDELIS_QUEUE_DIR", str(queue_dir))
-    monkeypatch.setenv("FIDELIS_RETRIEVAL_TELEMETRY", "0")
-    monkeypatch.setenv("FIDELIS_RETRIEVAL_TELEMETRY_LOG", str(tmp_path / "telemetry.jsonl"))
+    monkeypatch.setenv("MEMEX_QUEUE_DIR", str(queue_dir))
+    monkeypatch.setenv("MEMEX_RETRIEVAL_TELEMETRY", "0")
+    monkeypatch.setenv("MEMEX_RETRIEVAL_TELEMETRY_LOG", str(tmp_path / "telemetry.jsonl"))
     monkeypatch.setenv("MEM0_TELEMETRY", "False")
     monkeypatch.delenv("COGITO_TEMPORAL_V1", raising=False)
     monkeypatch.delenv(FEATURE_ENV, raising=False)
     monkeypatch.delenv("COGITO_HERMENEUTICS_EVIDENCE_STATUS", raising=False)
-    from fidelis import telemetry
+    from memex import telemetry
 
     monkeypatch.setattr(telemetry, "_LOG_PATH", tmp_path / "escalation.log", raising=False)
     monkeypatch.setattr(recall_b, "_batch_embed", lambda texts, cfg: None)
@@ -348,8 +348,8 @@ def test_store_unavailable_during_verification_then_id_exists_on_replay(harness,
 
 
 def test_safe_add_direct_store_unavailable_marks_pending_check(tmp_path, monkeypatch):
-    """Unit-level check of fidelis.degrade.safe_add's own contract, no HTTP."""
-    monkeypatch.setenv("FIDELIS_QUEUE_DIR", str(tmp_path / "queue"))
+    """Unit-level check of memex.degrade.safe_add's own contract, no HTTP."""
+    monkeypatch.setenv("MEMEX_QUEUE_DIR", str(tmp_path / "queue"))
     monkeypatch.setenv("COGITO_QUEUE_DIR", str(tmp_path / "queue"))
     configure_temporal(tmp_path / "store", {})
     try:

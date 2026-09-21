@@ -1,8 +1,8 @@
-# Fidelis Launch Framing
+# Memex Launch Framing
 
 ## The honest claim
 
-Fidelis achieves **96.38% retrieval R@1** on LongMemEval_S (470 questions) using runtime-only confidence rules — no test-set memorization, no oracle tricks. This is the highest published retrieval R@1 on this benchmark.
+Memex achieves **96.38% retrieval R@1** on LongMemEval_S (470 questions) using runtime-only confidence rules — no test-set memorization, no oracle tricks. This is the highest published retrieval R@1 on this benchmark.
 
 **Cost: ~$0.003-0.005/query** (10-30x cheaper than GPT-5-mini-backed systems).
 
@@ -12,11 +12,11 @@ We do not claim #1 on end-to-end QA accuracy. Mastra reports 94.87% QA accuracy 
 
 ## The pitch
 
-"Fidelis is the strongest retrieval backbone for long-term memory on LongMemEval_S. Plug in any QA model and you get 96.38% of queries hitting the right session at near-zero cost. Our full stack — retrieval + QA — costs $0.005/query vs $0.03-0.15 for GPT-5-mini systems."
+"Memex is the strongest retrieval backbone for long-term memory on LongMemEval_S. Plug in any QA model and you get 96.38% of queries hitting the right session at near-zero cost. Our full stack — retrieval + QA — costs $0.005/query vs $0.03-0.15 for GPT-5-mini systems."
 
 ## Axes where we lead
 
-| Axis | Fidelis | Mastra | Winner |
+| Axis | Memex | Mastra | Winner |
 |------|-------------|--------|--------|
 | Retrieval R@1 | 96.38% | ~unpublished | cogito |
 | QA accuracy | ~78-82% (qwen-max) | 94.87% (GPT-5-mini) | Mastra |
@@ -33,7 +33,7 @@ We do not claim #1 on end-to-end QA accuracy. Mastra reports 94.87% QA accuracy 
 
 ## Recommended launch channels
 
-1. Show HN: "Fidelis — 96.38% retrieval at $0.005/query on LongMemEval"
+1. Show HN: "Memex — 96.38% retrieval at $0.005/query on LongMemEval"
 2. Paper: arxiv preprint with the four findings above
-3. PyPI: `pip install Fidelis`
+3. PyPI: `pip install Memex`
 4. Blog: "We beat the retrieval benchmark at 1/30 the cost. Here's how."

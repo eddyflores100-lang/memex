@@ -10,7 +10,7 @@ watermark row. Any probe failure reports None, never a degraded health status.
 
 import sqlite3
 
-from fidelis.server import _chroma_index_lag
+from memex.server import _chroma_index_lag
 
 # Mirrors the chroma tables the probe touches (FKs and unused columns dropped).
 _SCHEMA = """

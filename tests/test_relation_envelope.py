@@ -11,12 +11,12 @@ from pathlib import Path
 
 import pytest
 
-from fidelis.cogito_hermeneutics import (
+from memex.cogito_hermeneutics import (
     apply_hermeneutics,
     plan_retrieval,
 )
-from fidelis.degrade import safe_add
-from fidelis.relation_envelope import (
+from memex.degrade import safe_add
+from memex.relation_envelope import (
     DECLARATIONS_FIELD,
     EXTRACTOR_VERSION,
     FEATURE_ENV,
@@ -203,7 +203,7 @@ def test_ambiguous_and_unrelated_records_remain_unresolved(records):
 
 def test_source_metadata_declaration_requires_literal_raw_support():
     text = (
-        "On 2026-07-26, Fidelis Alpha2 is active locally from the repaired "
+        "On 2026-07-26, Memex Alpha2 is active locally from the repaired "
         "lineage."
     )
     metadata = {
@@ -282,7 +282,7 @@ def test_relation_off_temporal_default_adds_only_temporal_fields(
     assert payload["data"] == record["text"]
     assert payload["user_id"] == "agent"
     assert not [key for key in payload if key.startswith("relation_")]
-    assert payload["temporal_schema"] == "fidelis.temporal/v1"
+    assert payload["temporal_schema"] == "memex.temporal/v1"
     assert payload["recorded_at"].endswith("Z")
     assert payload["recorded_at_source"] == "write"
     assert result["recorded_at"] == payload["recorded_at"]
@@ -317,8 +317,8 @@ def test_canonical_http_store_transports_relation_envelope(
     monkeypatch, tmp_path, records
 ):
     monkeypatch.setenv(FEATURE_ENV, "1")
-    monkeypatch.setenv("FIDELIS_QUEUE_DIR", str(tmp_path / "queue"))
-    from fidelis.server import make_handler
+    monkeypatch.setenv("MEMEX_QUEUE_DIR", str(tmp_path / "queue"))
+    from memex.server import make_handler
 
     memory = _Memory()
     server = ThreadingHTTPServer(
@@ -390,7 +390,7 @@ def test_ambiguous_comparative_subject_does_not_request_links(
 
 def test_feature_off_hides_persisted_relation_transport(records):
     record = records["meridian-v2"]
-    from fidelis.relation_envelope import ingestion_payload
+    from memex.relation_envelope import ingestion_payload
 
     payload, _ = ingestion_payload(
         text=record["text"],
@@ -456,7 +456,7 @@ def test_canonical_hybrid_admits_declared_link_inside_equal_budget(
     monkeypatch, records
 ):
     monkeypatch.setenv(FEATURE_ENV, "1")
-    from fidelis import recall_hybrid as hybrid
+    from memex import recall_hybrid as hybrid
 
     memory = _Memory()
     for record_id in ("meridian-v1", "meridian-v2", "unrelated"):
@@ -506,7 +506,7 @@ def test_canonical_hybrid_without_declared_need_preserves_dense_pool(
     monkeypatch, records
 ):
     monkeypatch.setenv(FEATURE_ENV, "1")
-    from fidelis import recall_hybrid as hybrid
+    from memex import recall_hybrid as hybrid
 
     memory = _Memory()
     for record_id in ("meridian-v1", "meridian-v2", "unrelated"):
@@ -550,8 +550,8 @@ def test_explicit_comparative_orientation_drives_link_admission(
     monkeypatch, records
 ):
     monkeypatch.setenv(FEATURE_ENV, "1")
-    from fidelis import recall_hybrid as hybrid
-    from fidelis import server
+    from memex import recall_hybrid as hybrid
+    from memex import server
 
     memory = _Memory()
     for record_id in ("meridian-v1", "meridian-v2", "unrelated"):
@@ -637,7 +637,7 @@ def test_queued_relation_ingest_replays_with_same_id_and_envelope(
     monkeypatch, tmp_path, records
 ):
     monkeypatch.setenv(FEATURE_ENV, "1")
-    monkeypatch.setenv("FIDELIS_QUEUE_DIR", str(tmp_path / "queue"))
+    monkeypatch.setenv("MEMEX_QUEUE_DIR", str(tmp_path / "queue"))
     broken = _Memory()
     broken.embedding_model = _BrokenEmbedder()
     record = records["meridian-v2"]
@@ -652,7 +652,7 @@ def test_queued_relation_ingest_replays_with_same_id_and_envelope(
     assert queued["status"] == "queued"
     assert queued["id"] == record["id"]
 
-    from fidelis.degrade import replay_queue
+    from memex.degrade import replay_queue
 
     working = _Memory()
     replayed = replay_queue(working, user_id="agent")
@@ -683,7 +683,7 @@ def test_relation_replay_rejects_duplicate_id_with_different_raw_text(
         raise ValueError("duplicate id already exists")
 
     memory.vector_store.insert = duplicate_insert
-    from fidelis.degrade import _replay_verbatim
+    from memex.degrade import _replay_verbatim
 
     with pytest.raises(
         RuntimeError,
@@ -728,7 +728,7 @@ def test_unknown_schema_is_backcompat_ignored():
     assert envelope_from_metadata(
         {
             PAYLOAD_FIELD: json.dumps(
-                {"schema_version": "fidelis.relation-envelope/v999"}
+                {"schema_version": "memex.relation-envelope/v999"}
             )
         }
     ) is None

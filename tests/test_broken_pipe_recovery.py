@@ -18,7 +18,7 @@ import threading
 from unittest.mock import MagicMock, patch
 
 
-from fidelis.server import make_handler
+from memex.server import make_handler
 
 
 # ---------------------------------------------------------------------------
@@ -231,8 +231,8 @@ def test_decompose_timeout_returns_degraded_flag():
     cfg = _make_cfg()
 
     # 10x margin: do_recall sleeps 1.0s, timeout is 0.1s → deterministic timeout
-    with patch.dict("os.environ", {"FIDELIS_DECOMPOSE_TIMEOUT_SECS": "0.1"}):
-        with patch("fidelis.server.do_recall", side_effect=_slow_do_recall):
+    with patch.dict("os.environ", {"MEMEX_DECOMPOSE_TIMEOUT_SECS": "0.1"}):
+        with patch("memex.server.do_recall", side_effect=_slow_do_recall):
             HandlerCls = make_handler(mem, cfg)
 
             body = json.dumps({"text": "what is the recall score"}).encode()
@@ -268,8 +268,8 @@ def test_decompose_timeout_vector_only_results_returned():
     mem = _fake_memory(results=fallback_results)
     cfg = _make_cfg()
 
-    with patch.dict("os.environ", {"FIDELIS_DECOMPOSE_TIMEOUT_SECS": "0.1"}), \
-         patch("fidelis.server.do_recall", side_effect=_slow_do_recall):
+    with patch.dict("os.environ", {"MEMEX_DECOMPOSE_TIMEOUT_SECS": "0.1"}), \
+         patch("memex.server.do_recall", side_effect=_slow_do_recall):
         HandlerCls = make_handler(mem, cfg)
 
         body = json.dumps({"text": "deployment facts"}).encode()
@@ -325,7 +325,7 @@ def test_concurrent_requests_handled_independently():
 
     cfg = _make_cfg()
     # Use very short timeout so recall_b falls back quickly without Ollama
-    with patch.dict("os.environ", {"FIDELIS_DECOMPOSE_TIMEOUT_SECS": "0.001"}):
+    with patch.dict("os.environ", {"MEMEX_DECOMPOSE_TIMEOUT_SECS": "0.001"}):
         HandlerCls = make_handler(mem, cfg)
 
     responses = {}

@@ -4,15 +4,15 @@ research/memory-mcp-surface.md, reports/SYNTHESIS.md).
 Covers:
   - exact tool inventory, identical for both negotiated protocol versions
     (PRD D2: the legacy 2024-11-05 inventory freeze is lifted once, here),
-    with and without FIDELIS_ORIENT_ROUTE=notion.
-  - every removed name (all cogito_* aliases, fidelis_query, fidelis_inquire,
-    fidelis_orient, fidelis_capabilities) -> -32602 naming its replacement.
-  - fidelis_recall: default mode hits /query, mode="thorough" hits
+    with and without MEMEX_ORIENT_ROUTE=notion.
+  - every removed name (all cogito_* aliases, memex_query, memex_inquire,
+    memex_orient, memex_capabilities) -> -32602 naming its replacement.
+  - memex_recall: default mode hits /query, mode="thorough" hits
     /recall_hybrid; the ordering header; id + status marker on every hit.
-  - fidelis_correct: happy path, unknown id, already-superseded (force).
-  - fidelis_get: both chain directions, 404.
-  - fidelis_recent: limit/since/kind passthrough, corrections rendering.
-  - fidelis_health: stats rendering, isError when the backend is down.
+  - memex_correct: happy path, unknown id, already-superseded (force).
+  - memex_get: both chain directions, 404.
+  - memex_recent: limit/since/kind passthrough, corrections rendering.
+  - memex_health: stats rendering, isError when the backend is down.
   - every tool: annotations present, description <= ~90 words with a
     "do not use" clause.
   - a lexical-proxy "selection" smoke test (explicitly NOT a model test).
@@ -24,23 +24,23 @@ import re
 
 import pytest
 
-from fidelis import mcp_server
+from memex import mcp_server
 
 
 # ── tool inventory ───────────────────────────────────────────────────────
 
 
 EXPECTED_TOOL_SPECS = {
-    "fidelis_recall": {"required": ["query"]},
-    "fidelis_store": {"required": ["text"]},
-    "fidelis_correct": {"required": ["id", "text"]},
-    "fidelis_get": {"required": ["id"]},
-    "fidelis_recent": {"required": []},
-    "fidelis_health": {"required": []},
+    "memex_recall": {"required": ["query"]},
+    "memex_store": {"required": ["text"]},
+    "memex_correct": {"required": ["id", "text"]},
+    "memex_get": {"required": ["id"]},
+    "memex_recent": {"required": []},
+    "memex_health": {"required": []},
 }
 EXPECTED_ORDER = [
-    "fidelis_recall", "fidelis_store", "fidelis_correct",
-    "fidelis_get", "fidelis_recent", "fidelis_health",
+    "memex_recall", "memex_store", "memex_correct",
+    "memex_get", "memex_recent", "memex_health",
 ]
 
 
@@ -57,7 +57,7 @@ def _list_tools(protocol_version: str, monkeypatch=None) -> list[dict]:
 
 @pytest.mark.parametrize("protocol_version", ["2024-11-05", "2025-06-18"])
 def test_inventory_identical_for_both_protocol_versions(monkeypatch, protocol_version):
-    monkeypatch.delenv("FIDELIS_ORIENT_ROUTE", raising=False)
+    monkeypatch.delenv("MEMEX_ORIENT_ROUTE", raising=False)
     tools = _list_tools(protocol_version)
     names = [t["name"] for t in tools]
     assert names == EXPECTED_ORDER, names
@@ -81,51 +81,51 @@ def test_no_cogito_alias_listed():
 
 
 def test_removed_names_absent_without_notion_route(monkeypatch):
-    monkeypatch.delenv("FIDELIS_ORIENT_ROUTE", raising=False)
+    monkeypatch.delenv("MEMEX_ORIENT_ROUTE", raising=False)
     names = {t["name"] for t in _list_tools("2025-06-18")}
-    assert "fidelis_route" not in names
-    assert "fidelis_orient" not in names
-    assert "fidelis_query" not in names
-    assert "fidelis_inquire" not in names
-    assert "fidelis_capabilities" not in names
+    assert "memex_route" not in names
+    assert "memex_orient" not in names
+    assert "memex_query" not in names
+    assert "memex_inquire" not in names
+    assert "memex_capabilities" not in names
 
 
 def test_private_route_never_listed(monkeypatch):
-    monkeypatch.setenv("FIDELIS_ORIENT_ROUTE", "notion")
+    monkeypatch.setenv("MEMEX_ORIENT_ROUTE", "notion")
     names = {t["name"] for t in _list_tools("2025-06-18")}
-    assert "fidelis_route" not in names
-    assert "fidelis_orient" not in names, "a name never changes meaning (PRD D4)"
+    assert "memex_route" not in names
+    assert "memex_orient" not in names, "a name never changes meaning (PRD D4)"
 
-    monkeypatch.delenv("FIDELIS_ORIENT_ROUTE")
+    monkeypatch.delenv("MEMEX_ORIENT_ROUTE")
     names_off = {t["name"] for t in _list_tools("2025-06-18")}
-    assert "fidelis_route" not in names_off
+    assert "memex_route" not in names_off
 
 
-def test_fidelis_store_id_argument_listed_only_with_relation_envelopes_on(monkeypatch):
+def test_memex_store_id_argument_listed_only_with_relation_envelopes_on(monkeypatch):
     monkeypatch.delenv("COGITO_RELATION_ENVELOPES_V1", raising=False)
     tools_off = {t["name"]: t for t in _list_tools("2025-06-18")}
-    assert "id" not in tools_off["fidelis_store"]["inputSchema"]["properties"]
+    assert "id" not in tools_off["memex_store"]["inputSchema"]["properties"]
 
     monkeypatch.setenv("COGITO_RELATION_ENVELOPES_V1", "1")
     tools_on = {t["name"]: t for t in _list_tools("2025-06-18")}
-    assert "id" in tools_on["fidelis_store"]["inputSchema"]["properties"]
+    assert "id" in tools_on["memex_store"]["inputSchema"]["properties"]
 
 
 # ── removed names -> -32602 naming the replacement ──────────────────────
 
 
 REMOVED_NAMES_AND_REPLACEMENTS = [
-    ("fidelis_query", "fidelis_recall"),
-    ("fidelis_inquire", "fidelis_recall"),
-    ("fidelis_orient", "fidelis_recall"),
-    ("fidelis_capabilities", "fidelis_health"),
-    ("cogito_recall", "fidelis_recall"),
-    ("cogito_orient", "fidelis_recall"),
-    ("cogito_inquire", "fidelis_recall"),
-    ("cogito_query", "fidelis_recall"),
-    ("cogito_add", "fidelis_store"),
-    ("cogito_health", "fidelis_health"),
-    ("cogito_capabilities", "fidelis_health"),
+    ("memex_query", "memex_recall"),
+    ("memex_inquire", "memex_recall"),
+    ("memex_orient", "memex_recall"),
+    ("memex_capabilities", "memex_health"),
+    ("cogito_recall", "memex_recall"),
+    ("cogito_orient", "memex_recall"),
+    ("cogito_inquire", "memex_recall"),
+    ("cogito_query", "memex_recall"),
+    ("cogito_add", "memex_store"),
+    ("cogito_health", "memex_health"),
+    ("cogito_capabilities", "memex_health"),
 ]
 
 
@@ -143,29 +143,29 @@ def test_removed_name_returns_32602_naming_replacement(removed, replacement):
     assert replacement in resp["error"]["message"]
 
 
-def test_fidelis_route_not_dispatchable_without_notion_env(monkeypatch):
-    monkeypatch.delenv("FIDELIS_ORIENT_ROUTE", raising=False)
+def test_memex_route_not_dispatchable_without_notion_env(monkeypatch):
+    monkeypatch.delenv("MEMEX_ORIENT_ROUTE", raising=False)
     resp = mcp_server._handle(
         {
             "jsonrpc": "2.0", "id": 1, "method": "tools/call",
-            "params": {"name": "fidelis_route", "arguments": {"message": "hi"}},
+            "params": {"name": "memex_route", "arguments": {"message": "hi"}},
         }
     )
     assert resp["error"]["code"] == -32602, resp
 
 
 def test_private_route_never_dispatchable(monkeypatch):
-    monkeypatch.setenv("FIDELIS_ORIENT_ROUTE", "notion")
+    monkeypatch.setenv("MEMEX_ORIENT_ROUTE", "notion")
     resp = mcp_server._handle(
         {
             "jsonrpc": "2.0", "id": 1, "method": "tools/call",
-            "params": {"name": "fidelis_route", "arguments": {"message": "open notion please"}},
+            "params": {"name": "memex_route", "arguments": {"message": "open notion please"}},
         }
     )
     assert resp["error"]["code"] == -32602, resp
 
 
-# ── fidelis_recall: fast/thorough dispatch, ordering header, hit lines ──
+# ── memex_recall: fast/thorough dispatch, ordering header, hit lines ──
 
 
 def test_recall_default_mode_hits_query(monkeypatch):
@@ -176,7 +176,7 @@ def test_recall_default_mode_hits_query(monkeypatch):
         return {"memories": []}
 
     monkeypatch.setattr(mcp_server, "_http_post", fake_post)
-    mcp_server._tool_fidelis_recall({"query": "anything"})
+    mcp_server._tool_memex_recall({"query": "anything"})
     assert calls == ["/query"]
 
 
@@ -188,13 +188,13 @@ def test_recall_thorough_mode_hits_recall_hybrid(monkeypatch):
         return {"memories": []}
 
     monkeypatch.setattr(mcp_server, "_http_post", fake_post)
-    mcp_server._tool_fidelis_recall({"query": "anything", "mode": "thorough"})
+    mcp_server._tool_memex_recall({"query": "anything", "mode": "thorough"})
     assert calls[0][0] == "/recall_hybrid"
     assert calls[0][1]["tier"] == "zero_llm"
 
 
 def test_recall_invalid_mode_is_error(monkeypatch):
-    result = mcp_server._tool_fidelis_recall({"query": "q", "mode": "medium"})
+    result = mcp_server._tool_memex_recall({"query": "q", "mode": "medium"})
     assert isinstance(result, mcp_server._ToolError)
 
 
@@ -215,7 +215,7 @@ def test_recall_header_explains_ordering_and_hit_lines_carry_id_and_status(monke
     monkeypatch.setattr(
         mcp_server, "_http_post", lambda path, payload, timeout=30.0: {"memories": memories}
     )
-    output = mcp_server._tool_fidelis_recall({"query": "q"})
+    output = mcp_server._tool_memex_recall({"query": "q"})
     lines = output.splitlines()
     header = lines[0]
     assert "current" in header.lower()
@@ -237,10 +237,10 @@ def test_recall_backend_failure_is_isError_not_silent_fallback(monkeypatch):
 
     def fake_post(path, payload, timeout=30.0):
         calls.append(path)
-        return {"error": "fidelis-server unreachable"}
+        return {"error": "memex-server unreachable"}
 
     monkeypatch.setattr(mcp_server, "_http_post", fake_post)
-    result = mcp_server._tool_fidelis_recall({"query": "q"})
+    result = mcp_server._tool_memex_recall({"query": "q"})
     assert isinstance(result, mcp_server._ToolError)
     assert calls == ["/query"], "must not cascade to a slower path on failure"
 
@@ -249,12 +249,12 @@ def test_recall_no_hits(monkeypatch):
     monkeypatch.setattr(
         mcp_server, "_http_post", lambda path, payload, timeout=30.0: {"memories": []}
     )
-    result = mcp_server._tool_fidelis_recall({"query": "q"})
+    result = mcp_server._tool_memex_recall({"query": "q"})
     assert not isinstance(result, mcp_server._ToolError)
     assert "no memories" in result.lower()
 
 
-# ── fidelis_correct ──────────────────────────────────────────────────────
+# ── memex_correct ──────────────────────────────────────────────────────
 
 
 def test_correct_happy_path_one_store_call_with_supersedes(monkeypatch):
@@ -271,7 +271,7 @@ def test_correct_happy_path_one_store_call_with_supersedes(monkeypatch):
         return {"status": "stored", "id": "new-id", "recorded_at": "2026-09-21T00:00:00Z"}
 
     monkeypatch.setattr(mcp_server, "_http_post", fake_post)
-    result = mcp_server._tool_fidelis_correct({"id": "old-id", "text": "corrected text"})
+    result = mcp_server._tool_memex_correct({"id": "old-id", "text": "corrected text"})
 
     assert not isinstance(result, mcp_server._ToolError), result
     store_calls = [c for c in calls if c[0] == "/store"]
@@ -288,7 +288,7 @@ def test_correct_unknown_id_is_isError_naming_the_id(monkeypatch):
         return {"error": f"no record found for id {payload['id']!r}"}
 
     monkeypatch.setattr(mcp_server, "_http_post", fake_post)
-    result = mcp_server._tool_fidelis_correct({"id": "no-such-id", "text": "x"})
+    result = mcp_server._tool_memex_correct({"id": "no-such-id", "text": "x"})
 
     assert isinstance(result, mcp_server._ToolError)
     assert "no-such-id" in result
@@ -306,7 +306,7 @@ def test_correct_already_superseded_is_explanatory_non_write_without_force(monke
         }
 
     monkeypatch.setattr(mcp_server, "_http_post", fake_post)
-    result = mcp_server._tool_fidelis_correct({"id": "old-id", "text": "x"})
+    result = mcp_server._tool_memex_correct({"id": "old-id", "text": "x"})
 
     assert isinstance(result, mcp_server._ToolError)
     assert "old-id" in result
@@ -327,7 +327,7 @@ def test_correct_already_superseded_with_force_still_writes(monkeypatch):
         return {"status": "stored", "id": "forced-id", "recorded_at": "2026-09-21T00:00:00Z"}
 
     monkeypatch.setattr(mcp_server, "_http_post", fake_post)
-    result = mcp_server._tool_fidelis_correct(
+    result = mcp_server._tool_memex_correct(
         {"id": "old-id", "text": "x", "force": True}
     )
 
@@ -337,7 +337,7 @@ def test_correct_already_superseded_with_force_still_writes(monkeypatch):
     assert store_calls[0][1]["supersedes"] == ["old-id"]
 
 
-# ── fidelis_get ──────────────────────────────────────────────────────────
+# ── memex_get ──────────────────────────────────────────────────────────
 
 
 def test_get_renders_both_chain_directions(monkeypatch):
@@ -352,7 +352,7 @@ def test_get_renders_both_chain_directions(monkeypatch):
         "index": "ok",
     }
     monkeypatch.setattr(mcp_server, "_http_post", lambda path, payload, timeout=30.0: record)
-    output = mcp_server._tool_fidelis_get({"id": "c-id"})
+    output = mcp_server._tool_memex_get({"id": "c-id"})
 
     assert "c-id" in output
     assert "current text" in output
@@ -367,12 +367,12 @@ def test_get_unknown_id_is_isError(monkeypatch):
         mcp_server, "_http_post",
         lambda path, payload, timeout=30.0: {"error": "no record found for id 'ghost'"},
     )
-    result = mcp_server._tool_fidelis_get({"id": "ghost"})
+    result = mcp_server._tool_memex_get({"id": "ghost"})
     assert isinstance(result, mcp_server._ToolError)
     assert "ghost" in result
 
 
-# ── fidelis_recent ───────────────────────────────────────────────────────
+# ── memex_recent ───────────────────────────────────────────────────────
 
 
 def test_recent_passes_limit_since_kind_through(monkeypatch):
@@ -383,7 +383,7 @@ def test_recent_passes_limit_since_kind_through(monkeypatch):
         return {"records": [], "kind": payload["kind"]}
 
     monkeypatch.setattr(mcp_server, "_http_post", fake_post)
-    mcp_server._tool_fidelis_recent({"limit": 3, "since": "2026-09-01T00:00:00Z", "kind": "corrections"})
+    mcp_server._tool_memex_recent({"limit": 3, "since": "2026-09-01T00:00:00Z", "kind": "corrections"})
 
     assert seen["path"] == "/recent"
     assert seen["payload"]["limit"] == 3
@@ -401,13 +401,13 @@ def test_recent_renders_corrections_with_ids_they_replaced(monkeypatch):
             ],
         },
     )
-    output = mcp_server._tool_fidelis_recent({"kind": "corrections"})
+    output = mcp_server._tool_memex_recent({"kind": "corrections"})
     assert "new-id" in output
     assert "old-id" in output
     assert "supersedes old-id" in output
 
 
-# ── fidelis_health ───────────────────────────────────────────────────────
+# ── memex_health ───────────────────────────────────────────────────────
 
 
 def test_health_renders_stats(monkeypatch):
@@ -431,7 +431,7 @@ def test_health_renders_stats(monkeypatch):
 def test_health_isError_when_backend_down(monkeypatch):
     monkeypatch.setattr(
         mcp_server, "_http_get",
-        lambda path, timeout=5.0: {"error": "fidelis-server unreachable at http://127.0.0.1:19420"},
+        lambda path, timeout=5.0: {"error": "memex-server unreachable at http://127.0.0.1:19420"},
     )
     result = mcp_server._tool_health({})
     assert isinstance(result, mcp_server._ToolError)
@@ -457,7 +457,7 @@ def test_health_stats_unavailable_is_not_isError(monkeypatch):
 def test_every_tool_has_annotations_and_bounded_description_with_not_clause(
     monkeypatch, protocol_version,
 ):
-    monkeypatch.setenv("FIDELIS_ORIENT_ROUTE", "notion")
+    monkeypatch.setenv("MEMEX_ORIENT_ROUTE", "notion")
     for tool in _list_tools(protocol_version):
         assert "annotations" in tool, tool["name"]
         for key in ("readOnlyHint", "destructiveHint", "idempotentHint", "openWorldHint"):
@@ -513,24 +513,24 @@ def _lexical_rank(intent: str, tools: list[dict]) -> str:
 
 
 AGENT_INTENTS = [
-    ("search past decisions about the migration", "fidelis_recall"),
-    ("find prior work on the deploy port", "fidelis_recall"),
-    ("an old memory is wrong, correct it now", "fidelis_correct"),
-    ("that memory is outdated, fix it", "fidelis_correct"),
-    ("what changed recently", "fidelis_recent"),
-    ("list recent memories since yesterday", "fidelis_recent"),
-    ("I need to fetch one specific memory by its id", "fidelis_get"),
-    ("fetch the memory with id xyz", "fidelis_get"),
-    ("is the memory server up", "fidelis_health"),
-    ("check backend health and stats", "fidelis_health"),
-    ("please remember this for later, verbatim", "fidelis_store"),
-    ("remember that the meeting moved to friday", "fidelis_store"),
+    ("search past decisions about the migration", "memex_recall"),
+    ("find prior work on the deploy port", "memex_recall"),
+    ("an old memory is wrong, correct it now", "memex_correct"),
+    ("that memory is outdated, fix it", "memex_correct"),
+    ("what changed recently", "memex_recent"),
+    ("list recent memories since yesterday", "memex_recent"),
+    ("I need to fetch one specific memory by its id", "memex_get"),
+    ("fetch the memory with id xyz", "memex_get"),
+    ("is the memory server up", "memex_health"),
+    ("check backend health and stats", "memex_health"),
+    ("please remember this for later, verbatim", "memex_store"),
+    ("remember that the meeting moved to friday", "memex_store"),
 ]
 
 
 @pytest.mark.parametrize(("intent", "expected_tool"), AGENT_INTENTS)
 def test_selection_lexical_proxy_ranks_intended_tool_first(monkeypatch, intent, expected_tool):
-    monkeypatch.delenv("FIDELIS_ORIENT_ROUTE", raising=False)
+    monkeypatch.delenv("MEMEX_ORIENT_ROUTE", raising=False)
     tools = _list_tools("2025-06-18")
     assert _lexical_rank(intent, tools) == expected_tool
 
@@ -546,7 +546,7 @@ def test_exposed_memory_tools_return_full_verbatim_text(monkeypatch):
         return {"id": "new-id", "text": text,
                 "supersedes": [{"id": "old-id", "text": old, "status": "superseded"}]}
     monkeypatch.setattr(mcp_server, "_http_post", post)
-    assert text in mcp_server._tool_fidelis_recall({"query": "memory"})
-    assert text in mcp_server._tool_fidelis_recent({})
-    got = mcp_server._tool_fidelis_get({"id": "new-id"})
+    assert text in mcp_server._tool_memex_recall({"query": "memory"})
+    assert text in mcp_server._tool_memex_recent({})
+    got = mcp_server._tool_memex_get({"id": "new-id"})
     assert text in got and old in got

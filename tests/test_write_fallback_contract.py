@@ -9,8 +9,8 @@ import json
 import pytest
 from unittest.mock import MagicMock
 
-from fidelis import cli
-from fidelis.server import make_handler
+from memex import cli
+from memex.server import make_handler
 
 
 class _Hit:
@@ -163,7 +163,7 @@ def test_cli_verbatim_write_reports_actual_outcome(monkeypatch, capsys, status):
 
 @pytest.mark.parametrize("protocol", ["2024-11-05", "2025-03-26", "2025-06-18"])
 def test_mcp_queued_relation_write_never_claims_stored(monkeypatch, protocol):
-    from fidelis import mcp_server as mcp
+    from memex import mcp_server as mcp
 
     monkeypatch.setattr(mcp, "_negotiated_protocol", protocol)
     monkeypatch.setattr(mcp, "_http_post", lambda *a: {

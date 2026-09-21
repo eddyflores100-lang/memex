@@ -10,7 +10,7 @@ import json
 
 import pytest
 
-from fidelis import degrade
+from memex import degrade
 
 
 class _FakeMemory:
@@ -28,7 +28,7 @@ class _FakeMemory:
 @pytest.fixture
 def temp_queue(tmp_path, monkeypatch):
     qdir = tmp_path / "queue"
-    monkeypatch.setenv("FIDELIS_QUEUE_DIR", str(qdir))
+    monkeypatch.setenv("MEMEX_QUEUE_DIR", str(qdir))
     return qdir
 
 

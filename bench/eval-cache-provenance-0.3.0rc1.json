@@ -1,5 +1,5 @@
 {
-  "schema": "fidelis.embedding-cache-provenance/v1",
+  "schema": "memex.embedding-cache-provenance/v1",
   "old_module_sha256": "9c65b9edd483cf0c07b01c736f55496ac83dabb8a2dfc2ba9a83c692e48f03d3",
   "new_module_sha256": "8117dce9571b6afb7c65236061964d5498c78de91300c9b884ea75c96aee3448",
   "old_module_bound_to_exploratory_source_artifact": true,

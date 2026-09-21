@@ -1,11 +1,11 @@
 """Negative test for the `user_id` namespace boundary.
 
-Fidelis is single-namespace by design: `user_id` is a *storage namespace*, not
+Memex is single-namespace by design: `user_id` is a *storage namespace*, not
 an authenticated identity. The server binds one `user_id` per process at
 handler-construction time (`server.make_handler`) and never accepts a `user_id`
 from a request body, so a client cannot select or spoof a namespace over the
 wire. There is no authentication layer, and `README.md` / `agents.md` both say
-so ("fidelis is single-namespace"; multi-namespace isolation and custom
+so ("memex is single-namespace"; multi-namespace isolation and custom
 authentication are named as things the OSS path "does not yet cover").
 
 What this file pins down is the weaker — but real, and previously untested —
@@ -32,7 +32,7 @@ import chromadb
 import pytest
 from mem0.vector_stores.chroma import ChromaDB
 
-from fidelis.server import make_handler
+from memex.server import make_handler
 
 _VECTOR = [1.0, 0.0, 0.0, 0.0]
 
@@ -92,7 +92,7 @@ def shared_store():
     # EphemeralClient instances share one in-process System, so a fixed
     # collection name would leak between tests. Unique name keeps it hermetic.
     store = ChromaDB(
-        collection_name=f"fidelis_namespace_test_{uuid.uuid4().hex}",
+        collection_name=f"memex_namespace_test_{uuid.uuid4().hex}",
         client=chromadb.EphemeralClient(),
     )
     store.insert(

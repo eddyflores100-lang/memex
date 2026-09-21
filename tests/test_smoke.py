@@ -3,9 +3,9 @@ Smoke tests — no Ollama, no ChromaDB, no network required.
 """
 
 import pytest
-from fidelis.config import load
-from fidelis.recall import _parse_indices, _filter_by_since, _parse_iso_date
-from fidelis.recall_b import _build_subqueries, _rrf_merge
+from memex.config import load
+from memex.recall import _parse_indices, _filter_by_since, _parse_iso_date
+from memex.recall_b import _build_subqueries, _rrf_merge
 
 
 # ---------------------------------------------------------------------------
@@ -97,7 +97,7 @@ def test_build_subqueries_no_stop_words_in_stripped():
 
 
 def test_build_subqueries_max_count():
-    from fidelis.recall_b import MAX_SUBQUERIES
+    from memex.recall_b import MAX_SUBQUERIES
     query = "tell me about the infrastructure changes to the server configuration"
     subqueries, _ = _build_subqueries(query)
     assert len(subqueries) <= MAX_SUBQUERIES

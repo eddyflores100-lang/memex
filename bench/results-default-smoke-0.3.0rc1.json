@@ -1,5 +1,5 @@
 {
-  "schema": "fidelis.default-retrieval-eval/v1",
+  "schema": "memex.default-retrieval-eval/v1",
   "version": "0.3.0rc1",
   "runner_sha256": "5187fdcb2b97a57f48f8e7fe98135e2cf1bcd843ac6c8537e9fcfaff29c6383c",
   "python": "3.11.15",

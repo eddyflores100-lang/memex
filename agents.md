@@ -1,11 +1,11 @@
-# Fidelis — agent integration guide
+# Memex — agent integration guide
 
-The current pre-release is 0.3.0rc1. Install `fidelis-memory`; import and CLI names
-remain `fidelis`. Read [README.md](README.md) and the
+The current pre-release is 0.3.0rc1. Install `memex-memory`; import and CLI names
+remain `memex`. Read [README.md](README.md) and the
 [API reference](docs/full-reference.md) for setup and request shapes.
 
-The six MCP tools are `fidelis_recall`, `fidelis_store`, `fidelis_correct`,
-`fidelis_get`, `fidelis_recent`, and `fidelis_health`. Default recall calls
+The six MCP tools are `memex_recall`, `memex_store`, `memex_correct`,
+`memex_get`, `memex_recent`, and `memex_health`. Default recall calls
 `/query` using local embeddings without a generative LLM. Thorough recall is
 explicit and uses the zero-LLM hybrid tier. Optional legacy filters/extraction
 are separate model-using paths.
@@ -19,7 +19,7 @@ Read write acknowledgements literally; queued writes have not landed yet.
 
 The HTTP service binds loopback by default. `COGITO_USER_ID` is a local storage
 namespace, not authenticated identity. Do not represent it as tenant isolation.
-`FIDELIS_PORT` configures both clients and server, with `COGITO_PORT` as fallback.
+`MEMEX_PORT` configures both clients and server, with `MEMEX_PORT` as fallback.
 The data directory remains `~/.cogito/` for compatibility.
 
 Do not reuse historical benchmark headlines as evidence for the new default

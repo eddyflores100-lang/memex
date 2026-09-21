@@ -14,7 +14,7 @@ from __future__ import annotations
 
 
 
-from fidelis.scaffold import (  # noqa: E402
+from memex.scaffold import (  # noqa: E402
     is_scaffolded,
     preflight,
     strip_scaffold,
@@ -123,7 +123,7 @@ def test_preflight_on_unicode_text():
 
 def test_preflight_or_raise_propagates_clean_exception_on_failure():
     """preflight_or_raise must raise RuntimeError, never silently pass on bad input."""
-    from fidelis.scaffold import preflight_or_raise
+    from memex.scaffold import preflight_or_raise
     bad = "<|endoftext|>"
     try:
         preflight_or_raise(bad)
@@ -157,7 +157,7 @@ def test_wrap_idempotent_strips_prior_scaffold():
     s1 = wrap_system_prompt("temporal-reasoning")
     s2 = wrap_idempotent("temporal-reasoning", top_score=0.5, prior=s1)
     # Should have exactly one scaffold pair
-    assert s2.count("[FIDELIS-SCAFFOLD-") == 1
+    assert s2.count("[MEMEX-SCAFFOLD-") == 1
 
 
 def test_strip_scaffold_idempotent_on_unscaffolded():
@@ -182,5 +182,5 @@ def test_repeated_wrap_idempotent_calls_stable():
     for _ in range(5):
         s = wrap_idempotent("multi-session", top_score=0.6, prior=s)
     # Should still have exactly one scaffold pair after 5 wrap-of-wrap calls
-    assert s.count("[FIDELIS-SCAFFOLD-") == 1
-    assert s.count("[/FIDELIS-SCAFFOLD-") == 1
+    assert s.count("[MEMEX-SCAFFOLD-") == 1
+    assert s.count("[/MEMEX-SCAFFOLD-") == 1

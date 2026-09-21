@@ -53,8 +53,8 @@ def test_codemeta_matches_release_metadata():
 
     assert codemeta["@context"] == "https://w3id.org/codemeta/3.1"
     assert codemeta["@type"] == "SoftwareSourceCode"
-    assert codemeta["name"] == "fidelis"
-    assert distribution == "fidelis-memory"
+    assert codemeta["name"] == "memex"
+    assert distribution == "memex-memory"
     assert distribution in codemeta["description"]
     assert codemeta["version"] == version
     assert codemeta["codeRepository"] == repository

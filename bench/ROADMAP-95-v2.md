@@ -1,4 +1,4 @@
-# Fidelis Retrieval R&D — v2 (iterative, with oversight)
+# Memex Retrieval R&D — v2 (iterative, with oversight)
 
 Supersedes ROADMAP-95.md. Same phases, disciplined loop, explicit checkpoints.
 

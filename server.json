@@ -1,11 +1,11 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.eddyflores100-lang/fidelis-memory",
-  "title": "Fidelis Memory",
+  "name": "io.github.eddyflores100-lang/memex-memory",
+  "title": "Memex",
   "description": "Recall locally stored agent memories through an MCP-compatible host.",
-  "websiteUrl": "https://github.com/eddyflores100-lang/fidelis",
+  "websiteUrl": "https://github.com/eddyflores100-lang/memex",
   "repository": {
-    "url": "https://github.com/eddyflores100-lang/fidelis",
+    "url": "https://github.com/eddyflores100-lang/memex",
     "source": "github"
   },
   "version": "0.3.0rc1",
@@ -13,20 +13,20 @@
     {
       "registryType": "pypi",
       "registryBaseUrl": "https://pypi.org",
-      "identifier": "fidelis-memory",
+      "identifier": "memex-memory",
       "version": "0.3.0rc1",
       "runtimeHint": "uvx",
       "runtimeArguments": [
         {
           "type": "named",
           "name": "--from",
-          "value": "fidelis-memory==0.3.0rc1"
+          "value": "memex-memory==0.3.0rc1"
         }
       ],
       "packageArguments": [
         {
           "type": "positional",
-          "value": "fidelis"
+          "value": "memex"
         },
         {
           "type": "positional",
@@ -42,8 +42,8 @@
       },
       "environmentVariables": [
         {
-          "name": "FIDELIS_PORT",
-          "description": "Port of the local fidelis-server process (default: 19420).",
+          "name": "MEMEX_PORT",
+          "description": "Port of the local memex-server process (default: 19420).",
           "format": "number"
         }
       ]

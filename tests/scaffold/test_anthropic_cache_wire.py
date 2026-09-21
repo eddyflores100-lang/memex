@@ -1,6 +1,6 @@
 """Blocker #3 — Prompt-cache wire format.
 
-Verifies that the Fidelis scaffold integrates correctly with Anthropic's
+Verifies that the Memex scaffold integrates correctly with Anthropic's
 prompt-caching API contract using httpx.MockTransport (no real API credits).
 
 What this tests:
@@ -29,7 +29,7 @@ import pytest
 import anthropic
 from anthropic.types import TextBlockParam
 
-from fidelis.scaffold import SCAFFOLD_OPEN, wrap_system_prompt
+from memex.scaffold import SCAFFOLD_OPEN, wrap_system_prompt
 
 # ---------------------------------------------------------------------------
 # Mock transport helpers
@@ -110,7 +110,7 @@ class TestScaffoldOpenMarkerPosition:
             )
 
     def test_scaffold_open_marker_is_stable_string(self):
-        assert SCAFFOLD_OPEN == "[FIDELIS-SCAFFOLD-v0.1.0]"
+        assert SCAFFOLD_OPEN == "[MEMEX-SCAFFOLD-v0.1.0]"
 
 
 class TestCacheControlWireFormat:

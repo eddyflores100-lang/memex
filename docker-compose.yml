@@ -1,4 +1,4 @@
-# Fidelis docker-compose stack — fidelis-server + (optional) Ollama for local embeddings.
+# Memex docker-compose stack — memex-server + (optional) Ollama for local embeddings.
 #
 # Usage:
 #   docker compose up -d
@@ -6,22 +6,22 @@
 #
 # Ollama service is included so this is fully self-contained on a fresh host.
 # If you already run Ollama on the host, you can omit the ollama service and set
-# COGITO_OLLAMA_URL=http://host.docker.internal:11434 in fidelis-server's environment.
+# COGITO_OLLAMA_URL=http://host.docker.internal:11434 in memex-server's environment.
 
 services:
-  fidelis-server:
+  memex-server:
     build:
       context: .
       dockerfile: Dockerfile
-    image: fidelis:0.3.0rc1
-    container_name: fidelis-server
+    image: memex:0.3.0rc1
+    container_name: memex-server
     ports:
       - "127.0.0.1:19420:19420"
     volumes:
-      - fidelis-data:/data
+      - memex-data:/data
     environment:
-      FIDELIS_ENTRYPOINT: "http"
-      FIDELIS_PORT: "19420"
+      MEMEX_ENTRYPOINT: "http"
+      MEMEX_PORT: "19420"
       COGITO_OLLAMA_URL: "http://ollama:11434"
     depends_on:
       ollama:
@@ -36,7 +36,7 @@ services:
 
   ollama:
     image: ollama/ollama:latest
-    container_name: fidelis-ollama
+    container_name: memex-ollama
     ports:
       - "11434:11434"
     volumes:
@@ -50,7 +50,7 @@ services:
       start_period: 30s
 
 volumes:
-  fidelis-data:
+  memex-data:
     driver: local
   ollama-data:
     driver: local

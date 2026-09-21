@@ -13,7 +13,7 @@ the unit-level version of this same defect).
 edited here; this file stands up the real handler the SAME WAY that file
 does — a real mem0 Chroma vector store under ``tmp_path``, a deterministic
 bag-of-words hashing embedder (no Ollama, no network), the real
-``fidelis.server.make_handler`` on an ephemeral port, ``configure_temporal``,
+``memex.server.make_handler`` on an ephemeral port, ``configure_temporal``,
 env isolation, and teardown resetting module-level state — duplicated here
 rather than imported, matching this codebase's existing convention of each
 test file mirroring a harness rather than importing one (see
@@ -33,9 +33,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from fidelis import degrade, recall_b, recall_hybrid, server
-from fidelis.degrade import configure_temporal
-from fidelis.relation_envelope import FEATURE_ENV
+from memex import degrade, recall_b, recall_hybrid, server
+from memex.degrade import configure_temporal
+from memex.relation_envelope import FEATURE_ENV
 
 TARGET_A = "The Zephyrine gateway service listens on port 8811."
 TARGET_B = "The Zephyrine gateway service was moved to port 8822 for the new deployment."
@@ -49,7 +49,7 @@ EXACT_QUERY_ENDPOINTS = ["/query", "/recall", "/recall_hybrid"]
 
 # A near-identical pair (differs only in the port number, at the very end of
 # a long-enough sentence that the shared 4-word shingles dominate) — Jaccard
-# ~0.85 against fidelis.recall._dedup_candidates' own shingle/Jaccard
+# ~0.85 against memex.recall._dedup_candidates' own shingle/Jaccard
 # measure, safely over its 0.8 collapse threshold. Used ONLY by the single
 # xfail test below; the main assertions use TARGET_A/TARGET_B instead
 # (Jaccard ~0.07 — comfortably under 0.7) so the pre-existing, separately
@@ -189,14 +189,14 @@ def harness(tmp_path, monkeypatch):
     queue_dir = tmp_path / "queue"
     monkeypatch.setenv("HOME", str(home))
     monkeypatch.setenv("COGITO_QUEUE_DIR", str(queue_dir))
-    monkeypatch.setenv("FIDELIS_QUEUE_DIR", str(queue_dir))
-    monkeypatch.setenv("FIDELIS_RETRIEVAL_TELEMETRY", "0")
-    monkeypatch.setenv("FIDELIS_RETRIEVAL_TELEMETRY_LOG", str(tmp_path / "telemetry.jsonl"))
+    monkeypatch.setenv("MEMEX_QUEUE_DIR", str(queue_dir))
+    monkeypatch.setenv("MEMEX_RETRIEVAL_TELEMETRY", "0")
+    monkeypatch.setenv("MEMEX_RETRIEVAL_TELEMETRY_LOG", str(tmp_path / "telemetry.jsonl"))
     monkeypatch.setenv("MEM0_TELEMETRY", "False")
     monkeypatch.delenv("COGITO_TEMPORAL_V1", raising=False)
     monkeypatch.delenv(FEATURE_ENV, raising=False)
     monkeypatch.delenv("COGITO_HERMENEUTICS_EVIDENCE_STATUS", raising=False)
-    from fidelis import telemetry
+    from memex import telemetry
 
     monkeypatch.setattr(telemetry, "_LOG_PATH", tmp_path / "escalation.log", raising=False)
 
@@ -324,8 +324,8 @@ def test_paraphrase_query_ranks_b_first_a_present_only_if_in_window(harness, end
 def test_recall_near_identical_pair_collapses_before_temporal_view(harness):
     """Observed behaviour (2026-09-21, this harness): when A and B differ by
     only the port number in an otherwise-identical sentence (Jaccard ~0.85
-    under fidelis.recall._dedup_candidates' shingle measure, over its 0.8
-    collapse threshold), fidelis.recall.recall's Stage-1 near-duplicate
+    under memex.recall._dedup_candidates' shingle measure, over its 0.8
+    collapse threshold), memex.recall.recall's Stage-1 near-duplicate
     dedup — which runs BEFORE temporal_view ever sees the candidate pool —
     keeps only the first-ranked of the pair and drops the other outright.
     Because dedup runs pre-temporal, it does not know one of the two is a
@@ -335,7 +335,7 @@ def test_recall_near_identical_pair_collapses_before_temporal_view(harness):
     should survive). Which one is dropped depends on which one dedup's
     'first (highest-ranked) of each cluster' rule happens to keep for a
     given raw relevance ordering, not on temporal status. This is a
-    pre-existing, separately-tracked gap in src/fidelis/recall.py's
+    pre-existing, separately-tracked gap in src/memex/recall.py's
     ``_dedup_candidates`` (Jaccard >= 0.8), not something WORK PACKET E's
     temporal_recall.py fix can (or should) paper over — temporal_view is
     given whatever pool survives dedup and correctly demotes-not-drops

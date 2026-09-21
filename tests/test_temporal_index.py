@@ -1,4 +1,4 @@
-"""Contract tests for fidelis.temporal_index (docs/TIME-AWARE-SPEC.md).
+"""Contract tests for memex.temporal_index (docs/TIME-AWARE-SPEC.md).
 
 Every sqlite file lives under pytest's tmp_path; nothing here touches the
 live store or server.
@@ -14,8 +14,8 @@ from pathlib import Path
 
 import pytest
 
-from fidelis import temporal_index
-from fidelis.temporal_index import TemporalIndex, open_index, sidecar_path
+from memex import temporal_index
+from memex.temporal_index import TemporalIndex, open_index, sidecar_path
 
 T1 = "2026-09-20T10:00:00Z"
 T2 = "2026-09-20T11:00:00Z"
@@ -181,7 +181,7 @@ def test_edge_to_unknown_target_is_kept(idx):
 # --- supersession_index (needs the sibling module) ---------------------------
 
 def test_supersession_index_from_edges(idx):
-    temporal = pytest.importorskip("fidelis.temporal")
+    temporal = pytest.importorskip("memex.temporal")
     idx.record_write("A", "sha-a", T1, [])
     idx.record_write("B", "sha-b", T2, ["A"])
     idx.record_write("C", "sha-c", T3, ["A"])
@@ -206,9 +206,9 @@ def test_supersession_index_uses_from_edges(idx, monkeypatch):
             seen["edges"] = list(edges)
             return cls()
 
-    fake = types.ModuleType("fidelis.temporal")
+    fake = types.ModuleType("memex.temporal")
     fake.SupersessionIndex = FakeSI
-    monkeypatch.setitem(sys.modules, "fidelis.temporal", fake)
+    monkeypatch.setitem(sys.modules, "memex.temporal", fake)
     idx.record_write("B", "sha-b", T2, ["A"])
     assert isinstance(idx.supersession_index(), FakeSI)
     assert seen["edges"] == [("A", "B", T2)]
@@ -553,7 +553,7 @@ def test_open_index_happy_path(tmp_path):
 def test_open_index_parent_is_a_regular_file(tmp_path, caplog):
     blocker = tmp_path / "blocker"
     blocker.write_text("i am a file, not a directory")
-    with caplog.at_level(logging.WARNING, logger="fidelis.temporal_index"):
+    with caplog.at_level(logging.WARNING, logger="memex.temporal_index"):
         assert open_index(blocker / "chroma_db") is None
         assert open_index(blocker / "chroma_db") is None
     warnings = [r for r in caplog.records if r.levelno >= logging.WARNING]
@@ -565,7 +565,7 @@ def test_open_index_garbage_sidecar(tmp_path, caplog):
     store = tmp_path / "chroma_db"
     garbage = b"this is definitely not a sqlite database\x00\xff" * 64
     sidecar_path(store).write_bytes(garbage)
-    with caplog.at_level(logging.WARNING, logger="fidelis.temporal_index"):
+    with caplog.at_level(logging.WARNING, logger="memex.temporal_index"):
         assert open_index(store) is None
         assert open_index(store) is None
     warnings = [r for r in caplog.records if r.levelno >= logging.WARNING]

@@ -8,12 +8,12 @@ on:
 
 jobs:
   naming-audit:
-    name: Fidelis naming audit
+    name: Memex naming audit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Audit for stale Fidelis references
+      - name: Audit for stale Memex references
         run: |
           set -euo pipefail
 
@@ -27,11 +27,11 @@ jobs:
 
           hits=$(grep -rEn --include="*.py" --include="*.md" --include="*.json" --include="*.sh" --include="*.toml" --include="*.yml" --include="*.yaml" --include="*.rb" \
             "${EXCLUDES[@]}" \
-            "\bFidelis\b|\bFidelis\b" \
+            "\bMemex\b|\bMemex\b" \
             . 2>/dev/null || true)
 
           if [ -n "$hits" ]; then
-            echo "::error::Found stale 'Fidelis' references"
+            echo "::error::Found stale 'Memex' references"
             echo "$hits"
             exit 1
           fi

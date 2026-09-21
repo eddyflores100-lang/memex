@@ -1,14 +1,14 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below. This is an AliceLabs proprietary derivative; commercial use requires a separate license."
-title: "fidelis-alicelabs: local-first, zero-LLM memory for AI agents (AliceLabs proprietary fork)"
-abstract: "AliceLabs proprietary fork of Fidelis Memory. Stores agent-curated records locally and retrieves their original text with stable IDs, correction history, and validity dates. Default MCP recall uses local vector search without a generative LLM. Licensed under the AliceLabs Proprietary License v1.0 — commercial use requires a separate license from AliceLabs."
+title: "memex-alicelabs: local-first, zero-LLM memory for AI agents (AliceLabs proprietary fork)"
+abstract: "AliceLabs proprietary fork of Memex. Stores agent-curated records locally and retrieves their original text with stable IDs, correction history, and validity dates. Default MCP recall uses local vector search without a generative LLM. Licensed under the AliceLabs Proprietary License v1.0 — commercial use requires a separate license from AliceLabs."
 type: software
 authors:
   - family-names: "Flores"
     given-names: "Eddy"
     affiliation: "AliceLabs"
 license: "AliceLabs Proprietary License v1.0"
-repository-code: "https://github.com/eddyflores100-lang/fidelis-alicelabs"
+repository-code: "https://github.com/eddyflores100-lang/memex-alicelabs"
 version: "0.3.0rc1-alicelabs"
 keywords:
   - "agent memory"
@@ -16,10 +16,10 @@ keywords:
   - "local-first"
   - "Claude Code"
   - "verbatim retrieval"
-  - "fidelis-alicelabs"
+  - "memex-alicelabs"
   - "alice-labs"
   - "integer-pointer fidelity"
 notes:
-  - "Incorporates code originally licensed under MIT from the Fidelis Memory project by AliceLabs (Eddy Flores)."
-  - "Derivative work: https://github.com/eddyflores100-lang/fidelis"
+  - "Incorporates code originally licensed under MIT from the Memex project by AliceLabs (Eddy Flores)."
+  - "Derivative work: https://github.com/eddyflores100-lang/memex"
   - "All modifications and additions by AliceLabs are proprietary and require a commercial license for production use."

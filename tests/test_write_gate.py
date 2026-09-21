@@ -1,4 +1,4 @@
-"""Contract tests for fidelis.write_gate (docs/TIME-AWARE-SPEC.md).
+"""Contract tests for memex.write_gate (docs/TIME-AWARE-SPEC.md).
 
 Every harness tag and fake credential below is assembled by concatenation so
 this file never contains raw control markup or anything a secret scanner
@@ -11,8 +11,8 @@ import dataclasses
 
 import pytest
 
-from fidelis import write_gate
-from fidelis.write_gate import GateDecision, evaluate
+from memex import write_gate
+from memex.write_gate import GateDecision, evaluate
 
 LT, GT = "<", ">"
 
@@ -54,7 +54,7 @@ FAKE_SECRETS = {
 def test_decision_is_frozen_dataclass_with_contract_fields():
     assert dataclasses.is_dataclass(GateDecision)
     assert [f.name for f in dataclasses.fields(GateDecision)] == ["accept", "reason", "detail"]
-    d = evaluate("Fidelis server listens on port 19420.")
+    d = evaluate("Memex server listens on port 19420.")
     assert d == GateDecision(accept=True, reason=None, detail=None)
     with pytest.raises(dataclasses.FrozenInstanceError):
         d.accept = False  # type: ignore[misc]
@@ -91,7 +91,7 @@ ACCEPTED_PROSE = [
     "Maya prefers terse replies; answer yes or no when asked a yes/no question.",
     "GitHub tokens start with ghp_ and must never be stored.",
     # more of the same family
-    "Fidelis server listens on port 19420.",
+    "Memex server listens on port 19420.",
     "system-reminder and tool_result blocks are harness markup, never memory.",
     "The tool_use count for that run was 33; tool_result payloads were large.",
     "Probe ids are named canary-probe- plus eight hex characters.",
@@ -303,7 +303,7 @@ def test_gate_stays_on_unless_explicitly_false(config):
 
 
 def test_input_is_not_mutated_or_normalised():
-    text = "  User:  Fidelis listens on 19420.  \n"
+    text = "  User:  Memex listens on 19420.  \n"
     before = str(text)
     evaluate(text)
     assert text == before

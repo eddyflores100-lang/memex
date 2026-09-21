@@ -6,7 +6,7 @@ every result, drowning the actual match in unrelated memories with the same
 score). It PASSES on v0.0.9 (server now bypasses mem0's broken score_and_rank
 and queries vector_store.search directly).
 
-Runs against a real fidelis-server. Marked skipif Ollama isn't reachable so
+Runs against a real memex-server. Marked skipif Ollama isn't reachable so
 it doesn't break CI for contributors without a local Ollama.
 """
 from __future__ import annotations
@@ -62,8 +62,8 @@ def test_store_query_roundtrip(tmp_path: Path):
     # Use a port + store + queue dir isolated from the user's running service.
     port = 19422
     env = os.environ.copy()
-    env["FIDELIS_PORT"] = str(port)
-    env["COGITO_PORT"] = str(port)
+    env["MEMEX_PORT"] = str(port)
+    env["MEMEX_PORT"] = str(port)
     env["COGITO_STORE_PATH"] = str(tmp_path / "store")
     env["COGITO_QUEUE_DIR"] = str(tmp_path / "queue")
     # Use a model that hangs minimally — the test doesn't exercise the LLM path,
@@ -74,13 +74,13 @@ def test_store_query_roundtrip(tmp_path: Path):
     # Spawn server. NOTE: Memory.from_config can take 10-30s on first boot due
     # to chroma init; tolerate that.
     proc = subprocess.Popen(
-        [sys.executable, "-m", "fidelis.server", "--port", str(port)],
+        [sys.executable, "-m", "memex.server", "--port", str(port)],
         env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
     )
     try:
         if not _wait_for_health(port, timeout_s=60.0):
             pytest.fail(
-                f"fidelis-server on :{port} did not respond to /health within 60s. "
+                f"memex-server on :{port} did not respond to /health within 60s. "
                 f"server output: {proc.stdout.read(2000).decode(errors='replace') if proc.stdout else '(none)'}"
             )
 
@@ -88,7 +88,7 @@ def test_store_query_roundtrip(tmp_path: Path):
         marker = f"E2EMARKER-{uuid.uuid4().hex[:12]}"
         text = (
             f"On 2026-04-27 the user mentioned {marker}. They prefer Thai food on weekends "
-            f"and dislike pineapple on pizza. This is a regression test for fidelis."
+            f"and dislike pineapple on pizza. This is a regression test for memex."
         )
         store_resp = _http_post(f"http://127.0.0.1:{port}/store", {"text": text})
         assert store_resp.get("status") == "stored", f"store failed: {store_resp}"

@@ -1,6 +1,6 @@
-# Is Fidelis Memory a fit?
+# Is Memex a fit?
 
-Fidelis 0.3.0rc1 has one job: let an agent retrieve the original passages from
+Memex 0.3.0rc1 has one job: let an agent retrieve the original passages from
 notes you keep on your own machine. The default retrieval path does not call an
 LLM. Your agent still uses its normal model to answer from the retrieved text.
 
@@ -16,10 +16,10 @@ LLM. Your agent still uses its normal model to answer from the retrieved text.
 | Windows-only user | Not yet a supported fit | The Python package may run, but this release does not claim a gate-tested service install | Use a macOS or Ubuntu environment, or help qualify the Windows path |
 | Team needing a shared, centralized memory service | Not yet | — | 0.3.0rc1 is local and single-machine; centralized operation is not a supported contract |
 | Team needing per-tenant authorization or managed multi-user isolation | No | — | The `user_id` value is a namespace, not an identity or authorization boundary |
-| Regulated deployment seeking a compliance guarantee | Evaluation required | Local-first defaults can reduce third-party exposure | Fidelis is not a compliance certification; the deployer owns its assessment |
-| Workflow that needs generated summaries instead of source passages | Usually no | Fidelis intentionally returns stored passages without rewriting them | Let the calling agent summarize after retrieval, or use a different memory product |
+| Regulated deployment seeking a compliance guarantee | Evaluation required | Local-first defaults can reduce third-party exposure | Memex is not a compliance certification; the deployer owns its assessment |
+| Workflow that needs generated summaries instead of source passages | Usually no | Memex intentionally returns stored passages without rewriting them | Let the calling agent summarize after retrieval, or use a different memory product |
 
-## Choose Fidelis when
+## Choose Memex when
 
 - the source wording matters;
 - your working memory is already in local notes or sessions;
@@ -32,10 +32,10 @@ shared knowledge base.
 
 ## The supported 0.3.0rc1 path
 
-1. Install the pinned `fidelis-memory` distribution.
-2. Run `fidelis init` and retain a fact with `fidelis store`.
-3. Register Fidelis with one documented agent client, or run the MCP server.
-4. Verify the service with `fidelis health` and ask the client to recall a
+1. Install the pinned `memex-memory` distribution.
+2. Run `memex init` and retain a fact with `memex store`.
+3. Register Memex with one documented agent client, or run the MCP server.
+4. Verify the service with `memex health` and ask the client to recall a
    distinctive passage you stored.
 
 If that path fails on a supported environment, open an issue with the OS,

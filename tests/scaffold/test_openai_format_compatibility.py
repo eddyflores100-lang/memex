@@ -1,6 +1,6 @@
-"""OpenAI Chat Completions API wire format compatibility tests for fidelis.scaffold.
+"""OpenAI Chat Completions API wire format compatibility tests for memex.scaffold.
 
-Tests that fidelis.scaffold v0.1.0 works correctly through the OpenAI Chat
+Tests that memex.scaffold v0.1.0 works correctly through the OpenAI Chat
 Completions wire format, validated against gpt-oss:20b on local Ollama
 (http://localhost:11434/v1) — no OpenAI credits required.
 
@@ -23,7 +23,7 @@ from typing import NamedTuple
 import httpx
 import pytest
 
-from fidelis.scaffold import wrap_system_prompt, SCAFFOLD_OPEN, SCAFFOLD_CLOSE
+from memex.scaffold import wrap_system_prompt, SCAFFOLD_OPEN, SCAFFOLD_CLOSE
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -108,7 +108,7 @@ _SKIP_LIVE = pytest.mark.skipif(
 # ---------------------------------------------------------------------------
 
 class TestWireFormat:
-    """Validate OpenAI Chat Completions payload construction from fidelis.scaffold."""
+    """Validate OpenAI Chat Completions payload construction from memex.scaffold."""
 
     def test_payload_is_json_serializable(self):
         """Payload containing scaffold system prompt must be JSON-serializable."""
@@ -246,7 +246,7 @@ def _call_openai_chat(messages: list[dict], timeout: float = 300.0) -> str:
 
 @_SKIP_LIVE
 class TestLiveSmokeGptOss20b:
-    """Live smoke test: fidelis.scaffold hedge + answer compliance on gpt-oss:20b."""
+    """Live smoke test: memex.scaffold hedge + answer compliance on gpt-oss:20b."""
 
     def _build_messages(self, q: Question) -> list[dict]:
         system_content = wrap_system_prompt(q.qtype, top_score=0.75)

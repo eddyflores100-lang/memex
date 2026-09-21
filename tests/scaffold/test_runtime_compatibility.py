@@ -1,4 +1,4 @@
-"""Runtime compatibility tests for fidelis.scaffold v0.1.0.
+"""Runtime compatibility tests for memex.scaffold v0.1.0.
 
 Covers: async-safety, streaming compatibility, no global state,
 memory safety (no-exception bound), and error-path idempotency.
@@ -12,8 +12,8 @@ import string
 
 import pytest
 
-from fidelis.scaffold._core import wrap_system_prompt
-from fidelis.scaffold.preflight import preflight
+from memex.scaffold._core import wrap_system_prompt
+from memex.scaffold.preflight import preflight
 
 
 # ---------------------------------------------------------------------------
@@ -42,7 +42,7 @@ async def test_wrap_system_prompt_callable_from_coroutine():
     """wrap_system_prompt works correctly inside an asyncio coroutine."""
     result = wrap_system_prompt("single-session-user", top_score=0.8)
     assert isinstance(result, str)
-    assert "[FIDELIS-SCAFFOLD-" in result
+    assert "[MEMEX-SCAFFOLD-" in result
 
 
 @pytest.mark.asyncio
@@ -108,7 +108,7 @@ def test_wrap_system_prompt_returns_str_not_generator():
 def test_preflight_returns_report_not_generator():
     """preflight returns a PreflightReport, not a generator or awaitable."""
     import inspect
-    from fidelis.scaffold.preflight import PreflightReport
+    from memex.scaffold.preflight import PreflightReport
     scaffold = wrap_system_prompt("single-session-preference", top_score=0.9)
     report = preflight(scaffold)
     assert isinstance(report, PreflightReport)

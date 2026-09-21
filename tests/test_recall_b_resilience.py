@@ -1,5 +1,5 @@
 """
-Unit tests for sub-query search resilience in fidelis.recall_b.
+Unit tests for sub-query search resilience in memex.recall_b.
 
 recall_b decomposes a query into several sub-queries and runs _pool_search()
 (direct memory.vector_store.search(), bypassing mem0's broken
@@ -22,13 +22,13 @@ from __future__ import annotations
 
 import sys
 
-from fidelis.recall_b import recall_b
+from memex.recall_b import recall_b
 
 
 def _no_network_rerank(monkeypatch):
     # Force _cosine_rerank's "embedding failed -> RRF order" branch so no test
     # needs a live Ollama embed endpoint.
-    mod = sys.modules["fidelis.recall_b"]
+    mod = sys.modules["memex.recall_b"]
     monkeypatch.setattr(mod, "_batch_embed", lambda texts, cfg: None)
 
 

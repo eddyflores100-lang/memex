@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in fidelis (the `fidelis-memory`
+If you discover a security vulnerability in memex (the `memex-memory`
 package), please report it responsibly.
 
 **Do not open a public issue for security vulnerabilities.**
@@ -16,14 +16,14 @@ Include:
 
 ## Scope
 
-fidelis is a local-first memory and retrieval service for AI agents (Claude
+memex is a local-first memory and retrieval service for AI agents (Claude
 Code, Codex, GitHub Copilot CLI, Gemini CLI, OpenClaw). It stores notes in a
 local Chroma + SQLite store and serves retrieval through a local HTTP service
 and an MCP server; the default retrieval path makes no outbound model API
 call. Reports about the local service, the MCP server, the CLI, the
 per-client installation writers (Codex, Claude Code, Copilot CLI, Gemini CLI,
 OpenClaw config handling), and the published PyPI package are in scope.
-fidelis does not operate a hosted service, so reports about infrastructure it
+memex does not operate a hosted service, so reports about infrastructure it
 does not run are out of scope.
 
 ## Response Timeline
@@ -35,10 +35,10 @@ does not run are out of scope.
 
 ## Supported Versions
 
-Security updates are applied to the latest release only. fidelis is
+Security updates are applied to the latest release only. memex is
 pre-release software (0.3.0rc1); expect breaking changes between versions.
 
-Thank you for helping keep fidelis safe.
+Thank you for helping keep memex safe.
 
 Local records and queues are not application-encrypted. The HTTP interface is
 intended for trusted loopback use and has no network authentication. Write

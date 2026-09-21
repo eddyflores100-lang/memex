@@ -1,8 +1,8 @@
-"""Regression tests for DEFECT A and DEFECT B in fidelis init.
+"""Regression tests for DEFECT A and DEFECT B in memex init.
 
 DEFECT A (P0 - GLOBAL SINGLETON COLLISION):
-    Module-level constants PORT=19420 and SERVICE_LABEL="ai.eddyflores100-lang.fidelis-server".
-    fidelis init unconditionally writes ~/Library/LaunchAgents/<label>.plist and
+    Module-level constants PORT=19420 and SERVICE_LABEL="ai.eddyflores100-lang.memex-server".
+    memex init unconditionally writes ~/Library/LaunchAgents/<label>.plist and
     force-restarts that launchd service with NO check for an already-running instance.
     This destroys concurrent installations and orphans memories.
 
@@ -23,7 +23,7 @@ from unittest.mock import Mock
 
 
 # Import the functions we're testing
-from fidelis.init_cmd import (
+from memex.init_cmd import (
     PLIST_TEMPLATE,
     SERVICE_LABEL,
 )
@@ -33,23 +33,23 @@ class TestDefectA_CollisionDetection:
     """Tests for DEFECT A: Global singleton collision (P0).
 
     Assertions:
-    1. fidelis init should detect when a service with the same label is already loaded
-    2. fidelis init should detect when a service is listening on the same port
-    3. fidelis init should refuse to proceed by default, with a clear error message
-    4. fidelis init should NOT unload/reload a running service without explicit --force
+    1. memex init should detect when a service with the same label is already loaded
+    2. memex init should detect when a service is listening on the same port
+    3. memex init should refuse to proceed by default, with a clear error message
+    4. memex init should NOT unload/reload a running service without explicit --force
     5. The production service MUST remain untouched after a collision attempt
     """
 
     def test_collision_detection_rejects_already_loaded_service(
         self, tmp_path, monkeypatch
     ):
-        """DEFECT A: fidelis init should REFUSE when a service with this label
+        """DEFECT A: memex init should REFUSE when a service with this label
         is already loaded (even if from a different binary).
 
-        Setup: A launchd service labeled ai.eddyflores100-lang.fidelis-server is running
-               from /some/other/venv/bin/fidelis-server (older or different version).
+        Setup: A launchd service labeled ai.eddyflores100-lang.memex-server is running
+               from /some/other/venv/bin/memex-server (older or different version).
 
-        Expected behavior: fidelis init detects the label collision and prints
+        Expected behavior: memex init detects the label collision and prints
                           a clear error message naming the conflict, then REFUSES
                           to proceed (returns 1, touches nothing).
 
@@ -68,9 +68,9 @@ class TestDefectA_CollisionDetection:
         collision_plist_path = launch_agents / f"{SERVICE_LABEL}.plist"
         old_plist_data = PLIST_TEMPLATE.format(
             label=SERVICE_LABEL,
-            server_bin="/other/venv/bin/fidelis-server",
+            server_bin="/other/venv/bin/memex-server",
             working_dir=str(fake_home),
-            log_path=str(fake_home / ".fidelis" / "server.log"),
+            log_path=str(fake_home / ".memex" / "server.log"),
             throttle_interval=15,
             env_vars_xml='        <key>MEM0_TELEMETRY</key>\n        <string>False</string>',
         )
@@ -88,15 +88,15 @@ class TestDefectA_CollisionDetection:
 
         # Mock: _server_bin() returns current binary
         monkeypatch.setattr(
-            "fidelis.init_cmd._server_bin",
-            lambda: "/current/venv/bin/fidelis-server",
+            "memex.init_cmd._server_bin",
+            lambda: "/current/venv/bin/memex-server",
         )
 
         # Mock: _health_check to avoid waiting
-        monkeypatch.setattr("fidelis.init_cmd._health_check", lambda timeout_s=10.0, port=None: False)
+        monkeypatch.setattr("memex.init_cmd._health_check", lambda timeout_s=10.0, port=None: False)
 
         # Import fresh to get our mocked functions
-        from fidelis import init_cmd
+        from memex import init_cmd
 
         # ACTION: try to install
         # ASSERTION: Should return non-zero (refuse to proceed)
@@ -107,7 +107,7 @@ class TestDefectA_CollisionDetection:
         # collision detection and proceeds to overwrite.
         # After our fix, this should return 1 and not touch the plist.
         assert result != 0, (
-            "fidelis init should refuse when a service is already loaded with that label"
+            "memex init should refuse when a service is already loaded with that label"
         )
 
         # ASSERTION: plist should NOT be modified
@@ -116,12 +116,12 @@ class TestDefectA_CollisionDetection:
         )
 
     def test_collision_detection_rejects_port_in_use(self, tmp_path, monkeypatch):
-        """DEFECT A: fidelis init should REFUSE when the port is already in use
+        """DEFECT A: memex init should REFUSE when the port is already in use
         (even if the service label is different).
 
         Setup: Some service is listening on 127.0.0.1:19420 (collision by port).
 
-        Expected behavior: fidelis init detects the port collision and refuses.
+        Expected behavior: memex init detects the port collision and refuses.
         """
         fake_home = tmp_path / "home"
         fake_home.mkdir()
@@ -144,18 +144,18 @@ class TestDefectA_CollisionDetection:
 
         monkeypatch.setattr(subprocess, "run", mock_subprocess_run)
         monkeypatch.setattr(
-            "fidelis.init_cmd._server_bin",
-            lambda: "/current/venv/bin/fidelis-server",
+            "memex.init_cmd._server_bin",
+            lambda: "/current/venv/bin/memex-server",
         )
-        monkeypatch.setattr("fidelis.init_cmd._health_check", lambda timeout_s=10.0, port=None: False)
+        monkeypatch.setattr("memex.init_cmd._health_check", lambda timeout_s=10.0, port=None: False)
 
-        from fidelis import init_cmd
+        from memex import init_cmd
 
         result = init_cmd._install_macos()
 
         # EXPECTED: Should refuse because port is in use
         assert result != 0, (
-            "fidelis init should refuse when the port is already in use"
+            "memex init should refuse when the port is already in use"
         )
 
     def test_collision_detection_parses_real_launchctl_dict_output(
@@ -169,7 +169,7 @@ class TestDefectA_CollisionDetection:
 
             {
                 "PID" = 74977;
-                "Label" = "ai.eddyflores100-lang.fidelis-server";
+                "Label" = "ai.eddyflores100-lang.memex-server";
                 "LastExitStatus" = 0;
                 ...
             };
@@ -180,7 +180,7 @@ class TestDefectA_CollisionDetection:
         check even though the label WAS loaded, relying entirely on the
         independent port-listener check to catch the collision. This test
         uses the exact real launchctl output captured from this machine's
-        live production fidelis-server (147,996-memory instance, PID 74977)
+        live production memex-server (147,996-memory instance, PID 74977)
         to prove refusal-not-overwrite against the real shape, and that the
         PID is correctly extracted for the user-facing message.
         """
@@ -194,9 +194,9 @@ class TestDefectA_CollisionDetection:
         collision_plist_path = launch_agents / f"{SERVICE_LABEL}.plist"
         old_plist_data = PLIST_TEMPLATE.format(
             label=SERVICE_LABEL,
-            server_bin="/Users/testuser/hermes-venv/bin/fidelis-server",
+            server_bin="/Users/testuser/hermes-venv/bin/memex-server",
             working_dir=str(fake_home),
-            log_path=str(fake_home / ".fidelis" / "server.log"),
+            log_path=str(fake_home / ".memex" / "server.log"),
             throttle_interval=15,
             env_vars_xml='        <key>MEM0_TELEMETRY</key>\n        <string>False</string>',
         )
@@ -204,16 +204,16 @@ class TestDefectA_CollisionDetection:
 
         real_launchctl_list_output = (
             '{\n'
-            '\t"StandardOutPath" = "/Users/testuser/.fidelis/server.log";\n'
+            '\t"StandardOutPath" = "/Users/testuser/.memex/server.log";\n'
             '\t"LimitLoadToSessionType" = "Aqua";\n'
-            '\t"StandardErrorPath" = "/Users/testuser/.fidelis/server.log";\n'
-            '\t"Label" = "ai.eddyflores100-lang.fidelis-server";\n'
+            '\t"StandardErrorPath" = "/Users/testuser/.memex/server.log";\n'
+            '\t"Label" = "ai.eddyflores100-lang.memex-server";\n'
             '\t"OnDemand" = true;\n'
             '\t"LastExitStatus" = 0;\n'
             '\t"PID" = 74977;\n'
-            '\t"Program" = "/Users/testuser/hermes-venv/bin/fidelis-server";\n'
+            '\t"Program" = "/Users/testuser/hermes-venv/bin/memex-server";\n'
             '\t"ProgramArguments" = (\n'
-            '\t\t"/Users/testuser/hermes-venv/bin/fidelis-server";\n'
+            '\t\t"/Users/testuser/hermes-venv/bin/memex-server";\n'
             '\t);\n'
             '};'
         )
@@ -234,12 +234,12 @@ class TestDefectA_CollisionDetection:
 
         monkeypatch.setattr(subprocess, "run", mock_subprocess_run)
         monkeypatch.setattr(
-            "fidelis.init_cmd._server_bin",
-            lambda: "/current/venv/bin/fidelis-server",
+            "memex.init_cmd._server_bin",
+            lambda: "/current/venv/bin/memex-server",
         )
-        monkeypatch.setattr("fidelis.init_cmd._health_check", lambda timeout_s=10.0, port=None: False)
+        monkeypatch.setattr("memex.init_cmd._health_check", lambda timeout_s=10.0, port=None: False)
 
-        from fidelis import init_cmd
+        from memex import init_cmd
 
         collision = init_cmd._detect_existing_service(SERVICE_LABEL, 19420)
         assert collision is not None, (
@@ -256,7 +256,7 @@ class TestDefectA_CollisionDetection:
         result = init_cmd._install_macos()
 
         assert result != 0, (
-            "fidelis init must refuse when launchctl reports the label loaded "
+            "memex init must refuse when launchctl reports the label loaded "
             "via real dict-shaped output — this is the exact P0 regression"
         )
         assert collision_plist_path.read_text() == old_plist_data, (
@@ -273,7 +273,7 @@ class TestDefectB_ConfigDegradation:
     """Tests for DEFECT B: Silent config degradation.
 
     Assertions:
-    1. When re-running fidelis init, pre-existing EnvironmentVariables should be preserved
+    1. When re-running memex init, pre-existing EnvironmentVariables should be preserved
     2. Specifically, PYDANTIC_DISABLE_PLUGINS and ThrottleInterval should survive a re-init
     3. The new plist should be a merge (old + new), not a replacement
     """
@@ -300,10 +300,10 @@ class TestDefectB_ConfigDegradation:
         )
 
     def test_reinit_preserves_existing_environment_variables(self, tmp_path, monkeypatch):
-        """DEFECT B: When re-running fidelis init on an existing install,
+        """DEFECT B: When re-running memex init on an existing install,
         pre-existing EnvironmentVariables should be preserved.
 
-        Setup: An existing plist at ~/Library/LaunchAgents/ai.eddyflores100-lang.fidelis-server.plist
+        Setup: An existing plist at ~/Library/LaunchAgents/ai.eddyflores100-lang.memex-server.plist
                with custom env vars: PYDANTIC_DISABLE_PLUGINS=__all__ and ThrottleInterval=15.
 
         Expected behavior: After re-init, those vars are still present in the new plist.
@@ -324,9 +324,9 @@ class TestDefectB_ConfigDegradation:
         # (simulating a production install that was customized)
         pre_existing_plist = PLIST_TEMPLATE.format(
             label=SERVICE_LABEL,
-            server_bin="/usr/local/bin/fidelis-server",
+            server_bin="/usr/local/bin/memex-server",
             working_dir=str(fake_home),
-            log_path=str(fake_home / ".fidelis" / "server.log"),
+            log_path=str(fake_home / ".memex" / "server.log"),
             throttle_interval=15,
             env_vars_xml='        <key>MEM0_TELEMETRY</key>\n        <string>False</string>',
         )
@@ -354,14 +354,14 @@ class TestDefectB_ConfigDegradation:
 
         monkeypatch.setattr(subprocess, "run", mock_subprocess_run)
         monkeypatch.setattr(
-            "fidelis.init_cmd._server_bin",
-            lambda: "/usr/local/bin/fidelis-server",
+            "memex.init_cmd._server_bin",
+            lambda: "/usr/local/bin/memex-server",
         )
-        monkeypatch.setattr("fidelis.init_cmd._health_check", lambda timeout_s=10.0, port=None: True)
+        monkeypatch.setattr("memex.init_cmd._health_check", lambda timeout_s=10.0, port=None: True)
 
-        from fidelis import init_cmd
+        from memex import init_cmd
 
-        # ACTION: re-run fidelis init
+        # ACTION: re-run memex init
         init_cmd._install_macos()
 
         # Read the new plist that was written
@@ -381,7 +381,7 @@ class TestDefectB_ConfigDegradation:
         )
 
     def test_reinit_idempotent_on_working_install(self, tmp_path, monkeypatch):
-        """Idempotency test: running fidelis init twice should produce
+        """Idempotency test: running memex init twice should produce
         the same plist both times (no silent degradation).
         """
         fake_home = tmp_path / "home"
@@ -402,12 +402,12 @@ class TestDefectB_ConfigDegradation:
 
         monkeypatch.setattr(subprocess, "run", mock_subprocess_run)
         monkeypatch.setattr(
-            "fidelis.init_cmd._server_bin",
-            lambda: "/usr/local/bin/fidelis-server",
+            "memex.init_cmd._server_bin",
+            lambda: "/usr/local/bin/memex-server",
         )
-        monkeypatch.setattr("fidelis.init_cmd._health_check", lambda timeout_s=10.0, port=None: True)
+        monkeypatch.setattr("memex.init_cmd._health_check", lambda timeout_s=10.0, port=None: True)
 
-        from fidelis import init_cmd
+        from memex import init_cmd
 
         # First init
         init_cmd._install_macos()
@@ -419,7 +419,7 @@ class TestDefectB_ConfigDegradation:
 
         # ASSERTION: plists should be identical (idempotent)
         assert first_plist == second_plist, (
-            "DEFECT B: Running fidelis init twice produced different plists. "
+            "DEFECT B: Running memex init twice produced different plists. "
             "The operation should be idempotent."
         )
 
@@ -455,12 +455,12 @@ class TestLegacyLabelGating:
 
         monkeypatch.setattr(subprocess, "run", mock_subprocess_run)
         monkeypatch.setattr(
-            "fidelis.init_cmd._server_bin",
-            lambda: "/usr/local/bin/fidelis-server",
+            "memex.init_cmd._server_bin",
+            lambda: "/usr/local/bin/memex-server",
         )
-        monkeypatch.setattr("fidelis.init_cmd._health_check", lambda timeout_s=10.0, port=None: True)
+        monkeypatch.setattr("memex.init_cmd._health_check", lambda timeout_s=10.0, port=None: True)
 
-        from fidelis import init_cmd
+        from memex import init_cmd
 
         # Re-init should NOT delete legacy plists without explicit opt-in
         init_cmd._install_macos()

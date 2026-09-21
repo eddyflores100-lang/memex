@@ -1,7 +1,7 @@
-# Security Posture — Fidelis AliceLabs v0.3.0rc1-alicelabs
+# Security Posture — Memex AliceLabs v0.3.0rc1-alicelabs
 
 This document describes the security and privacy posture of the AliceLabs proprietary
-fork of Fidelis Memory on a default install. It is not a compliance certification
+fork of Memex on a default install. It is not a compliance certification
 and does not assert conformance with EU AI Act, SOC 2, HIPAA, or any other
 regulatory framework.
 
@@ -18,15 +18,15 @@ commercial license from AliceLabs.
 ## Scope
 
 In scope:
-- The local `fidelis-server` HTTP service (default port 19420, loopback only)
-- The bundled MCP stdio server (`fidelis mcp serve`)
-- The `fidelis` CLI (`init`, `watch`, `mcp install`, `recall`, `query`, `add`,
+- The local `memex-server` HTTP service (default port 19420, loopback only)
+- The bundled MCP stdio server (`memex mcp serve`)
+- The `memex` CLI (`init`, `watch`, `mcp install`, `recall`, `query`, `add`,
   `health`, `snapshot`, `calibrate`, `seed`)
 - The per-client installation writers (Codex, Claude Code, GitHub Copilot CLI,
   Gemini CLI, OpenClaw)
 
 Out of scope:
-- Workloads the deployer runs on top of Fidelis (their agent's prompts, their
+- Workloads the deployer runs on top of Memex (their agent's prompts, their
   LLM calls, their memory contents)
 - Third-party dependencies (mem0, ChromaDB, Ollama, bm25s) — each has its own
   posture; AliceLabs does not vet them
@@ -68,14 +68,14 @@ Out of scope:
 | `~/.cogito/queue/` | Durable write queue | Yes |
 | `~/.cogito/queue/dead/` | Dead-letter queue | Yes |
 | `~/.cogito/snapshot.md` | Compressed index | Yes (rebuildable) |
-| `~/.fidelis/server.log` | Server log | Rotated by OS service manager |
+| `~/.memex/server.log` | Server log | Rotated by OS service manager |
 | `~/.cogito.json` | Optional config file | Yes |
 
-To wipe: `fidelis init --uninstall` then `rm -rf ~/.cogito ~/.fidelis`.
+To wipe: `memex init --uninstall` then `rm -rf ~/.cogito ~/.memex`.
 
 ## Authentication
 
-- `fidelis-server` binds to `127.0.0.1` only. Not reachable from the network
+- `memex-server` binds to `127.0.0.1` only. Not reachable from the network
   by default.
 - HTTP API has no authentication. `user_id` is a **namespace**, not an
   identity or authorization boundary. Multi-user deployment on a shared

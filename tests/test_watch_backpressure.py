@@ -1,4 +1,4 @@
-"""Backpressure tests for `fidelis watch`.
+"""Backpressure tests for `memex watch`.
 
 Three protections are required: a per-batch server-pressure check, a
 per-session byte cap, and an early exit when /health is unreachable.
@@ -10,7 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import patch
 
-from fidelis import watch_cmd
+from memex import watch_cmd
 
 
 def _make_files(root: Path, n: int, body: str = "x" * 1000) -> list[Path]:

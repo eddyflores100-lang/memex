@@ -1,7 +1,7 @@
 """Centralized path helpers for bench scripts.
 
 Resolution order:
-  1. $FIDELIS_BENCH_DATA_DIR env var (preferred)
+  1. $MEMEX_BENCH_DATA_DIR env var (preferred)
   2. ./data/longmemeval/ repo-local (git-ignored)
   3. ~/Documents/projects/LongMemEval/data (legacy fallback, warns)
 """
@@ -17,7 +17,7 @@ LEGACY_DEFAULT = Path.home() / "Documents/projects/LongMemEval/data"
 
 def longmemeval_data_dir() -> Path:
     """Return the LongMemEval data directory."""
-    env = os.environ.get("FIDELIS_BENCH_DATA_DIR")
+    env = os.environ.get("MEMEX_BENCH_DATA_DIR")
     if env:
         return Path(env).expanduser().resolve()
 
@@ -28,7 +28,7 @@ def longmemeval_data_dir() -> Path:
     if LEGACY_DEFAULT.exists():
         warnings.warn(
             f"Using legacy LongMemEval data path {LEGACY_DEFAULT}. "
-            f"Set FIDELIS_BENCH_DATA_DIR to silence this warning.",
+            f"Set MEMEX_BENCH_DATA_DIR to silence this warning.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -36,13 +36,13 @@ def longmemeval_data_dir() -> Path:
 
     print(
         f"LongMemEval data directory not found.\n"
-        f"  Set FIDELIS_BENCH_DATA_DIR=/path/to/LongMemEval/data, or\n"
+        f"  Set MEMEX_BENCH_DATA_DIR=/path/to/LongMemEval/data, or\n"
         f"  place the data at ./data/longmemeval/ relative to the repo root.",
         file=sys.stderr,
     )
     raise FileNotFoundError(
         "LongMemEval data directory not configured. "
-        "Set FIDELIS_BENCH_DATA_DIR or place data at ./data/longmemeval/."
+        "Set MEMEX_BENCH_DATA_DIR or place data at ./data/longmemeval/."
     )
 
 

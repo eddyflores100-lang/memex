@@ -8,7 +8,7 @@ import threading
 import time
 from unittest.mock import MagicMock
 
-from fidelis.server import make_handler
+from memex.server import make_handler
 
 
 def _invoke_get(handler_cls: type, path: str) -> dict:
@@ -107,7 +107,7 @@ def test_primed_health_cache_serves_last_deep_result_without_reprobing() -> None
 
 
 def test_stale_success_refreshes_to_degraded_off_path(monkeypatch) -> None:
-    monkeypatch.setenv("FIDELIS_HEALTH_CACHE_TTL_SECS", "0")
+    monkeypatch.setenv("MEMEX_HEALTH_CACHE_TTL_SECS", "0")
     memory = MagicMock()
     memory.vector_store.collection.count.return_value = 42
     memory.embedding_model.embed.return_value = [0.0]
@@ -169,7 +169,7 @@ def test_refresh_thread_start_failure_is_degraded(monkeypatch) -> None:
 
 
 def test_stuck_refresh_is_superseded_without_late_cache_overwrite(monkeypatch) -> None:
-    monkeypatch.setenv("FIDELIS_HEALTH_REFRESH_MAX_AGE_SECS", "0")
+    monkeypatch.setenv("MEMEX_HEALTH_REFRESH_MAX_AGE_SECS", "0")
     memory = MagicMock()
     first_entered = threading.Event()
     release_first = threading.Event()

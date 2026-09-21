@@ -1,4 +1,4 @@
-"""Structural cacheability tests for fidelis.scaffold v0.1.0.
+"""Structural cacheability tests for memex.scaffold v0.1.0.
 
 Validates that wrap_system_prompt() output has the byte-stability properties
 required for Anthropic prompt caching (and compatible providers).
@@ -15,7 +15,7 @@ import re
 
 import pytest
 
-from fidelis.scaffold._core import wrap_system_prompt, SCAFFOLD_OPEN, SCAFFOLD_CLOSE
+from memex.scaffold._core import wrap_system_prompt, SCAFFOLD_OPEN, SCAFFOLD_CLOSE
 
 ALL_QTYPES = [
     "single-session-user",

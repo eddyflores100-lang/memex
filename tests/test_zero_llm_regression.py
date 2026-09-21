@@ -18,7 +18,7 @@ from unittest.mock import patch
 
 import pytest
 
-from fidelis import recall_hybrid as rh
+from memex import recall_hybrid as rh
 
 
 class FakeMemory:

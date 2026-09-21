@@ -14,9 +14,9 @@ ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "claude-plugin"
 MANIFEST = PLUGIN / ".claude-plugin" / "plugin.json"
 MCP_CONFIG = PLUGIN / ".mcp.json"
-SKILL = PLUGIN / "skills" / "fidelis-memory" / "SKILL.md"
+SKILL = PLUGIN / "skills" / "memex-memory" / "SKILL.md"
 
-DISTRIBUTION = "fidelis-memory"
+DISTRIBUTION = "memex-memory"
 
 
 def _package_version() -> str:
@@ -36,20 +36,20 @@ def test_plugin_root_has_the_three_required_files():
 
 def test_manifest_version_tracks_the_package_version():
     manifest = json.loads(MANIFEST.read_text())
-    assert manifest["name"] == "fidelis"
+    assert manifest["name"] == "memex"
     assert manifest["version"] == _package_version()
 
 
 def test_mcp_command_pins_the_released_distribution_exactly():
     """A floating pin would install a different server than the one tested."""
     servers = json.loads(MCP_CONFIG.read_text())["mcpServers"]
-    assert list(servers) == ["fidelis"]
-    entry = servers["fidelis"]
+    assert list(servers) == ["memex"]
+    entry = servers["memex"]
     assert entry["command"] == "uvx"
     assert entry["args"] == [
         "--from",
         f"{DISTRIBUTION}=={_package_version()}",
-        "fidelis",
+        "memex",
         "mcp",
         "serve",
     ]
@@ -61,7 +61,7 @@ def test_mcp_command_matches_the_registry_manifest():
     Both manifests pin the same pre-release explicitly in their runtime arguments.
     """
     package = json.loads((ROOT / "server.json").read_text())["packages"][0]
-    entry = json.loads(MCP_CONFIG.read_text())["mcpServers"]["fidelis"]
+    entry = json.loads(MCP_CONFIG.read_text())["mcpServers"]["memex"]
 
     assert package["identifier"] == DISTRIBUTION
     assert package["version"] == _package_version()
@@ -85,19 +85,19 @@ def test_skill_declares_the_tools_the_mcp_connection_provides():
     text = SKILL.read_text()
     assert text.startswith("---\n")
     front_matter = text.split("---\n", 2)[1]
-    assert re.search(r"^name:\s*fidelis-memory\s*$", front_matter, re.MULTILINE)
+    assert re.search(r"^name:\s*memex-memory\s*$", front_matter, re.MULTILINE)
     assert re.search(r"^description:\s*\S", front_matter, re.MULTILINE)
-    for tool in ("fidelis_recall", "fidelis_store", "fidelis_correct", "fidelis_get", "fidelis_recent", "fidelis_health"):
+    for tool in ("memex_recall", "memex_store", "memex_correct", "memex_get", "memex_recent", "memex_health"):
         assert tool in text, tool
 
 
 def test_skill_matches_six_tool_memory_surface():
-    from fidelis.mcp_server import TOOLS
+    from memex.mcp_server import TOOLS
 
     names = {tool["name"] for tool in TOOLS}
     assert names == {
-        "fidelis_recall", "fidelis_store", "fidelis_correct",
-        "fidelis_get", "fidelis_recent", "fidelis_health",
+        "memex_recall", "memex_store", "memex_correct",
+        "memex_get", "memex_recent", "memex_health",
     }
-    mentioned = set(re.findall(r"`(fidelis_[a-z_]+)`", SKILL.read_text()))
+    mentioned = set(re.findall(r"`(memex_[a-z_]+)`", SKILL.read_text()))
     assert mentioned == names

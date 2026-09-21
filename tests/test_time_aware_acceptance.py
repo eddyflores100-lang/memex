@@ -7,7 +7,7 @@ traces to a clause of the spec: the "Acceptance scenario" steps 1-10 and the
 Harness: a REAL mem0 Chroma vector store persisted under ``tmp_path`` (the same
 ``mem0.vector_stores.chroma.ChromaDB`` class the server boots with), a real
 sqlite temporal sidecar next to it, and the real HTTP handler from
-``fidelis.server.make_handler`` on an ephemeral port. Only the embedding model
+``memex.server.make_handler`` on an ephemeral port. Only the embedding model
 is replaced — by a deterministic bag-of-words hashing embedder — so nothing
 needs Ollama, a network, or an LLM, yet recall genuinely ranks by similarity
 and ids/payloads round-trip through a real store.
@@ -30,16 +30,16 @@ from types import SimpleNamespace
 
 import pytest
 
-from fidelis import degrade, mcp_server, recall_b, recall_hybrid, server
-from fidelis.degrade import configure_temporal, replay_queue, safe_add
-from fidelis.relation_envelope import FEATURE_ENV
-from fidelis.temporal import parse_instant
-from fidelis.temporal_recall import temporal_view
+from memex import degrade, mcp_server, recall_b, recall_hybrid, server
+from memex.degrade import configure_temporal, replay_queue, safe_add
+from memex.relation_envelope import FEATURE_ENV
+from memex.temporal import parse_instant
+from memex.temporal_recall import temporal_view
 
 USER = "acceptance-agent"
-TEXT_A = "Fidelis server listens on port 19420."
-TEXT_B = "Fidelis server listens on port 19555."
-QUERY = "which port does the fidelis server listen on"
+TEXT_A = "Memex server listens on port 19420."
+TEXT_B = "Memex server listens on port 19555."
+QUERY = "which port does the memex server listen on"
 RECALL_ENDPOINTS = ["/query", "/recall", "/recall_hybrid"]
 RECORDED_AT_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$")
 CALLER_TEMPORAL_KEYS = ("event_at", "valid_from", "valid_to", "supersedes_json", "source")
@@ -161,14 +161,14 @@ def harness(tmp_path, monkeypatch):
     queue_dir = tmp_path / "queue"
     monkeypatch.setenv("HOME", str(home))
     monkeypatch.setenv("COGITO_QUEUE_DIR", str(queue_dir))
-    monkeypatch.setenv("FIDELIS_QUEUE_DIR", str(queue_dir))
-    monkeypatch.setenv("FIDELIS_RETRIEVAL_TELEMETRY", "0")
-    monkeypatch.setenv("FIDELIS_RETRIEVAL_TELEMETRY_LOG", str(tmp_path / "telemetry.jsonl"))
+    monkeypatch.setenv("MEMEX_QUEUE_DIR", str(queue_dir))
+    monkeypatch.setenv("MEMEX_RETRIEVAL_TELEMETRY", "0")
+    monkeypatch.setenv("MEMEX_RETRIEVAL_TELEMETRY_LOG", str(tmp_path / "telemetry.jsonl"))
     monkeypatch.setenv("MEM0_TELEMETRY", "False")
     monkeypatch.delenv("COGITO_TEMPORAL_V1", raising=False)
     monkeypatch.delenv(FEATURE_ENV, raising=False)
     monkeypatch.delenv("COGITO_HERMENEUTICS_EVIDENCE_STATUS", raising=False)
-    from fidelis import telemetry
+    from memex import telemetry
 
     monkeypatch.setattr(telemetry, "_LOG_PATH", tmp_path / "escalation.log", raising=False)
 
@@ -253,7 +253,7 @@ def test_step01_store_returns_stored_with_recorded_at(harness):
     payload = harness.payload(body["id"])
     assert payload["data"] == TEXT_A
     assert payload["user_id"] == USER
-    assert payload["temporal_schema"] == "fidelis.temporal/v1"
+    assert payload["temporal_schema"] == "memex.temporal/v1"
     assert payload["recorded_at"] == body["recorded_at"]
     assert payload["recorded_at_source"] == "write"
     assert payload["content_sha256"] == hashlib.sha256(TEXT_A.strip().encode("utf-8")).hexdigest()
@@ -356,13 +356,13 @@ def test_step05b_invalid_as_of_is_400(harness, endpoint):
 
 def test_step06_expired_record_is_annotated_and_demoted(harness):
     a, b = _store_a_then_b(harness)
-    text_c = "Temporary migration override: fidelis server listens on port 18000."
+    text_c = "Temporary migration override: memex server listens on port 18000."
     past = "2020-01-01T00:00:00Z"
     c = harness.store_ok(text_c, valid_to=past)
     assert parse_instant(harness.payload(c["id"])["valid_to"]) == parse_instant(past)
 
     # A query C matches best, so its demotion is visible rather than incidental.
-    query = "temporary migration override port for the fidelis server"
+    query = "temporary migration override port for the memex server"
     raw_order = harness.recall("/query", query, historical=True)
     assert _position(raw_order, c["id"]) == 0, "precondition: C is the most relevant hit"
 
@@ -384,7 +384,7 @@ def test_step07_valid_from_after_valid_to_is_400(harness):
     count = harness.count()
 
     status, body = harness.store(
-        "Fidelis maintenance window for the port migration.",
+        "Memex maintenance window for the port migration.",
         valid_from="2026-02-01", valid_to="2026-01-01",
     )
 
@@ -399,7 +399,7 @@ def test_step08_harness_envelope_is_422_rejected(harness):
     count = harness.count()
     queue_before = harness.queue_files()
     tag = "system" + "-reminder"
-    envelope_text = "<" + tag + ">\nFidelis server listens on port 19420.\n</" + tag + ">"
+    envelope_text = "<" + tag + ">\nMemex server listens on port 19420.\n</" + tag + ">"
 
     status, body = harness.store(envelope_text)
 
@@ -415,7 +415,7 @@ def test_step08_harness_envelope_is_422_rejected(harness):
 def test_step09_dependency_failure_queues_then_replay_keeps_queue_time(harness):
     harness.store_ok(TEXT_A)
     count = harness.count()
-    text = "Fidelis replay queue drains every sixty seconds."
+    text = "Memex replay queue drains every sixty seconds."
 
     harness.embedder.fail = True
     status, body = harness.store(text)
@@ -447,7 +447,7 @@ def test_step09_dependency_failure_queues_then_replay_keeps_queue_time(harness):
     recorded_at = parse_instant(payload["recorded_at"])
     assert recorded_at == datetime.fromtimestamp(original_ts, timezone.utc)
     assert recorded_at < replay_started - timedelta(days=30)
-    assert payload["temporal_schema"] == "fidelis.temporal/v1"
+    assert payload["temporal_schema"] == "memex.temporal/v1"
     assert payload["content_sha256"] == hashlib.sha256(text.encode("utf-8")).hexdigest()
     assert [p for p in harness.queue_files() if p.suffix == ".json"] == []
 
@@ -457,8 +457,8 @@ def test_step09_dependency_failure_queues_then_replay_keeps_queue_time(harness):
 
 
 def test_step09b_safe_add_direct_queue_then_replay(harness):
-    """Same step through fidelis.degrade.safe_add directly (no HTTP)."""
-    text = "Fidelis sidecar is a rebuildable cache."
+    """Same step through memex.degrade.safe_add directly (no HTTP)."""
+    text = "Memex sidecar is a rebuildable cache."
     harness.embedder.fail = True
     queued = safe_add(harness.memory, text, USER, kind="store")
     assert queued["status"] == "queued"
@@ -477,7 +477,7 @@ def test_step09b_safe_add_direct_queue_then_replay(harness):
 
 
 def test_step09c_replay_without_queue_time_says_replay(harness):
-    text = "Fidelis queue records written by older clients have no timestamp."
+    text = "Memex queue records written by older clients have no timestamp."
     harness.embedder.fail = True
     queued = safe_add(harness.memory, text, USER, kind="store")
     (qfile,) = [p for p in harness.queue_files() if p.suffix == ".json"]
@@ -510,7 +510,7 @@ def test_step09d_queued_supersession_survives_replay(harness):
 
 @pytest.mark.parametrize("endpoint", RECALL_ENDPOINTS)
 def test_step10_legacy_payload_is_current_with_unknown_recorded_at(harness, endpoint):
-    legacy_text = "Legacy note: fidelis server port was chosen by the owner."
+    legacy_text = "Legacy note: memex server port was chosen by the owner."
     harness.memory.vector_store.insert(
         vectors=[HashingEmbedder.vector(legacy_text)],
         payloads=[{"data": legacy_text, "user_id": USER}],
@@ -518,7 +518,7 @@ def test_step10_legacy_payload_is_current_with_unknown_recorded_at(harness, endp
     )
     harness.store_ok(TEXT_A)
 
-    memories = harness.recall(endpoint, "fidelis server port owner legacy note")
+    memories = harness.recall(endpoint, "memex server port owner legacy note")
 
     legacy = [m for m in memories if m.get("text") == legacy_text]
     assert len(legacy) == 1, memories
@@ -530,7 +530,7 @@ def test_step10_legacy_payload_is_current_with_unknown_recorded_at(harness, endp
     assert harness.payload("legacy-row-0001") == {"data": legacy_text, "user_id": USER}
 
     # Legacy rows stay visible under as_of (flagged, not guessed).
-    past = harness.recall(endpoint, "fidelis server port owner legacy note",
+    past = harness.recall(endpoint, "memex server port owner legacy note",
                           as_of="2001-01-01T00:00:00Z")
     assert legacy_text in [m.get("text") for m in past]
     assert TEXT_A not in [m.get("text") for m in past]
@@ -540,7 +540,7 @@ def test_step10_legacy_payload_is_current_with_unknown_recorded_at(harness, endp
 
 
 TRICKY_TEXT = (
-    "  \tCafé naïve ☕ 日本語 \U0001f680 — on 2024-03-15 the  fidelis   server\n"
+    "  \tCafé naïve ☕ 日本語 \U0001f680 — on 2024-03-15 the  memex   server\n"
     "\tmoved to port 19420 at 2024-03-15T09:30:00Z;  trailing   spaces kept \n "
 )
 
@@ -559,7 +559,7 @@ def test_invariant_a_byte_identity_and_no_date_promotion(harness, endpoint):
         TRICKY_TEXT.strip().encode("utf-8")
     ).hexdigest()
 
-    memories = harness.recall(endpoint, "fidelis server moved to port 19420")
+    memories = harness.recall(endpoint, "memex server moved to port 19420")
     hits = _by_id(memories)
     assert hits[stored["id"]]["text"] == TRICKY_TEXT
     assert hits[plain["id"]]["text"] == TEXT_A
@@ -593,7 +593,7 @@ def test_invariant_b_append_only_after_supersession(harness):
 def test_invariant_c_superseded_never_silently_dropped(harness, endpoint):
     a, b = _store_a_then_b(harness)
     # A query that favours A on raw relevance: still present, still demoted.
-    query = "fidelis server listens on port 19420"
+    query = "memex server listens on port 19420"
 
     memories = harness.recall(endpoint, query)
     hits = _by_id(memories)
@@ -637,7 +637,7 @@ def test_invariant_d_fail_open_corrupt_sidecar_at_startup(harness):
         _assert_passthrough_unavailable(harness.recall(endpoint, QUERY), {TEXT_A, TEXT_B})
     # Fail-open does not extend to losing writes: a store still persists.
     count = harness.count()
-    status, body = harness.store("Fidelis keeps writing when the sidecar is corrupt.")
+    status, body = harness.store("Memex keeps writing when the sidecar is corrupt.")
     assert status == 200 and body["status"] == "stored", (status, body)
     assert harness.count() == count + 1
 
@@ -751,7 +751,7 @@ def test_invariant_e_invalid_declaration_is_400_and_writes_nothing(harness, name
     count = harness.count()
 
     status, body = harness.store(
-        "Fidelis write that carries an invalid temporal declaration.",
+        "Memex write that carries an invalid temporal declaration.",
         **INVALID_DECLARATIONS[name],
     )
 
@@ -817,7 +817,7 @@ def test_invariant_f_rejected_writes_are_never_queued(harness):
 
 def test_invariant_f_secret_is_rejected_without_echo(harness):
     secret = "ghp_" + "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8"
-    status, body = harness.store("deploy token for the fidelis mirror: " + secret)
+    status, body = harness.store("deploy token for the memex mirror: " + secret)
     assert status == 422, (status, body)
     assert body["reason"] == "secret_like"
     assert secret not in json.dumps(body)
@@ -878,7 +878,7 @@ def test_invariant_temporal_fields_written_with_relation_envelopes_on(harness, m
     body = harness.store_ok(TEXT_A, id="port-fact-0001", event_at="2026-05-01")
     payload = harness.payload(body["id"])
     assert payload["data"] == TEXT_A
-    assert payload["temporal_schema"] == "fidelis.temporal/v1"
+    assert payload["temporal_schema"] == "memex.temporal/v1"
     assert payload["recorded_at_source"] == "write"
     assert parse_instant(payload["event_at"]) == datetime(2026, 5, 1, tzinfo=timezone.utc)
     for value in payload.values():
@@ -1009,7 +1009,7 @@ def test_invariant_i_mcp_recall_text_marks_superseded_and_expired(monkeypatch):
 
 def test_invariant_i_mcp_end_to_end_against_disposable_server(harness, monkeypatch):
     """Real _http_post -> real handler: refusal is not reported as stored/outage."""
-    monkeypatch.setenv("FIDELIS_PORT", str(harness.port))
+    monkeypatch.setenv("MEMEX_PORT", str(harness.port))
     monkeypatch.delenv("COGITO_HERMENEUTICS_EVIDENCE_STATUS", raising=False)
     a, b = _store_a_then_b(harness)
     count = harness.count()

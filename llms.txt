@@ -1,20 +1,20 @@
-# Fidelis Memory
+# Memex
 Local agent memory with zero-LLM retrieval by default, verbatim records, and correction history.
 
-Version: 0.3.0rc1 (pre-release). Distribution: fidelis-memory. Import/CLI: fidelis.
-Repository: https://github.com/eddyflores100-lang/fidelis
+Version: 0.3.0rc1 (pre-release). Distribution: memex-memory. Import/CLI: memex.
+Repository: https://github.com/eddyflores100-lang/memex
 
 Install on macOS or Linux with Python 3.10+, Ollama, and nomic-embed-text:
 
 ```bash
-python3 -m pip install "fidelis-memory==0.3.0rc1"
-fidelis init
-fidelis mcp install --client codex
+python3 -m pip install "memex-memory==0.3.0rc1"
+memex init
+memex mcp install --client codex
 ```
 
 Other installers: Claude Code (default), copilot, gemini, openclaw.
-MCP tools: fidelis_recall, fidelis_store, fidelis_correct, fidelis_get,
-fidelis_recent, fidelis_health. Old fidelis_query/orient and cogito_* MCP names
+MCP tools: memex_recall, memex_store, memex_correct, memex_get,
+memex_recent, memex_health. Old memex_query/orient and cogito_* MCP names
 are retired in this release. Restart clients after upgrading.
 
 Default MCP recall calls HTTP /query with local learned embeddings and no
@@ -26,8 +26,8 @@ and queued are distinct outcomes. Recall is evidence, not truth verification.
 Historical benchmark scores do not measure the redesigned default path.
 Full LLM/QA evaluation is post-release work; consult current README evidence.
 
-Service: http://127.0.0.1:19420. FIDELIS_PORT configures client and server.
-Store: ~/.cogito/store. COGITO_STORE_PATH and FIDELIS_QUEUE_DIR redirect state.
+Service: http://127.0.0.1:19420. MEMEX_PORT configures client and server.
+Store: ~/.cogito/store. COGITO_STORE_PATH and MEMEX_QUEUE_DIR redirect state.
 Ollama is required for memory operations, but health and MCP discovery remain
 available without it. Local storage is not application-encrypted; screening
 cannot detect every secret. Not a network-authenticated multi-tenant service.

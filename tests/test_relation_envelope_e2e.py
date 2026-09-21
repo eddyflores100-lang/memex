@@ -12,8 +12,8 @@ import threading
 import urllib.request
 from pathlib import Path
 
-from fidelis import recall_hybrid, server
-from fidelis.relation_envelope import (
+from memex import recall_hybrid, server
+from memex.relation_envelope import (
     DECLARATIONS_FIELD,
     FEATURE_ENV,
     SCHEMA_VERSION,
@@ -109,7 +109,7 @@ def _post(port: int, path: str, payload: dict) -> dict:
 def _mcp_exchange(port: int, *, relations: bool) -> list[dict]:
     env = os.environ.copy()
     env["PYTHONPATH"] = str(ROOT / "src")
-    env["FIDELIS_PORT"] = str(port)
+    env["MEMEX_PORT"] = str(port)
     env["COGITO_HERMENEUTICS_EVIDENCE_STATUS"] = "1"
     if relations:
         env[FEATURE_ENV] = "1"
@@ -117,7 +117,7 @@ def _mcp_exchange(port: int, *, relations: bool) -> list[dict]:
         env.pop(FEATURE_ENV, None)
     # PACKET F3 (MCP surface v2): `cogito_recall` is removed (all `cogito_*`
     # aliases were byte-identical duplicates, confirmed by the real-user
-    # panel), so only `fidelis_recall` is exercised here now.
+    # panel), so only `memex_recall` is exercised here now.
     requests = [
         {
             "jsonrpc": "2.0",
@@ -131,13 +131,13 @@ def _mcp_exchange(port: int, *, relations: bool) -> list[dict]:
             "id": 3,
             "method": "tools/call",
             "params": {
-                "name": "fidelis_recall",
+                "name": "memex_recall",
                 "arguments": {"query": QUERY, "limit": 5},
             },
         },
     ]
     completed = subprocess.run(
-        [sys.executable, "-m", "fidelis.mcp_server"],
+        [sys.executable, "-m", "memex.mcp_server"],
         input="\n".join(json.dumps(request) for request in requests) + "\n",
         capture_output=True,
         text=True,
@@ -333,19 +333,19 @@ def test_disposable_ingest_http_mcp_and_rollback(
         assert bypass["status"] == "not_needed"
         assert len(memory.vector_store.search_calls) == searches_before_bypass
 
-        # PACKET F3 (MCP surface v2): fidelis_recall's default fast path
+        # PACKET F3 (MCP surface v2): memex_recall's default fast path
         # (POST /query) does not follow relation-envelope links -- the fake
         # vector store's search() here deliberately excludes "atlas-prior"
         # from direct search results (only reachable via the link the OLD
         # orient-cascade path followed), so the relation-envelope-LINKED
-        # evidence this section used to prove through the `fidelis_recall`
+        # evidence this section used to prove through the `memex_recall`
         # tool name is still fully proven above via the HTTP /orient
         # assertions, and separately in
         # tests/test_evidence_status_integration.py /
         # tests/test_evidence_status_adversarial.py, which call the
         # unchanged `_tool_recall`/`_tool_recall_structured` functions
         # directly (PRD D2: the functions are unchanged, only their
-        # reachability via the `fidelis_recall` NAME changed). This section
+        # reachability via the `memex_recall` NAME changed). This section
         # now proves what is still true of the new tool: it is listed (not
         # `cogito_recall`, which is removed), dispatchable over a real
         # subprocess against a real backend, and returns the directly-
@@ -355,7 +355,7 @@ def test_disposable_ingest_http_mcp_and_rollback(
         tool_names = {
             item["name"] for item in mcp_on[1]["result"]["tools"]
         }
-        assert "fidelis_recall" in tool_names
+        assert "memex_recall" in tool_names
         assert "cogito_recall" not in tool_names
         for response in mcp_on[2:]:
             assert "error" not in response, response

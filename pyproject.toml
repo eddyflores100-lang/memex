@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "fidelis-alicelabs"
-version = "0.3.0rc1-alicelabs"
-description = "AliceLabs proprietary fork of Fidelis Memory: faithful agent memory with zero-LLM retrieval by default."
+name = "memex"
+version = "0.3.0rc1"
+description = "Memex — local-first, zero-LLM agent memory. AliceLabs proprietary."
 readme = "README.md"
 license = { text = "AliceLabs Proprietary v1.0" }
 requires-python = ">=3.10"
@@ -14,8 +14,9 @@ authors = [
 ]
 keywords = [
   "ai", "agents", "memory", "rag", "retrieval", "llm",
-  "mem0", "agent", "alicelabs-memory", "integer-pointer", "fidelity",
+  "agent", "integer-pointer", "fidelity",
   "vector-store", "chromadb", "ollama", "mcp", "agent-memory",
+  "memex", "alice-labs", "local-first", "zero-llm",
 ]
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -47,21 +48,21 @@ hybrid = ["bm25s>=0.2"]  # BM25 fusion for recall_hybrid; degrades gracefully if
 dev = ["pytest", "pytest-asyncio", "httpx", "ruff==0.15.22", "build>=1.2", "anthropic>=0.40"]
 
 [project.scripts]
-fidelis = "fidelis.cli:main"
-fidelis-server = "fidelis.server:main"
-fidelis-mcp = "fidelis.mcp_server:main"
-fidelis-lpci-server = "fidelis.scaffold_server:main"
+memex = "memex.cli:main"
+memex-server = "memex.server:main"
+memex-mcp = "memex.mcp_server:main"
+memex-lpci-server = "memex.scaffold_server:main"
 
 [project.urls]
 Homepage = "https://github.com/eddyflores100-lang"
-Repository = "https://github.com/eddyflores100-lang/fidelis"
-Documentation = "https://github.com/eddyflores100-lang/fidelis#readme"
-Issues = "https://github.com/eddyflores100-lang/fidelis/issues"
-Changelog = "https://github.com/eddyflores100-lang/fidelis/blob/main/CHANGELOG.md"
-Source = "https://github.com/eddyflores100-lang/fidelis"
+Repository = "https://github.com/eddyflores100-lang/memex"
+Documentation = "https://github.com/eddyflores100-lang/memex#readme"
+Issues = "https://github.com/eddyflores100-lang/memex/issues"
+Changelog = "https://github.com/eddyflores100-lang/memex/blob/main/CHANGELOG.md"
+Source = "https://github.com/eddyflores100-lang/memex"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/fidelis"]
+packages = ["src/memex"]
 
 [tool.uv]
 # onnxruntime 1.24.1-1.24.3 (pulled in transitively by chromadb) declare

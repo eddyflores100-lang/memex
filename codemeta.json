@@ -1,15 +1,15 @@
 {
   "@context": "https://w3id.org/codemeta/3.1",
   "@type": "SoftwareSourceCode",
-  "name": "fidelis-alicelabs",
-  "description": "AliceLabs proprietary fork of Fidelis Memory: local-first, zero-LLM memory for AI agents with integer-pointer fidelity. Licensed under AliceLabs Proprietary License v1.0.",
-  "codeRepository": "https://github.com/eddyflores100-lang/fidelis-alicelabs",
-  "issueTracker": "https://github.com/eddyflores100-lang/fidelis-alicelabs/issues",
-  "readme": "https://github.com/eddyflores100-lang/fidelis-alicelabs/blob/main/README.md",
-  "continuousIntegration": "https://github.com/eddyflores100-lang/fidelis-alicelabs/actions",
+  "name": "memex-alicelabs",
+  "description": "AliceLabs proprietary fork of Memex: local-first, zero-LLM memory for AI agents with integer-pointer fidelity. Licensed under AliceLabs Proprietary License v1.0.",
+  "codeRepository": "https://github.com/eddyflores100-lang/memex-alicelabs",
+  "issueTracker": "https://github.com/eddyflores100-lang/memex-alicelabs/issues",
+  "readme": "https://github.com/eddyflores100-lang/memex-alicelabs/blob/main/README.md",
+  "continuousIntegration": "https://github.com/eddyflores100-lang/memex-alicelabs/actions",
   "license": "AliceLabs Proprietary License v1.0",
   "version": "0.3.0rc1-alicelabs",
-  "url": "https://github.com/eddyflores100-lang/fidelis-alicelabs",
+  "url": "https://github.com/eddyflores100-lang/memex-alicelabs",
   "programmingLanguage": "Python",
   "runtimePlatform": "Python >=3.10",
   "operatingSystem": [
@@ -22,7 +22,7 @@
     "local-first",
     "Claude Code",
     "verbatim retrieval",
-    "fidelis-alicelabs",
+    "memex-alicelabs",
     "alice-labs",
     "integer-pointer fidelity"
   ],
@@ -43,6 +43,6 @@
     "name": "AliceLabs",
     "url": "https://github.com/eddyflores100-lang"
   },
-  "creditText": "Incorporates code originally licensed under MIT from the Fidelis Memory project by AliceLabs (Eddy Flores).",
-  "derivativeWork": "https://github.com/eddyflores100-lang/fidelis"
+  "creditText": "Incorporates code originally licensed under MIT from the Memex project by AliceLabs (Eddy Flores).",
+  "derivativeWork": "https://github.com/eddyflores100-lang/memex"
 }

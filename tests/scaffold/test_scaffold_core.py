@@ -1,10 +1,10 @@
-"""Tests for fidelis_scaffold core. Pure-Python, no external deps."""
+"""Tests for memex_scaffold core. Pure-Python, no external deps."""
 
 from __future__ import annotations
 
 
 
-from fidelis.scaffold import (  # noqa: E402
+from memex.scaffold import (  # noqa: E402
     SCAFFOLD_CLOSE,
     SCAFFOLD_OPEN,
     SCAFFOLD_VERSION,
@@ -28,8 +28,8 @@ QTYPES = [
 
 def test_version_is_set():
     assert SCAFFOLD_VERSION == "v0.1.0"
-    assert SCAFFOLD_OPEN == "[FIDELIS-SCAFFOLD-v0.1.0]"
-    assert SCAFFOLD_CLOSE == "[/FIDELIS-SCAFFOLD-v0.1.0]"
+    assert SCAFFOLD_OPEN == "[MEMEX-SCAFFOLD-v0.1.0]"
+    assert SCAFFOLD_CLOSE == "[/MEMEX-SCAFFOLD-v0.1.0]"
 
 
 def test_all_qtypes_produce_scaffolded_output():
@@ -63,8 +63,8 @@ def test_idempotency():
     s3 = wrap_idempotent("temporal-reasoning", top_score=0.7, prior=s2)
     # marker count must stay 1 OPEN + 1 CLOSE regardless of how many times wrap is applied
     for s in (s2, s3):
-        assert s.count("[FIDELIS-SCAFFOLD-") == 1
-        assert s.count("[/FIDELIS-SCAFFOLD-") == 1
+        assert s.count("[MEMEX-SCAFFOLD-") == 1
+        assert s.count("[/MEMEX-SCAFFOLD-") == 1
     # multiple wraps should be stable
     assert s2 == s3
 

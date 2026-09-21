@@ -1,6 +1,6 @@
-# Fidelis AliceLabs — Official Metrics
+# Memex AliceLabs — Official Metrics
 
-**Single source of truth for all Fidelis AliceLabs benchmark numbers.**
+**Single source of truth for all Memex AliceLabs benchmark numbers.**
 
 Last updated: 2026-09-22
 

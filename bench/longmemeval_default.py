@@ -48,15 +48,15 @@ def main():
     os.environ.update(
         HOME=str(home),
         COGITO_STORE_PATH=str(home / "store"),
-        FIDELIS_QUEUE_DIR=str(home / "queue"),
-        FIDELIS_PORT=str(args.port),
+        MEMEX_QUEUE_DIR=str(home / "queue"),
+        MEMEX_PORT=str(args.port),
         MEM0_TELEMETRY="false",
         ANONYMIZED_TELEMETRY="false",
     )
-    from fidelis import __version__
-    from fidelis.config import load, mem0_config
-    from fidelis.degrade import _embed_bounded
-    from fidelis.server import make_handler
+    from memex import __version__
+    from memex.config import load, mem0_config
+    from memex.degrade import _embed_bounded
+    from memex.server import make_handler
     from mem0 import Memory
 
     dataset_bytes = args.data.read_bytes()
@@ -88,12 +88,12 @@ def main():
     cache.execute(
         "CREATE TABLE IF NOT EXISTS embeddings (key TEXT PRIMARY KEY, vector TEXT NOT NULL)"
     )
-    source = Path(__file__).resolve().parents[1] / "src" / "fidelis"
+    source = Path(__file__).resolve().parents[1] / "src" / "memex"
     hashes = {
         str(p.relative_to(source)): digest(p.read_bytes()) for p in sorted(source.rglob("*.py"))
     }
     result = {
-        "schema": "fidelis.default-retrieval-eval/v1",
+        "schema": "memex.default-retrieval-eval/v1",
         "version": __version__,
         "runner_sha256": digest(Path(__file__).read_bytes()),
         "python": platform.python_version(),

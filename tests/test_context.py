@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import json
 
-from fidelis.context import context_packet, plan_context
-from fidelis import mcp_server
+from memex.context import context_packet, plan_context
+from memex import mcp_server
 
 
 def test_non_question_recall_request_triggers_context():
-    plan = plan_context("I need to remember our Fidelis work from a few months ago")
+    plan = plan_context("I need to remember our Memex work from a few months ago")
     assert plan.disposition == "retrieve"
-    assert plan.entity == "Fidelis"
+    assert plan.entity == "Memex"
     assert plan.conversational_role == "historical_recall"
     assert plan.evidence_lane == "historical"
 
@@ -64,9 +64,9 @@ def test_unknown_entity_can_be_inferred_from_context_cue():
 def test_recent_turn_resolves_referent():
     plan = plan_context(
         "What is its current status?",
-        recent_turns=["We were discussing Fidelis."],
+        recent_turns=["We were discussing Memex."],
     )
-    assert plan.entity == "Fidelis"
+    assert plan.entity == "Memex"
     assert plan.evidence_lane == "current"
 
 
@@ -77,7 +77,7 @@ def test_packet_preserves_verbatim_record_and_pointer():
         "score": 0.9,
         "metadata": {"source_pointer": "session.jsonl:42"},
     }
-    packet = context_packet(plan_context("Recall Fidelis"), [record])
+    packet = context_packet(plan_context("Recall Memex"), [record])
     assert packet["records"][0]["text"] == record["text"]
     assert packet["records"][0]["metadata"] == record["metadata"]
     assert packet["records"][0]["record_id"] == "abc"
@@ -102,18 +102,18 @@ def test_mcp_orient_runs_bounded_zero_llm_lane(monkeypatch):
         calls.append((path, payload))
         return {
             "memories": [
-                {"id": "one", "text": "Fidelis is a local memory system.", "score": 1.0}
+                {"id": "one", "text": "Memex is a local memory system.", "score": 1.0}
             ]
         }
 
     monkeypatch.setattr(mcp_server, "_http_post", fake_post)
     packet = json.loads(
         mcp_server._tool_orient(
-            {"utterance": "We need to maintain Fidelis", "limit": 99}
+            {"utterance": "We need to maintain Memex", "limit": 99}
         )
     )
     assert calls[0][0] == "/recall_hybrid"
     assert calls[0][1]["tier"] == "zero_llm"
     assert calls[0][1]["limit"] == 20
     assert "repository implementation status" in calls[0][1]["text"]
-    assert packet["records"][0]["text"] == "Fidelis is a local memory system."
+    assert packet["records"][0]["text"] == "Memex is a local memory system."

@@ -1,4 +1,4 @@
-"""Real-tokenizer token-budget enforcement tests for Fidelis scaffold.
+"""Real-tokenizer token-budget enforcement tests for Memex scaffold.
 
 Uses tiktoken cl100k_base (GPT-4 / OpenAI, reasonable proxy for most modern
 providers including Anthropic cl100k-family) and o200k_base (GPT-4o) to verify
@@ -17,7 +17,7 @@ import pytest
 
 tiktoken = pytest.importorskip("tiktoken")
 
-from fidelis.scaffold._core import wrap_system_prompt, _QTYPE_PROC  # noqa: E402
+from memex.scaffold._core import wrap_system_prompt, _QTYPE_PROC  # noqa: E402
 
 # --------------------------------------------------------------------------- #
 # Fixtures / helpers

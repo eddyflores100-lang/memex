@@ -1,4 +1,4 @@
-"""Retrieval-agnostic compatibility tests for fidelis.scaffold v0.1.0.
+"""Retrieval-agnostic compatibility tests for memex.scaffold v0.1.0.
 
 Validates that the scaffold works correctly when paired with retrieved context
 strings built from LangChain Documents, mem0 dicts, LlamaIndex NodeWithScore
@@ -18,7 +18,7 @@ from collections import namedtuple
 
 import pytest
 
-from fidelis.scaffold import (
+from memex.scaffold import (
     SCAFFOLD_CLOSE,
     SCAFFOLD_OPEN,
     is_scaffolded,

@@ -1,15 +1,15 @@
 {
-  "name": "fidelis",
-  "displayName": "fidelis",
-  "description": "Local agent memory with verbatim records, correction history, and time-aware recall. Provides fidelis_recall, fidelis_store, fidelis_correct, fidelis_get, fidelis_recent, and fidelis_health.",
+  "name": "memex",
+  "displayName": "memex",
+  "description": "Local agent memory with verbatim records, correction history, and time-aware recall. Provides memex_recall, memex_store, memex_correct, memex_get, memex_recent, and memex_health.",
   "version": "0.3.0rc1",
   "author": {
     "name": "AliceLabs",
     "email": "eddyflores100-lang@users.noreply.github.com",
     "url": "https://github.com/eddyflores100-lang"
   },
-  "homepage": "https://github.com/eddyflores100-lang/fidelis",
-  "repository": "https://github.com/eddyflores100-lang/fidelis",
+  "homepage": "https://github.com/eddyflores100-lang/memex",
+  "repository": "https://github.com/eddyflores100-lang/memex",
   "license": "MIT",
   "keywords": [
     "memory",

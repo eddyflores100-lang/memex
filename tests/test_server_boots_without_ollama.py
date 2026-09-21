@@ -1,7 +1,7 @@
-"""fidelis-server boots and answers GET /health without reachable Ollama.
+"""memex-server boots and answers GET /health without reachable Ollama.
 
 This is the container's real console-script entry point
-(`pyproject.toml` [project.scripts] fidelis-server = "fidelis.server:main").
+(`pyproject.toml` [project.scripts] memex-server = "memex.server:main").
 Historically `server.main()` called `_boot(cfg)` eagerly, which imports mem0
 and constructs `Memory.from_config(...)`; mem0's ollama embedder backend
 calls `_ensure_model_exists()` during that construction, which raises a
@@ -56,10 +56,10 @@ def test_server_health_ok_without_ollama(tmp_path: Path):
     env = {
         "PATH": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin",
         "PYTHONPATH": SRC,
-        "FIDELIS_PORT": str(port),
-        "COGITO_PORT": str(port),
+        "MEMEX_PORT": str(port),
+        "MEMEX_PORT": str(port),
         "COGITO_STORE_PATH": str(tmp_path / "store"),
-        "FIDELIS_QUEUE_DIR": str(tmp_path / "queue"),
+        "MEMEX_QUEUE_DIR": str(tmp_path / "queue"),
         "COGITO_QUEUE_DIR": str(tmp_path / "queue"),
         # Unreachable on purpose (both aliases): guarantees no Ollama.
         "OLLAMA_URL": "http://127.0.0.1:1",
@@ -69,7 +69,7 @@ def test_server_health_ok_without_ollama(tmp_path: Path):
         "CHROMA_TELEMETRY_DISABLED": "True",
     }
     proc = subprocess.Popen(
-        [sys.executable, "-m", "fidelis.server"],
+        [sys.executable, "-m", "memex.server"],
         env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
     )
     try:
@@ -99,10 +99,10 @@ def test_server_post_endpoint_returns_503_without_ollama(tmp_path: Path):
     env = {
         "PATH": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin",
         "PYTHONPATH": SRC,
-        "FIDELIS_PORT": str(port),
-        "COGITO_PORT": str(port),
+        "MEMEX_PORT": str(port),
+        "MEMEX_PORT": str(port),
         "COGITO_STORE_PATH": str(tmp_path / "store"),
-        "FIDELIS_QUEUE_DIR": str(tmp_path / "queue"),
+        "MEMEX_QUEUE_DIR": str(tmp_path / "queue"),
         "COGITO_QUEUE_DIR": str(tmp_path / "queue"),
         "OLLAMA_URL": "http://127.0.0.1:1",
         "COGITO_OLLAMA_URL": "http://127.0.0.1:1",
@@ -111,7 +111,7 @@ def test_server_post_endpoint_returns_503_without_ollama(tmp_path: Path):
         "CHROMA_TELEMETRY_DISABLED": "True",
     }
     proc = subprocess.Popen(
-        [sys.executable, "-m", "fidelis.server"],
+        [sys.executable, "-m", "memex.server"],
         env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
     )
     try:

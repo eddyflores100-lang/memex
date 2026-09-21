@@ -27,24 +27,24 @@ def _package_version() -> str:
 def test_public_surfaces_do_not_install_unrelated_pypi_project():
     for path in PUBLIC_SURFACES:
         text = path.read_text()
-        assert "pip install fidelis\n" not in text, path
-        assert "pip install fidelis " not in text, path
-        assert not re.search(r"pypi\.org/project/fidelis(?!-memory)\b", text), path
+        assert "pip install memex\n" not in text, path
+        assert "pip install memex " not in text, path
+        assert not re.search(r"pypi\.org/project/memex(?!-memory)\b", text), path
 
 
-def test_primary_surfaces_install_the_fidelis_memory_distribution():
+def test_primary_surfaces_install_the_memex_memory_distribution():
     version = _package_version()
     for path in (ROOT / "README.md", ROOT / "llms.txt", ROOT / "docs" / "full-reference.md"):
         text = path.read_text()
         assert re.search(
-            rf'python3 -m pip install "fidelis-memory(?:\[hybrid\])?=={re.escape(version)}"',
+            rf'python3 -m pip install "memex-memory(?:\[hybrid\])?=={re.escape(version)}"',
             text,
         ), path
 
 
 def test_python_and_citation_versions_match_package():
     version = _package_version()
-    package_init = (ROOT / "src" / "fidelis" / "__init__.py").read_text()
+    package_init = (ROOT / "src" / "memex" / "__init__.py").read_text()
     citation = (ROOT / "CITATION.cff").read_text()
     assert f'__version__ = "{version}"' in package_init
     assert f'version: "{version}"' in citation
@@ -55,13 +55,13 @@ def test_current_release_notes_and_container_metadata_track_package_version():
     version = _package_version()
     notes = RELEASE_NOTES.read_text()
     assert notes.startswith(f"<!-- release-version: {version} -->\n")
-    assert f"# Fidelis Memory {version} " in notes
-    assert f'fidelis-memory=={version}' in notes
+    assert f"# Memex {version} " in notes
+    assert f'memex-memory=={version}' in notes
 
     dockerfile = (ROOT / "Dockerfile").read_text()
     compose = (ROOT / "docker-compose.yml").read_text()
     assert f'org.opencontainers.image.version="{version}"' in dockerfile
-    assert f"image: fidelis:{version}" in compose
+    assert f"image: memex:{version}" in compose
 
 
 def test_registry_manifest_pins_the_released_distribution():
@@ -71,9 +71,9 @@ def test_registry_manifest_pins_the_released_distribution():
     assert package["registryType"] == "pypi"
     assert package["runtimeHint"] == "uvx"
     assert package["runtimeArguments"] == [
-        {"type": "named", "name": "--from", "value": f'fidelis-memory=={package["version"]}'}
+        {"type": "named", "name": "--from", "value": f'memex-memory=={package["version"]}'}
     ]
-    assert [arg["value"] for arg in package["packageArguments"]] == ["fidelis", "mcp", "serve"]
+    assert [arg["value"] for arg in package["packageArguments"]] == ["memex", "mcp", "serve"]
 
 
 def test_release_surfaces_do_not_recycle_historical_scores():

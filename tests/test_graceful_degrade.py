@@ -6,13 +6,13 @@ from __future__ import annotations
 import pytest
 from chromadb.errors import DuplicateIDError
 
-from fidelis import degrade
+from memex import degrade
 
 
 @pytest.fixture(autouse=True)
 def temp_queue(tmp_path, monkeypatch):
     qdir = tmp_path / "queue"
-    monkeypatch.setenv("FIDELIS_QUEUE_DIR", str(qdir))
+    monkeypatch.setenv("MEMEX_QUEUE_DIR", str(qdir))
     yield qdir
 
 

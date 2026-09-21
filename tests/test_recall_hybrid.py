@@ -16,7 +16,7 @@ import pytest
 
 # Note: cogito.__init__ re-exports recall_hybrid as a function for convenience;
 # use the full module path here so we can reach the internal helpers.
-from fidelis import recall_hybrid as rh
+from memex import recall_hybrid as rh
 
 
 # ---------------------------------------------------------------------------
@@ -32,7 +32,7 @@ from fidelis import recall_hybrid as rh
     ("most recently shipped feature", "llm"),
     ("how many bugs were tracked in total", "llm"),
     ("what is the recall score for snapshot layer", "default"),
-    ("describe the architecture of Fidelis", "default"),
+    ("describe the architecture of Memex", "default"),
 ])
 def test_classify_query(query, expected):
     assert rh.classify_query(query) == expected

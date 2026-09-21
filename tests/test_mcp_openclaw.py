@@ -1,14 +1,14 @@
-"""Regression tests for `fidelis mcp install|uninstall --client openclaw`.
+"""Regression tests for `memex mcp install|uninstall --client openclaw`.
 
 OpenClaw reads an optional JSON5 config from ``~/.openclaw/openclaw.json`` and
 keeps outbound MCP servers under ``mcp.servers.<name>``. Because that file is
-JSON5, Fidelis neither writes it nor parses it: the documented ``openclaw mcp
+JSON5, Memex neither writes it nor parses it: the documented ``openclaw mcp
 add`` / ``mcp unset`` CLI owns every write, the documented ``openclaw mcp show
 --json`` / ``mcp list --json`` CLI answers every question about what is in it,
 and ``$OPENCLAW_CONFIG_PATH`` pins which file that is for both.
 
 These tests stand up a fake ``openclaw`` executable on PATH that implements
-that contract, including reading JSON5 the way OpenClaw does. A config Fidelis
+that contract, including reading JSON5 the way OpenClaw does. A config Memex
 could not parse for itself is therefore fully visible here -- which is what
 makes the JSON5 cases below real tests rather than tests of a blind spot.
 Nothing here touches the real home directory or requires OpenClaw installed.
@@ -23,8 +23,8 @@ from pathlib import Path
 
 import pytest
 
-from fidelis import cli, mcp_cmd
-from fidelis.mcp_cmd import (
+from memex import cli, mcp_cmd
+from memex.mcp_cmd import (
     MCP_SERVER_FILE,
     MCP_SERVER_NAME,
     cmd_mcp_install,
@@ -37,13 +37,13 @@ from fidelis.mcp_cmd import (
 
 
 # A stand-in for the OpenClaw CLI. It honours exactly the documented surface
-# Fidelis delegates to -- `mcp add --command/--arg`, `mcp unset`, `mcp show
+# Memex delegates to -- `mcp add --command/--arg`, `mcp unset`, `mcp show
 # --json`, `mcp list --json`, and the `{"ok": false, "error": {...}}` failure
 # envelope -- records every invocation, and can be told to misbehave.
 #
 # `FAKE_OPENCLAW_MODE` only ever changes the *write* subcommands, except for
 # "unreadable", which is the config-is-broken case and only changes the reads.
-# The reads are how Fidelis learns the truth; a shim that broke them everywhere
+# The reads are how Memex learns the truth; a shim that broke them everywhere
 # could not tell a caught failure apart from a blind one.
 FAKE_OPENCLAW = r'''#!/usr/bin/env python3
 import json, os, re, sys
@@ -109,7 +109,7 @@ if is_write and mode == "fail":
 
 if is_write and mode == "noop":
     # Accept the call but leave the config alone. Models a write that silently
-    # did not land -- Fidelis must catch that by read-back, not by trusting the
+    # did not land -- Memex must catch that by read-back, not by trusting the
     # exit code.
     print("ok")
     sys.exit(0)
@@ -225,11 +225,11 @@ def openclaw(tmp_path, monkeypatch):
 
 
 @pytest.fixture
-def no_fidelis_writes(monkeypatch):
-    """Fail the test if Fidelis writes an OpenClaw config itself."""
+def no_memex_writes(monkeypatch):
+    """Fail the test if Memex writes an OpenClaw config itself."""
 
     def forbidden(*args, **kwargs):
-        pytest.fail("Fidelis must delegate every OpenClaw config write to the CLI")
+        pytest.fail("Memex must delegate every OpenClaw config write to the CLI")
 
     monkeypatch.setattr(mcp_cmd, "_atomic_write_json", forbidden)
     monkeypatch.setattr(mcp_cmd, "_backup", forbidden)
@@ -258,11 +258,11 @@ def test_install_delegates_the_documented_add_invocation(tmp_path, openclaw, cap
 
     writes = openclaw.writes()
     assert writes == [
-        ["mcp", "add", "fidelis", "--command", sys.executable, "--arg", str(MCP_SERVER_FILE)],
+        ["mcp", "add", "memex", "--command", sys.executable, "--arg", str(MCP_SERVER_FILE)],
     ]
     assert writes[0] == openclaw_add_arguments()
     # Every delegated call -- the write and the read-back -- is pinned to the
-    # file Fidelis reports on.
+    # file Memex reports on.
     assert {call["config"] for call in openclaw.calls()} == {str(config)}
 
     entry = _entry(config)
@@ -273,7 +273,7 @@ def test_install_delegates_the_documented_add_invocation(tmp_path, openclaw, cap
     out = capsys.readouterr().out
     assert str(config) in out
     assert "openclaw mcp reload" in out
-    assert "openclaw mcp doctor fidelis --probe" in out
+    assert "openclaw mcp doctor memex --probe" in out
 
 
 def test_install_confirms_the_write_through_the_openclaw_cli(tmp_path, openclaw):
@@ -288,9 +288,9 @@ def test_install_confirms_the_write_through_the_openclaw_cli(tmp_path, openclaw)
 
 
 def test_install_and_uninstall_never_write_the_config_themselves(
-    tmp_path, openclaw, no_fidelis_writes
+    tmp_path, openclaw, no_memex_writes
 ):
-    """A JSON5 config is OpenClaw's to write; Fidelis only ever delegates."""
+    """A JSON5 config is OpenClaw's to write; Memex only ever delegates."""
     config = tmp_path / "openclaw.json"
     config.write_text(JSON5_EMPTY)
 
@@ -305,7 +305,7 @@ def test_install_leaves_a_json5_config_untouched_when_the_cli_does_nothing(tmp_p
 
     openclaw.mode("noop")  # CLI accepts the call but leaves the file alone
     assert cmd_mcp_install(_args(config)) == 1, "an unconfirmed write is not a success"
-    assert config.read_text() == before, "Fidelis must not rewrite a JSON5 config"
+    assert config.read_text() == before, "Memex must not rewrite a JSON5 config"
 
 
 def test_install_fails_when_a_json5_registration_does_not_land(tmp_path, openclaw, capsys):
@@ -316,13 +316,13 @@ def test_install_fails_when_a_json5_registration_does_not_land(tmp_path, opencla
 
     assert cmd_mcp_install(_args(config)) == 1
     err = capsys.readouterr().err
-    assert "reported success but no 'fidelis' server" in err
+    assert "reported success but no 'memex' server" in err
 
 
 def test_install_refuses_a_foreign_json5_entry_without_force(tmp_path, openclaw, capsys):
     """The pre-flight sees a foreign entry even when the config is JSON5."""
     config = tmp_path / "openclaw.json"
-    foreign = {"command": "npx", "args": ["some-other-fidelis"], "enabled": True}
+    foreign = {"command": "npx", "args": ["some-other-memex"], "enabled": True}
     config.write_text(_json5_with_entry(foreign))
     before = config.read_text()
 
@@ -343,7 +343,7 @@ def test_install_refuses_when_openclaw_cannot_report_the_state(tmp_path, opencla
 
     assert cmd_mcp_install(_args(config)) == 1
     err = capsys.readouterr().err
-    assert "could not confirm what 'fidelis' is" in err
+    assert "could not confirm what 'memex' is" in err
     assert "Config file is invalid" in err
     assert openclaw.writes() == [], "must not shell out to write before refusing"
 
@@ -356,7 +356,7 @@ def test_install_refuses_when_the_cli_has_no_read_only_surface(tmp_path, opencla
 
     assert cmd_mcp_install(_args(config)) == 1
     err = capsys.readouterr().err
-    assert "could not confirm what 'fidelis' is" in err
+    assert "could not confirm what 'memex' is" in err
     assert openclaw.writes() == [], "must not shell out to write before refusing"
 
 
@@ -370,7 +370,7 @@ def test_install_force_past_an_unknown_state_still_needs_a_read_back(tmp_path, o
     assert openclaw.writes() == [openclaw_add_arguments()], "the write was attempted"
     err = capsys.readouterr().err
     assert "could not be confirmed" in err
-    assert "openclaw mcp show fidelis --json" in err
+    assert "openclaw mcp show memex --json" in err
 
 
 def test_install_is_idempotent(tmp_path, openclaw):
@@ -398,7 +398,7 @@ def test_install_preserves_unrelated_servers(tmp_path, openclaw):
 
 def test_install_refuses_foreign_entry_without_force(tmp_path, openclaw, capsys):
     config = tmp_path / "openclaw.json"
-    foreign = {"command": "npx", "args": ["some-other-fidelis"], "enabled": True}
+    foreign = {"command": "npx", "args": ["some-other-memex"], "enabled": True}
     config.write_text(json.dumps({"mcp": {"servers": {MCP_SERVER_NAME: foreign}}}))
 
     assert cmd_mcp_install(_args(config)) == 1
@@ -415,7 +415,7 @@ def test_install_refusal_does_not_leak_the_foreign_entrys_credentials(tmp_path, 
     config = tmp_path / "openclaw.json"
     foreign = {
         "command": "npx",
-        "args": ["some-other-fidelis"],
+        "args": ["some-other-memex"],
         "env": {"API_TOKEN": "sk-live-should-not-appear"},
         "headers": {"Authorization": "Bearer should-not-appear-either"},
     }
@@ -462,7 +462,7 @@ def test_install_refusal_does_not_leak_a_malformed_non_object_entry(tmp_path, op
     assert "non-object entry" in err
 
 
-def test_install_refreshes_a_stale_fidelis_entry(tmp_path, openclaw):
+def test_install_refreshes_a_stale_memex_entry(tmp_path, openclaw):
     config = tmp_path / "openclaw.json"
     stale = {"command": "/old/python", "args": [str(MCP_SERVER_FILE)], "enabled": False}
     config.write_text(json.dumps({"mcp": {"servers": {MCP_SERVER_NAME: stale}}}))
@@ -489,7 +489,7 @@ def test_install_fails_when_a_stale_owned_entry_is_not_actually_refreshed(tmp_pa
 
     assert cmd_mcp_install(_args(config)) == 1
     err = capsys.readouterr().err
-    assert "does not match what Fidelis requested" in err
+    assert "does not match what Memex requested" in err
     assert _entry(config) == stale, "the stale entry must be left exactly alone"
 
 
@@ -509,7 +509,7 @@ def test_install_fails_fast_when_registration_silently_does_nothing(tmp_path, op
 
     assert cmd_mcp_install(_args(config)) == 1
     err = capsys.readouterr().err
-    assert "reported success but no 'fidelis' server" in err
+    assert "reported success but no 'memex' server" in err
 
 
 def test_install_fails_fast_without_the_openclaw_cli(tmp_path, monkeypatch, capsys):
@@ -517,7 +517,7 @@ def test_install_fails_fast_without_the_openclaw_cli(tmp_path, monkeypatch, caps
     assert cmd_mcp_install(_args(tmp_path / "openclaw.json")) == 1
     err = capsys.readouterr().err
     assert "OpenClaw CLI not found on PATH" in err
-    assert "fidelis mcp install --client openclaw" in err
+    assert "memex mcp install --client openclaw" in err
 
 
 def test_install_never_touches_other_clients(tmp_path, openclaw, monkeypatch):
@@ -535,7 +535,7 @@ def test_install_never_touches_other_clients(tmp_path, openclaw, monkeypatch):
 # --------------------------------------------------------------------------
 
 
-def test_uninstall_removes_only_fidelis(tmp_path, openclaw):
+def test_uninstall_removes_only_memex(tmp_path, openclaw):
     config = tmp_path / "openclaw.json"
     assert cmd_mcp_install(_args(config)) == 0
     data = _config(config)
@@ -546,7 +546,7 @@ def test_uninstall_removes_only_fidelis(tmp_path, openclaw):
     servers = _config(config)["mcp"]["servers"]
     assert MCP_SERVER_NAME not in servers
     assert servers["docs"] == {"url": "https://mcp.example.com/mcp"}
-    assert openclaw.writes()[-1] == ["mcp", "unset", "fidelis"]
+    assert openclaw.writes()[-1] == ["mcp", "unset", "memex"]
 
 
 def test_uninstall_confirms_the_removal_through_the_openclaw_cli(tmp_path, openclaw):
@@ -592,7 +592,7 @@ def test_uninstall_refusal_does_not_leak_the_foreign_entrys_credentials(tmp_path
 def test_uninstall_refuses_a_foreign_json5_entry_without_force(tmp_path, openclaw, capsys):
     """The pre-flight sees a foreign entry even when the config is JSON5."""
     config = tmp_path / "openclaw.json"
-    foreign = {"command": "npx", "args": ["some-other-fidelis"], "enabled": True}
+    foreign = {"command": "npx", "args": ["some-other-memex"], "enabled": True}
     config.write_text(_json5_with_entry(foreign))
     before = config.read_text()
 
@@ -612,7 +612,7 @@ def test_uninstall_refuses_when_openclaw_cannot_report_the_state(tmp_path, openc
 
     assert cmd_mcp_uninstall(_args(config)) == 1
     err = capsys.readouterr().err
-    assert "could not confirm what 'fidelis' is" in err
+    assert "could not confirm what 'memex' is" in err
     assert openclaw.writes() == []
 
 
@@ -624,7 +624,7 @@ def test_uninstall_without_config_or_entry_is_a_noop(tmp_path, openclaw, capsys)
 
     config.write_text(json.dumps({"mcp": {"servers": {}}}))
     assert cmd_mcp_uninstall(_args(config)) == 0
-    assert "no 'fidelis' MCP server registered" in capsys.readouterr().out
+    assert "no 'memex' MCP server registered" in capsys.readouterr().out
     assert openclaw.writes() == [], "nothing to remove must not shell out to write"
 
 
@@ -666,7 +666,7 @@ def test_uninstall_fails_fast_without_the_openclaw_cli(tmp_path, monkeypatch, ca
     assert cmd_mcp_uninstall(_args(config)) == 1
     err = capsys.readouterr().err
     assert "OpenClaw CLI not found on PATH" in err
-    assert "fidelis mcp uninstall --client openclaw" in err
+    assert "memex mcp uninstall --client openclaw" in err
 
 
 # --------------------------------------------------------------------------
@@ -693,7 +693,7 @@ def test_cli_accepts_openclaw_client(tmp_path, openclaw, monkeypatch):
     config = tmp_path / "openclaw.json"
     monkeypatch.setattr(
         sys, "argv",
-        ["fidelis", "mcp", "install", "--client", "openclaw", "--settings", str(config)],
+        ["memex", "mcp", "install", "--client", "openclaw", "--settings", str(config)],
     )
     with pytest.raises(SystemExit) as exc:
         cli.main()
@@ -702,7 +702,7 @@ def test_cli_accepts_openclaw_client(tmp_path, openclaw, monkeypatch):
 
     monkeypatch.setattr(
         sys, "argv",
-        ["fidelis", "mcp", "uninstall", "--client", "openclaw", "--settings", str(config)],
+        ["memex", "mcp", "uninstall", "--client", "openclaw", "--settings", str(config)],
     )
     with pytest.raises(SystemExit) as exc:
         cli.main()
@@ -729,16 +729,16 @@ def test_ownership_check_ignores_our_path_outside_the_launch_fields(tmp_path, op
     """Our script path as *data* in env/headers/url does not make an entry
     ours -- only its own command/args do.
 
-    A foreign server is free to reference the Fidelis script path in
+    A foreign server is free to reference the Memex script path in
     metadata unrelated to what it launches (an env var passed through to a
     child process, a header, a URL). Recognizing that as ownership would let
-    Fidelis silently overwrite -- or, on uninstall, delete -- a server that
+    Memex silently overwrite -- or, on uninstall, delete -- a server that
     was never its own."""
     config = tmp_path / "openclaw.json"
     foreign = {
         "command": "node",
         "args": ["./dist/mcp-server.js"],
-        "env": {"FIDELIS_SCRIPT_HINT": str(MCP_SERVER_FILE)},
+        "env": {"MEMEX_SCRIPT_HINT": str(MCP_SERVER_FILE)},
         "headers": {"X-Origin": str(MCP_SERVER_FILE)},
     }
     config.write_text(json.dumps({"mcp": {"servers": {MCP_SERVER_NAME: foreign}}}))
@@ -759,7 +759,7 @@ def test_ownership_check_ignores_our_path_used_as_input_not_as_the_launch(
     A foreign server can take our script path as its own input (e.g. an
     ``--input-file`` argument) while launching something else entirely at
     position 0. Matching anywhere in ``args`` would recognize that as
-    ownership and let Fidelis overwrite or delete a server that never was
+    ownership and let Memex overwrite or delete a server that never was
     its own."""
     config = tmp_path / "openclaw.json"
     foreign = {
@@ -808,7 +808,7 @@ def test_ownership_check_requires_a_python_command_not_just_a_matching_argument(
     """A single argument naming our script is not ownership on its own --
     only a Python interpreter can actually execute it. An unrelated tool
     that merely accepts the path as its one input (reads it, rather than
-    running it) must not be recognized as Fidelis's own."""
+    running it) must not be recognized as Memex's own."""
     config = tmp_path / "openclaw.json"
     foreign = {"command": "cat", "args": [str(MCP_SERVER_FILE)]}
     config.write_text(json.dumps({"mcp": {"servers": {MCP_SERVER_NAME: foreign}}}))

@@ -1,18 +1,18 @@
-# Fidelis Memory 0.3.0rc1 reference
+# Memex 0.3.0rc1 reference
 
 ## Install and run
 
 ```bash
-python3 -m pip install "fidelis-memory==0.3.0rc1"
+python3 -m pip install "memex-memory==0.3.0rc1"
 ollama pull nomic-embed-text
-fidelis init
-fidelis mcp install --client codex
+memex init
+memex mcp install --client codex
 ```
 
-Use `fidelis-server` for foreground operation. Default HTTP address:
-`http://127.0.0.1:19420`. Both client and server honor `FIDELIS_PORT` before the
-legacy `COGITO_PORT`. The MCP stdio command is `fidelis mcp serve` (or
-`fidelis-mcp`). It discovers tools without loading the memory store.
+Use `memex-server` for foreground operation. Default HTTP address:
+`http://127.0.0.1:19420`. Both client and server honor `MEMEX_PORT` before the
+legacy `MEMEX_PORT`. The MCP stdio command is `memex mcp serve` (or
+`memex-mcp`). It discovers tools without loading the memory store.
 
 ## Record model
 
@@ -77,8 +77,8 @@ model extraction succeeded.
 
 ## MCP contracts
 
-Exactly six tools are exposed: `fidelis_recall`, `fidelis_store`,
-`fidelis_correct`, `fidelis_get`, `fidelis_recent`, `fidelis_health`.
+Exactly six tools are exposed: `memex_recall`, `memex_store`,
+`memex_correct`, `memex_get`, `memex_recent`, `memex_health`.
 
 - Recall requires `query`, defaults to `limit:5`, and accepts `mode:"fast"` or
   `mode:"thorough"`. Fast calls `/query`; thorough calls `/recall_hybrid` with
@@ -108,7 +108,7 @@ the entire corpus. Without
 BM25 the dense path remains available. Install the extra with:
 
 ```bash
-python3 -m pip install "fidelis-memory[hybrid]==0.3.0rc1"
+python3 -m pip install "memex-memory[hybrid]==0.3.0rc1"
 ```
 
 Legacy optional filter/flagship tiers can call configured model endpoints. They
@@ -117,17 +117,17 @@ not be attributed to the redesigned fast path. Full QA evaluation is deferred.
 
 ## Local configuration and boundaries
 
-Environment variables override file configuration. `fidelis-server --config PATH`
+Environment variables override file configuration. `memex-server --config PATH`
 selects an explicit JSON config; otherwise `.cogito.json` then
 `~/.cogito/config.json` are searched.
 
 - `COGITO_STORE_PATH`: vector store directory, default `~/.cogito/store`.
 - `COGITO_COLLECTION`: Chroma collection.
 - `COGITO_USER_ID`: local namespace, not authentication.
-- `FIDELIS_QUEUE_DIR` / `COGITO_QUEUE_DIR`: queue directory.
+- `MEMEX_QUEUE_DIR` / `COGITO_QUEUE_DIR`: queue directory.
 - `COGITO_OLLAMA_URL`: embedding/model service endpoint.
 - `COGITO_EMBED_MODEL`: embedding model; keep one model per collection.
-- `FIDELIS_RETRIEVAL_TELEMETRY_LOG`: optional retrieval diagnostics location.
+- `MEMEX_RETRIEVAL_TELEMETRY_LOG`: optional retrieval diagnostics location.
 
 Never expose the local HTTP service to untrusted networks. Local data is not
 application-encrypted. Back up the entire configured store and queue before an
@@ -138,7 +138,7 @@ upgrade; preserve the old environment for rollback. See [SECURITY.md](../SECURIT
 Alternatively, install the release-pinned native extension:
 
 ```sh
-gemini extensions install https://github.com/eddyflores100-lang/fidelis --ref=v0.3.0rc1
+gemini extensions install https://github.com/eddyflores100-lang/memex --ref=v0.3.0rc1
 ```
 
 `gemini-extension.json` pins the same PyPI package as the MCP registry manifest.

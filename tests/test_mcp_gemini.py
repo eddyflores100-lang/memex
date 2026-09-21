@@ -1,8 +1,8 @@
-"""Regression tests for `fidelis mcp install|uninstall --client gemini`.
+"""Regression tests for `memex mcp install|uninstall --client gemini`.
 
 Gemini CLI owns the write: `gemini mcp add|remove` is the only thing that
 touches settings.json, because Gemini reads that file as JSON-with-comments
-and round-trips a user's comments through its own writer. Fidelis only reads
+and round-trips a user's comments through its own writer. Memex only reads
 it back, to prove ownership before replacing or removing an entry and to prove
 what a run actually changed.
 
@@ -24,11 +24,11 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from fidelis import cli, mcp_cmd
-from fidelis.mcp_cmd import (
+from memex import cli, mcp_cmd
+from memex.mcp_cmd import (
     MCP_SERVER_FILE,
     _gemini_entry_matches,
-    _is_fidelis_gemini_entry,
+    _is_memex_gemini_entry,
     _read_gemini_servers,
     _strip_json_comments,
     cmd_mcp_install,
@@ -55,7 +55,7 @@ class FakeGemini:
     """Stand-in for the `gemini` binary, driven through subprocess.run.
 
     Records every argv it is handed so a test can assert the exact native
-    command Fidelis issued, and mutates a settings.json the way Gemini does.
+    command Memex issued, and mutates a settings.json the way Gemini does.
     """
 
     def __init__(self, path: Path, version: str = "0.32.1"):
@@ -138,18 +138,18 @@ def test_install_delegates_to_native_cli_and_verifies(gemini, capsys):
 
     add = [call for call in gemini.calls if call[1:3] == ["mcp", "add"]]
     assert add == [[
-        "/fake/bin/gemini", "mcp", "add", "fidelis",
+        "/fake/bin/gemini", "mcp", "add", "memex",
         sys.executable, str(MCP_SERVER_FILE),
         "--scope", "user",
         "--transport", "stdio",
     ]]
 
-    entry = _read(gemini.path)["mcpServers"]["fidelis"]
+    entry = _read(gemini.path)["mcpServers"]["memex"]
     assert entry == gemini_server_entry()
     assert Path(entry["args"][0]).is_file()
 
     out = capsys.readouterr().out
-    assert f"verified 'fidelis' in {gemini.path} (user scope)" in out
+    assert f"verified 'memex' in {gemini.path} (user scope)" in out
     assert "/mcp reload" in out
 
 
@@ -163,7 +163,7 @@ def test_install_project_scope_targets_cwd(tmp_path, gemini, monkeypatch):
     assert "--scope" in gemini.calls[-1]
     assert gemini.calls[-1][gemini.calls[-1].index("--scope") + 1] == "project"
     assert gemini_settings_path("project") == project / ".gemini" / "settings.json"
-    assert _read(gemini.path)["mcpServers"]["fidelis"] == gemini_server_entry()
+    assert _read(gemini.path)["mcpServers"]["memex"] == gemini_server_entry()
 
 
 # --------------------------------------------------------------------------
@@ -183,15 +183,15 @@ def test_install_is_idempotent_without_calling_add(gemini, capsys):
     assert "nothing to change" in capsys.readouterr().out
 
 
-def test_install_refreshes_a_fidelis_entry_from_another_environment(gemini):
-    """A Fidelis server registered from a different Python is ours to replace."""
-    stale = {"command": "/other/venv/bin/python", "args": ["/other/venv/lib/fidelis/mcp_server.py"]}
+def test_install_refreshes_a_memex_entry_from_another_environment(gemini):
+    """A Memex server registered from a different Python is ours to replace."""
+    stale = {"command": "/other/venv/bin/python", "args": ["/other/venv/lib/memex/mcp_server.py"]}
     gemini.path.parent.mkdir(parents=True)
-    gemini.path.write_text(json.dumps({"mcpServers": {"fidelis": stale}}))
-    assert _is_fidelis_gemini_entry(stale)
+    gemini.path.write_text(json.dumps({"mcpServers": {"memex": stale}}))
+    assert _is_memex_gemini_entry(stale)
 
     assert cmd_mcp_install(_args()) == 0  # no --force needed
-    assert _read(gemini.path)["mcpServers"]["fidelis"] == gemini_server_entry()
+    assert _read(gemini.path)["mcpServers"]["memex"] == gemini_server_entry()
 
 
 # --------------------------------------------------------------------------
@@ -200,13 +200,13 @@ def test_install_refreshes_a_fidelis_entry_from_another_environment(gemini):
 
 
 def test_install_refuses_a_foreign_entry_of_the_same_name(gemini, capsys):
-    foreign = {"command": "npx", "args": ["-y", "@someone/fidelis-mcp"], "env": {"TOKEN": "secret"}}
+    foreign = {"command": "npx", "args": ["-y", "@someone/memex-mcp"], "env": {"TOKEN": "secret"}}
     gemini.path.parent.mkdir(parents=True)
-    gemini.path.write_text(json.dumps({"mcpServers": {"fidelis": foreign}}))
+    gemini.path.write_text(json.dumps({"mcpServers": {"memex": foreign}}))
 
     assert cmd_mcp_install(_args()) == 1
     assert not [c for c in gemini.calls if c[1:3] == ["mcp", "add"]], "must not write"
-    assert _read(gemini.path)["mcpServers"]["fidelis"] == foreign
+    assert _read(gemini.path)["mcpServers"]["memex"] == foreign
 
     err = capsys.readouterr().err
     assert "refusing to overwrite" in err
@@ -217,12 +217,12 @@ def test_install_refusal_does_not_leak_the_foreign_entrys_credentials(gemini, ca
     """The refused entry is echoed for recognition, but never its secrets."""
     foreign = {
         "command": "npx",
-        "args": ["-y", "@someone/fidelis-mcp"],
+        "args": ["-y", "@someone/memex-mcp"],
         "env": {"API_TOKEN": "sk-live-should-not-appear"},
         "headers": {"Authorization": "Bearer should-not-appear-either"},
     }
     gemini.path.parent.mkdir(parents=True)
-    gemini.path.write_text(json.dumps({"mcpServers": {"fidelis": foreign}}))
+    gemini.path.write_text(json.dumps({"mcpServers": {"memex": foreign}}))
 
     assert cmd_mcp_install(_args()) == 1
     err = capsys.readouterr().err
@@ -239,7 +239,7 @@ def test_install_refusal_does_not_leak_a_credential_passed_as_a_launch_argument(
     -- being a launch field does not make a value safe to print."""
     foreign = {"command": "npx", "args": ["--api-key", "sk-live-should-not-appear-in-args"]}
     gemini.path.parent.mkdir(parents=True)
-    gemini.path.write_text(json.dumps({"mcpServers": {"fidelis": foreign}}))
+    gemini.path.write_text(json.dumps({"mcpServers": {"memex": foreign}}))
 
     assert cmd_mcp_install(_args()) == 1
     err = capsys.readouterr().err
@@ -253,9 +253,9 @@ def test_install_refusal_does_not_leak_a_malformed_non_object_entry(gemini, caps
     """The Gemini settings.json reader does not validate an entry's shape --
     a hand-edited config can put a credential directly where an object is
     expected, and the diagnostic must not echo it just because it isn't a
-    dict Fidelis knows how to check ownership on."""
+    dict Memex knows how to check ownership on."""
     gemini.path.parent.mkdir(parents=True)
-    gemini.path.write_text(json.dumps({"mcpServers": {"fidelis": "sk-live-should-not-appear"}}))
+    gemini.path.write_text(json.dumps({"mcpServers": {"memex": "sk-live-should-not-appear"}}))
 
     assert cmd_mcp_install(_args()) == 1
     err = capsys.readouterr().err
@@ -268,7 +268,7 @@ def test_install_refusal_withholds_a_non_scalar_safe_field(gemini, capsys):
     a scalar -- a malformed config can nest a credential under `command`."""
     foreign = {"command": {"nested": "sk-live-should-not-appear"}, "args": []}
     gemini.path.parent.mkdir(parents=True)
-    gemini.path.write_text(json.dumps({"mcpServers": {"fidelis": foreign}}))
+    gemini.path.write_text(json.dumps({"mcpServers": {"memex": foreign}}))
 
     assert cmd_mcp_install(_args()) == 1
     err = capsys.readouterr().err
@@ -277,18 +277,18 @@ def test_install_refusal_withholds_a_non_scalar_safe_field(gemini, capsys):
 
 
 def test_install_force_replaces_a_foreign_entry(gemini):
-    foreign = {"command": "npx", "args": ["-y", "@someone/fidelis-mcp"]}
+    foreign = {"command": "npx", "args": ["-y", "@someone/memex-mcp"]}
     gemini.path.parent.mkdir(parents=True)
-    gemini.path.write_text(json.dumps({"mcpServers": {"fidelis": foreign}}))
+    gemini.path.write_text(json.dumps({"mcpServers": {"memex": foreign}}))
 
     assert cmd_mcp_install(_args(force=True)) == 0
-    assert _read(gemini.path)["mcpServers"]["fidelis"] == gemini_server_entry()
+    assert _read(gemini.path)["mcpServers"]["memex"] == gemini_server_entry()
 
 
 def test_install_preserves_foreign_servers_settings_and_comments(gemini, monkeypatch):
     """The native CLI owns the write precisely so this survives."""
     original = """{
-  // my own note, which a Fidelis rewrite would delete
+  // my own note, which a Memex rewrite would delete
   "ui": { "theme": "Default" },
   "mcpServers": {
     /* keep this one */
@@ -307,7 +307,7 @@ def test_install_preserves_foreign_servers_settings_and_comments(gemini, monkeyp
             return subprocess.CompletedProcess(argv, 0, "0.32.1\n", "")
         entry = json.dumps({"command": argv[4], "args": [argv[5]]})
         text = gemini.path.read_text().replace(
-            '"mcpServers": {', '"mcpServers": {\n    "fidelis": ' + entry + ",", 1
+            '"mcpServers": {', '"mcpServers": {\n    "memex": ' + entry + ",", 1
         )
         gemini.path.write_text(text)
         return subprocess.CompletedProcess(argv, 0, "added\n", "")
@@ -321,7 +321,7 @@ def test_install_preserves_foreign_servers_settings_and_comments(gemini, monkeyp
     data = _read(gemini.path)
     assert data["ui"] == {"theme": "Default"}
     assert data["mcpServers"]["github"]["env"] == {"GITHUB_TOKEN": "ghp_secret"}
-    assert data["mcpServers"]["fidelis"] == gemini_server_entry()
+    assert data["mcpServers"]["memex"] == gemini_server_entry()
 
 
 # --------------------------------------------------------------------------
@@ -343,14 +343,14 @@ def test_install_fails_when_add_writes_a_different_entry(gemini, capsys, monkeyp
         result = real_run(argv, **kwargs)
         if argv[1:3] == ["mcp", "add"]:
             data = _read(gemini.path)
-            data["mcpServers"]["fidelis"]["command"] = "/somewhere/else/python"
+            data["mcpServers"]["memex"]["command"] = "/somewhere/else/python"
             gemini.path.write_text(json.dumps(data))
         return result
 
     monkeypatch.setattr(mcp_cmd.subprocess, "run", divert)
 
     assert cmd_mcp_install(_args()) == 1
-    assert "wrote an unexpected 'fidelis' entry" in capsys.readouterr().err
+    assert "wrote an unexpected 'memex' entry" in capsys.readouterr().err
 
 
 def test_uninstall_fails_when_remove_exits_zero_but_entry_remains(gemini, capsys):
@@ -411,12 +411,12 @@ def test_install_refuses_a_settings_file_that_is_not_valid_text(gemini, capsys):
 
 def test_uninstall_refuses_a_settings_file_that_is_not_valid_text(gemini, capsys):
     gemini.path.parent.mkdir(parents=True)
-    gemini.path.write_bytes(b'{"mcpServers": {"fidelis": {"command": "\xff\xfe"}}}')
+    gemini.path.write_bytes(b'{"mcpServers": {"memex": {"command": "\xff\xfe"}}}')
 
     assert cmd_mcp_uninstall(_args()) == 1
     assert not [c for c in gemini.calls if c[1:3] == ["mcp", "remove"]]
     assert "is not valid text" in capsys.readouterr().err
-    assert gemini.path.read_bytes() == b'{"mcpServers": {"fidelis": {"command": "\xff\xfe"}}}'
+    assert gemini.path.read_bytes() == b'{"mcpServers": {"memex": {"command": "\xff\xfe"}}}'
 
 
 def test_install_refuses_a_non_object_mcp_servers_block(gemini, capsys):
@@ -441,7 +441,7 @@ def test_uninstall_refuses_a_malformed_settings_file(gemini, capsys):
 # --------------------------------------------------------------------------
 
 
-def test_uninstall_removes_only_the_fidelis_entry(gemini, capsys):
+def test_uninstall_removes_only_the_memex_entry(gemini, capsys):
     gemini.path.parent.mkdir(parents=True)
     gemini.path.write_text(json.dumps({
         "mcpServers": {"github": {"command": "npx", "args": ["-y", "server-github"]}},
@@ -452,12 +452,12 @@ def test_uninstall_removes_only_the_fidelis_entry(gemini, capsys):
 
     assert cmd_mcp_uninstall(_args()) == 0
 
-    assert gemini.calls[-1] == ["/fake/bin/gemini", "mcp", "remove", "fidelis", "--scope", "user"]
+    assert gemini.calls[-1] == ["/fake/bin/gemini", "mcp", "remove", "memex", "--scope", "user"]
     data = _read(gemini.path)
-    assert "fidelis" not in data["mcpServers"]
+    assert "memex" not in data["mcpServers"]
     assert data["mcpServers"]["github"] == {"command": "npx", "args": ["-y", "server-github"]}
     assert data["ui"] == {"theme": "Default"}
-    assert "verified 'fidelis' is gone" in capsys.readouterr().out
+    assert "verified 'memex' is gone" in capsys.readouterr().out
 
 
 def test_uninstall_is_a_clean_noop_when_absent(gemini, capsys):
@@ -467,24 +467,24 @@ def test_uninstall_is_a_clean_noop_when_absent(gemini, capsys):
 
 
 def test_uninstall_refuses_a_foreign_entry(gemini, capsys):
-    foreign = {"command": "npx", "args": ["-y", "@someone/fidelis-mcp"]}
+    foreign = {"command": "npx", "args": ["-y", "@someone/memex-mcp"]}
     gemini.path.parent.mkdir(parents=True)
-    gemini.path.write_text(json.dumps({"mcpServers": {"fidelis": foreign}}))
+    gemini.path.write_text(json.dumps({"mcpServers": {"memex": foreign}}))
 
     assert cmd_mcp_uninstall(_args()) == 1
     assert not [c for c in gemini.calls if c[1:3] == ["mcp", "remove"]]
-    assert _read(gemini.path)["mcpServers"]["fidelis"] == foreign
+    assert _read(gemini.path)["mcpServers"]["memex"] == foreign
     assert "refusing to remove it" in capsys.readouterr().err
 
 
 def test_uninstall_refusal_does_not_leak_the_foreign_entrys_credentials(gemini, capsys):
     foreign = {
         "command": "npx",
-        "args": ["-y", "@someone/fidelis-mcp"],
+        "args": ["-y", "@someone/memex-mcp"],
         "env": {"API_TOKEN": "sk-live-should-not-appear"},
     }
     gemini.path.parent.mkdir(parents=True)
-    gemini.path.write_text(json.dumps({"mcpServers": {"fidelis": foreign}}))
+    gemini.path.write_text(json.dumps({"mcpServers": {"memex": foreign}}))
 
     assert cmd_mcp_uninstall(_args()) == 1
     err = capsys.readouterr().err
@@ -496,11 +496,11 @@ def test_uninstall_refusal_does_not_leak_the_foreign_entrys_credentials(gemini, 
 def test_uninstall_force_removes_a_foreign_entry(gemini):
     gemini.path.parent.mkdir(parents=True)
     gemini.path.write_text(json.dumps(
-        {"mcpServers": {"fidelis": {"command": "npx", "args": ["-y", "@someone/fidelis-mcp"]}}}
+        {"mcpServers": {"memex": {"command": "npx", "args": ["-y", "@someone/memex-mcp"]}}}
     ))
 
     assert cmd_mcp_uninstall(_args(force=True)) == 0
-    assert "fidelis" not in _read(gemini.path)["mcpServers"]
+    assert "memex" not in _read(gemini.path)["mcpServers"]
 
 
 @pytest.mark.parametrize("hostile_arg", [
@@ -515,7 +515,7 @@ def test_ownership_check_survives_hostile_settings_strings(gemini, capsys, hosti
     ownership refusal -- so the file was neither refused nor protected."""
     hostile = {"command": "python", "args": [hostile_arg]}
     gemini.path.parent.mkdir(parents=True)
-    gemini.path.write_text(json.dumps({"mcpServers": {"fidelis": hostile}}))
+    gemini.path.write_text(json.dumps({"mcpServers": {"memex": hostile}}))
 
     assert cmd_mcp_install(_args()) == 1
     assert not [c for c in gemini.calls if c[1:3] == ["mcp", "add"]], "must not write"
@@ -525,7 +525,7 @@ def test_ownership_check_survives_hostile_settings_strings(gemini, capsys, hosti
     assert not [c for c in gemini.calls if c[1:3] == ["mcp", "remove"]], "must not write"
     assert "refusing to remove it" in capsys.readouterr().err
 
-    assert _read(gemini.path)["mcpServers"]["fidelis"] == hostile
+    assert _read(gemini.path)["mcpServers"]["memex"] == hostile
 
 
 # --------------------------------------------------------------------------
@@ -609,7 +609,7 @@ def test_a_scope_that_was_never_passed_does_not_block_other_clients(scope, tmp_p
 
 @pytest.mark.parametrize("subcommand", ["install", "uninstall"])
 def test_cli_exposes_gemini_client_and_scope(subcommand, monkeypatch, capsys):
-    monkeypatch.setattr(sys, "argv", ["fidelis", "mcp", subcommand, "--help"])
+    monkeypatch.setattr(sys, "argv", ["memex", "mcp", subcommand, "--help"])
     with pytest.raises(SystemExit):
         cli.main()
 
@@ -652,7 +652,7 @@ def test_comment_stripper_keeps_line_numbers_for_error_messages():
     {"command": "python", "args": ["~nosuchuser000/mcp_server.py"]},  # expanduser() raises
 ])
 def test_foreign_shaped_entries_are_never_claimed_as_ours(entry):
-    assert not _is_fidelis_gemini_entry(entry)
+    assert not _is_memex_gemini_entry(entry)
     assert not _gemini_entry_matches(entry)
 
 

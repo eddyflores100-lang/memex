@@ -5,10 +5,10 @@ Synthesizes 5 queries from ingested session titles/content and measures
 top-1 hit rate against the known session.
 
 Usage:
-    cd /path/to/fidelis
+    cd /path/to/memex
     python3 bench/claude_code_session_eval.py
 
-Requires: Fidelis installed (pip install -e .), Ollama running with nomic-embed-text.
+Requires: Memex installed (pip install -e .), Ollama running with nomic-embed-text.
 """
 from __future__ import annotations
 
@@ -69,7 +69,7 @@ def _synthesize_queries(sessions) -> list[tuple[str, str]]:
 
 
 def run_eval():
-    print("=== Fidelis Claude Code Session Retrieval Eval ===\n")
+    print("=== Memex Claude Code Session Retrieval Eval ===\n")
     try:
         sessions = _get_sessions()
     except Exception as e:

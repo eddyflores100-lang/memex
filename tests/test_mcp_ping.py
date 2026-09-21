@@ -2,7 +2,7 @@
 
 Gemini CLI's `gemini mcp list` connects, then sends the standard MCP `ping`
 request and reports a server that does not answer it as Disconnected — even
-though the connection succeeded and every tool works. Fidelis's server used to
+though the connection succeeded and every tool works. Memex's server used to
 fall through to its unknown-method branch and return -32601, so a healthy
 server was listed as down and the README pointed users at that diagnostic.
 
@@ -19,11 +19,11 @@ from pathlib import Path
 
 import pytest
 
-from fidelis import __version__
-from fidelis.mcp_server import _handle
+from memex import __version__
+from memex.mcp_server import _handle
 
 SRC = str(Path(__file__).resolve().parents[1] / "src")
-SERVER = Path(SRC) / "fidelis" / "mcp_server.py"
+SERVER = Path(SRC) / "memex" / "mcp_server.py"
 
 INITIALIZE = {
     "jsonrpc": "2.0",
@@ -43,9 +43,9 @@ def _converse(requests: list[dict], env_extra: dict | None = None) -> list[dict]
         "PATH": "/usr/bin:/bin",
         "PYTHONPATH": SRC,
         # Port 0 can never be connected to: `ping` must never touch
-        # fidelis-server, and this can't flake if some other process happens
+        # memex-server, and this can't flake if some other process happens
         # to be listening on a fixed port.
-        "FIDELIS_PORT": "0",
+        "MEMEX_PORT": "0",
     }
     env.update(env_extra or {})
     proc = subprocess.run(
@@ -88,10 +88,10 @@ def test_ping_carries_no_error_and_no_params_are_required():
         assert "error" not in response
 
 
-def test_ping_answers_without_a_running_fidelis_server():
+def test_ping_answers_without_a_running_memex_server():
     """Liveness is a protocol fact. It must not depend on the HTTP backend.
 
-    `fidelis_health` against the same dead port reports the backend down —
+    `memex_health` against the same dead port reports the backend down —
     which is what proves the ping answer was not an accident of a live server.
     """
     responses = _converse([
@@ -101,7 +101,7 @@ def test_ping_answers_without_a_running_fidelis_server():
             "jsonrpc": "2.0",
             "id": 3,
             "method": "tools/call",
-            "params": {"name": "fidelis_health", "arguments": {}},
+            "params": {"name": "memex_health", "arguments": {}},
         },
     ])
 
@@ -120,7 +120,7 @@ def test_repeated_pings_are_each_answered_and_keep_the_session_alive():
     for r in responses[1:5]:
         assert r["result"] == {}
     assert [t["name"] for t in responses[5]["result"]["tools"]] == [
-        "fidelis_recall", "fidelis_store", "fidelis_correct", "fidelis_get", "fidelis_recent", "fidelis_health",
+        "memex_recall", "memex_store", "memex_correct", "memex_get", "memex_recent", "memex_health",
     ]
 
 
@@ -135,7 +135,7 @@ def test_initialize_and_tools_list_are_unchanged():
     assert responses[0]["result"] == {
         "protocolVersion": "2024-11-05",
         "capabilities": {"tools": {}},
-        "serverInfo": {"name": "fidelis", "version": __version__},
+        "serverInfo": {"name": "memex", "version": __version__},
     }
     assert len(responses[1]["result"]["tools"]) == 6
 

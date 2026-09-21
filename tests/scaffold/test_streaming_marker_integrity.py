@@ -1,6 +1,6 @@
 """Blocker #5 — Streaming response / scaffold marker integrity.
 
-Verifies that the Fidelis scaffold's bracketed markers survive:
+Verifies that the Memex scaffold's bracketed markers survive:
   1. Input-side: system field arrives at the API intact (not fragmented pre-send).
   2. Output-side: if a downstream LLM echoes scaffold markers in a streamed
      assistant response, strip_scaffold / is_scaffolded work correctly on the
@@ -24,7 +24,7 @@ import httpx
 
 import anthropic
 
-from fidelis.scaffold import (
+from memex.scaffold import (
     SCAFFOLD_CLOSE,
     SCAFFOLD_OPEN,
     is_scaffolded,
@@ -268,7 +268,7 @@ class TestOutputSideMarkerReassembly:
     strip_scaffold / is_scaffolded work correctly after stream concatenation.
 
     The mock stream deliberately fragments the SCAFFOLD markers across chunk
-    boundaries (e.g. "[FIDELIS-" in one chunk, "SCAFFOLD-v0.1.0]" in the next)
+    boundaries (e.g. "[MEMEX-" in one chunk, "SCAFFOLD-v0.1.0]" in the next)
     to simulate what real streaming can produce at token boundaries.
     """
 
@@ -287,12 +287,12 @@ class TestOutputSideMarkerReassembly:
 
     def test_fragmented_open_marker_reassembled_by_sdk(self):
         """
-        SSE delivers '[FIDELIS-' in chunk1 and 'SCAFFOLD-v0.1.0] some answer'
+        SSE delivers '[MEMEX-' in chunk1 and 'SCAFFOLD-v0.1.0] some answer'
         in chunk2. After SDK reassembly, the full marker is present.
         """
         chunks = [
-            "Here is the scaffold: [FIDELIS-",
-            "SCAFFOLD-v0.1.0] some answer text [/FIDELIS-",
+            "Here is the scaffold: [MEMEX-",
+            "SCAFFOLD-v0.1.0] some answer text [/MEMEX-",
             "SCAFFOLD-v0.1.0]",
         ]
         full_text = self._do_stream(chunks)
@@ -340,13 +340,13 @@ class TestOutputSideMarkerReassembly:
 
     def test_scaffold_open_at_chunk_boundary_not_double_detected(self):
         """
-        Deliver SCAFFOLD_OPEN split across three chunks — e.g. '[', 'FIDELIS-SCAFFOLD-',
+        Deliver SCAFFOLD_OPEN split across three chunks — e.g. '[', 'MEMEX-SCAFFOLD-',
         'v0.1.0]'. After concat, is_scaffolded and strip_scaffold treat it as ONE marker.
         """
         # Build chunks that fragment the open marker at the bracket boundaries
-        open_parts = SCAFFOLD_OPEN  # "[FIDELIS-SCAFFOLD-v0.1.0]"
+        open_parts = SCAFFOLD_OPEN  # "[MEMEX-SCAFFOLD-v0.1.0]"
         chunk1 = open_parts[:1]         # "["
-        chunk2 = open_parts[1:17]       # "FIDELIS-SCAFFOLD-"
+        chunk2 = open_parts[1:17]       # "MEMEX-SCAFFOLD-"
         chunk3 = open_parts[17:]        # "v0.1.0]"
 
         close_part = SCAFFOLD_CLOSE

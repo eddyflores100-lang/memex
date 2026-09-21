@@ -1,4 +1,4 @@
-# Fidelis Memory roadmap
+# Memex roadmap
 
 ## 0.1 line: maintain the supported local contract
 
@@ -16,13 +16,13 @@ applicable gates below are evidenced.
 
 - A clean supported machine can progress from package install to a successful
   recall using one canonical path.
-- `fidelis doctor` or an equivalent diagnostic identifies each missing local
+- `memex doctor` or an equivalent diagnostic identifies each missing local
   prerequisite and names the corrective action without exposing memory data.
 - macOS and Ubuntu qualification runs are stored as reproducible receipts.
 
 ### Outcome B — make the data boundary explicit and recoverable
 
-- The legacy `~/.cogito/` path has a documented migration design to a Fidelis
+- The legacy `~/.cogito/` path has a documented migration design to a Memex
   namespace with backup, rollback, collision, and interrupted-run behavior.
 - No automatic migration ships until tests prove old data remains readable and
   rollback restores the pre-migration state.
@@ -53,7 +53,7 @@ Selection is an evidence decision, not a promise that all three belong in
 
 ## Deliberately not assigned to 0.2.0
 
-- a hosted Fidelis service;
+- a hosted Memex service;
 - enterprise compliance certification;
 - a stable 1.0 API promise; and
 - arbitrary feature count or marketing deadlines.

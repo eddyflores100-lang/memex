@@ -236,23 +236,23 @@ _QA_SYS_MULTI_V2 = (
 
 def get_qa_system_prompt(
     qtype: str, use_v3_multi: bool = False, use_v3_temporal: bool = False,
-    use_fidelis_scaffold: bool = False, top_score: float | None = None,
+    use_memex_scaffold: bool = False, top_score: float | None = None,
 ) -> str:
     """
     Default uses v2 prompts for safety (v3 MS prompt regressed -11.9pp on gpt-4o-mini in E1).
     use_v3_multi=True enables the enhanced v3 MS prompt (may be better for GPT-4o).
     use_v3_temporal=True enables the E3 temporal prompt that fixes the today-reference error.
-    use_fidelis_scaffold=True replaces the v2/v3 prompts with the Fidelis Scaffold v0.1.0
+    use_memex_scaffold=True replaces the v2/v3 prompts with the Memex Scaffold v0.1.0
     drift-safe wrapper. Adds calibrated hedging, retrieval-confidence signal, and
     scaffold-version markers for downstream drift measurement. Pre-flight validated.
     """
-    if use_fidelis_scaffold == "minimal":
+    if use_memex_scaffold == "minimal":
         # True raw baseline — minimal prompt. Used for A/B comparison vs scaffold.
         return ("You are answering a question using retrieved conversation memory. "
                 "Quote the relevant passage, then answer on a line starting with 'Answer:'.")
-    if use_fidelis_scaffold:
+    if use_memex_scaffold:
         try:
-            from fidelis.scaffold import wrap_system_prompt
+            from memex.scaffold import wrap_system_prompt
             return wrap_system_prompt(qtype, top_score=top_score)
         except Exception as _e:
             print(f"  [scaffold import failed, falling through] {_e}", file=sys.stderr)
@@ -682,7 +682,7 @@ def main():
     parser.add_argument("--rate-limit-delay", type=float, default=0.3,
                         help="Seconds to sleep between API calls (default 0.3 to avoid rate limits)")
     parser.add_argument("--use-alicelabs-scaffold", action="store_true",
-                        help="Use Fidelis Scaffold v0.1.0 system prompts (drift-safe + hedge-calibrated)")
+                        help="Use Memex Scaffold v0.1.0 system prompts (drift-safe + hedge-calibrated)")
     parser.add_argument("--minimal-prompt", action="store_true",
                         help="Use a minimal raw prompt (for A/B baseline vs scaffold)")
     parser.add_argument("--max-answer-tokens", type=int, default=512,
@@ -816,10 +816,10 @@ def main():
             except (ValueError, TypeError, IndexError):
                 _top_score = None
 
-        _scaffold_arg = "minimal" if args.minimal_prompt else args.use_fidelis_scaffold
+        _scaffold_arg = "minimal" if args.minimal_prompt else args.use_memex_scaffold
         system = get_qa_system_prompt(
             qtype, use_v3_multi=args.v3_multi_prompt, use_v3_temporal=args.v3_temporal_prompt,
-            use_fidelis_scaffold=_scaffold_arg, top_score=_top_score,
+            use_memex_scaffold=_scaffold_arg, top_score=_top_score,
         )
         user_prompt = (f"Question: {question}\n\nConversation:\n{session_text}\n\n"
                        "Follow the procedure. Quote first, then answer.")

@@ -9,7 +9,7 @@ weeks before the audit on 2026-05-02:
    sets `MEM0_TELEMETRY=False`, which mem0/memory/telemetry.py reads at
    import and uses to short-circuit `capture_event`.
 
-2. fidelis's /health probe reads chroma's count via the attribute name
+2. memex's /health probe reads chroma's count via the attribute name
    that exists on mem0 2.0's wrapper (`.collection`, set in
    mem0/vector_stores/chroma.py:74). Earlier code referenced `.col` and
    `.col_info()`, neither of which exists; both raised AttributeError on
@@ -91,13 +91,13 @@ def test_posthog_disabled_legacy_var_is_inert():
                     hits += 1
     assert hits == 0, (
         f"posthog SDK now references POSTHOG_DISABLED in {hits} file(s); "
-        f"the inert-flag claim in fidelis init_cmd.py is no longer correct. "
+        f"the inert-flag claim in memex init_cmd.py is no longer correct. "
         f"Re-evaluate whether to add it back to the templates."
     )
 
 
 def test_health_count_uses_collection_attr():
-    """fidelis /health calls `memory.vector_store.collection.count()`.
+    """memex /health calls `memory.vector_store.collection.count()`.
     Earlier versions called `.col.count()` or `.col_info().count()`; both
     raise AttributeError on mem0 2.0's wrapper, and each AttributeError
     triggers a posthog.capture chain that opens SystemVersion.plist.
@@ -105,7 +105,7 @@ def test_health_count_uses_collection_attr():
     This is a static check — confirm the source contains the correct
     attribute name and not the legacy ones.
     """
-    import fidelis.server as server_mod
+    import memex.server as server_mod
     import inspect
 
     src = inspect.getsource(server_mod)
@@ -115,11 +115,11 @@ def test_health_count_uses_collection_attr():
     )
     # Legacy names should be gone — they are silent failure modes.
     assert ".col.count()" not in src, (
-        "Legacy .col.count() reference still present in fidelis/server.py; "
+        "Legacy .col.count() reference still present in memex/server.py; "
         "mem0 2.0's wrapper does not expose .col, only .collection."
     )
     assert ".col_info()" not in src, (
-        "Legacy .col_info() reference still present in fidelis/server.py; "
+        "Legacy .col_info() reference still present in memex/server.py; "
         "mem0 2.0's wrapper does not expose .col_info(), only .collection."
     )
 

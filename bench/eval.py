@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Fidelis combined-system eval.
+Memex combined-system eval.
 
 Measures the four retrieval modes independently and combined:
   A  snapshot only      — snapshot.md text, no vector query
@@ -533,7 +533,7 @@ def print_report(
 
 def main():
     parser = argparse.ArgumentParser(description="cogito combined-system eval")
-    parser.add_argument("--port", type=int, default=int(os.environ.get("COGITO_PORT", "19420")))
+    parser.add_argument("--port", type=int, default=int(os.environ.get("MEMEX_PORT", "19420")))
     parser.add_argument("--cases", default=str(Path(__file__).parent / "eval_cases.json"),
                         help="Static cases file (cross_reference, semantic_gap, adversarial)")
     parser.add_argument("--n", type=int, default=20,

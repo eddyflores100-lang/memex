@@ -1,11 +1,11 @@
-"""Unit tests for fidelis.temporal_recall (docs/TIME-AWARE-SPEC.md).
+"""Unit tests for memex.temporal_recall (docs/TIME-AWARE-SPEC.md).
 
 temporal_recall.py was written directly against the contract and had no unit
 tests of its own before this file. Everything here uses small, local fakes —
 a fake ``memory`` whose ``vector_store.get(id)`` returns an object with
 ``.payload``, and whose ``vector_store.collection.get(where=..., include=...)``
 returns a ``{"ids": [...], "metadatas": [...]}`` mapping — plus the REAL
-``fidelis.temporal_index.TemporalIndex`` backed by a throwaway sqlite file
+``memex.temporal_index.TemporalIndex`` backed by a throwaway sqlite file
 under ``tmp_path``. No network, no Ollama, no real Chroma store.
 """
 
@@ -18,9 +18,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from fidelis.temporal import SCHEMA, SupersessionIndex, content_sha256, format_instant, parse_instant
-from fidelis.temporal_index import TemporalIndex
-from fidelis.temporal_recall import (
+from memex.temporal import SCHEMA, SupersessionIndex, content_sha256, format_instant, parse_instant
+from memex.temporal_index import TemporalIndex
+from memex.temporal_recall import (
     _SCRATCH,
     carry_payload,
     overfetch,
@@ -706,7 +706,7 @@ def test_reconcile_full_rebuild_clears_ghost_id(memory, index_factory):
 def test_reconcile_failing_scan_logs_warning_and_does_not_rescan(memory, index, caplog):
     memory.vector_store.collection.raises = RuntimeError("scan exploded")
 
-    with caplog.at_level(logging.WARNING, logger="fidelis.temporal_recall"):
+    with caplog.at_level(logging.WARNING, logger="memex.temporal_recall"):
         result = reconcile_index(memory, index)
     assert result is None
     assert any(r.levelno == logging.WARNING for r in caplog.records)
@@ -792,7 +792,7 @@ def test_reconcile_malformed_supersedes_json_does_not_abort_other_rows(memory, i
 
 
 def test_pull_missing_superseders_symbols_are_absent():
-    import fidelis.temporal_recall as module
+    import memex.temporal_recall as module
 
     assert not hasattr(module, "_pull_missing_superseders")
     assert not hasattr(module, "_terminal_superseder")

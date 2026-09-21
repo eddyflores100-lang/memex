@@ -252,7 +252,7 @@ def main():
     parser = argparse.ArgumentParser(description="cogito benchmark")
     parser.add_argument("--cases", default=str(Path(__file__).parent / "cases.json"),
                         help="Path to test cases JSON")
-    parser.add_argument("--port", type=int, default=int(os.environ.get("COGITO_PORT", "19420")))
+    parser.add_argument("--port", type=int, default=int(os.environ.get("MEMEX_PORT", "19420")))
     parser.add_argument("--limit", type=int, default=50, help="Candidate limit for /recall")
     parser.add_argument("--query-limit", type=int, default=5, help="Result limit for /query")
     parser.add_argument("--methods", default="recall,query,recall_b",

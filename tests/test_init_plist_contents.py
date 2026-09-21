@@ -11,10 +11,10 @@ requirements:
    present and must include `MEM0_TELEMETRY=False` — that is the only
    flag mem0 actually honors. (`POSTHOG_DISABLED` is not a real env var
    in the posthog SDK; earlier templates set it but it was inert.)
-2. **Server binary path** — the unit must point to the `fidelis-server`
+2. **Server binary path** — the unit must point to the `memex-server`
    console script that pip installs, not a hardcoded source path.
 
-If either of these regresses, friends running `fidelis init` get a
+If either of these regresses, friends running `memex init` get a
 service that either silently spams EMFILE or never starts. The tests
 are text-level — no real launchctl / systemctl invocations.
 """
@@ -31,7 +31,7 @@ import pytest
 def fake_home(monkeypatch):
     """Isolate Path.home() to a tmpdir so install writes don't touch the user's
     real ~/Library/LaunchAgents or ~/.config/systemd/user."""
-    tmp = Path(tempfile.mkdtemp(prefix="fidelis-plist-test-"))
+    tmp = Path(tempfile.mkdtemp(prefix="memex-plist-test-"))
     monkeypatch.setenv("HOME", str(tmp))
     return tmp
 
@@ -48,7 +48,7 @@ def test_macos_plist_includes_telemetry_kill(fake_home):
 
     POSTHOG_DISABLED is intentionally NOT asserted here — it was in earlier
     templates but is not a real posthog env var, so it has been removed."""
-    from fidelis.init_cmd import _install_macos
+    from memex.init_cmd import _install_macos
 
     def _fake_run(cmd, *args, **kwargs):
         class _Result:
@@ -66,7 +66,7 @@ def test_macos_plist_includes_telemetry_kill(fake_home):
         rc = _install_macos(uninstall=False)
         assert rc == 0
 
-    plist_path = fake_home / "Library/LaunchAgents/ai.eddyflores100-lang.fidelis-server.plist"
+    plist_path = fake_home / "Library/LaunchAgents/ai.eddyflores100-lang.memex-server.plist"
     assert plist_path.exists(), f"plist not written at {plist_path}"
     content = plist_path.read_text()
 
@@ -97,10 +97,10 @@ def test_macos_plist_includes_telemetry_kill(fake_home):
 
 
 def test_macos_plist_uses_console_script(fake_home):
-    """ProgramArguments must reference the `fidelis-server` entry point pip
+    """ProgramArguments must reference the `memex-server` entry point pip
     installs, not a hardcoded source path. Otherwise users on different
     machines/venvs hit a path that doesn't exist."""
-    from fidelis.init_cmd import _install_macos
+    from memex.init_cmd import _install_macos
 
     def _fake_run(cmd, *args, **kwargs):
         class _Result:
@@ -117,15 +117,15 @@ def test_macos_plist_uses_console_script(fake_home):
     with patch("subprocess.run", side_effect=_fake_run):
         _install_macos(uninstall=False)
 
-    plist_path = fake_home / "Library/LaunchAgents/ai.eddyflores100-lang.fidelis-server.plist"
+    plist_path = fake_home / "Library/LaunchAgents/ai.eddyflores100-lang.memex-server.plist"
     content = plist_path.read_text()
 
     # Path should end in the console-script name. Don't assert an absolute
     # path — that varies per env. Do assert it's not the source dir.
-    assert "fidelis-server" in content
-    assert "src/fidelis/server.py" not in content, (
+    assert "memex-server" in content
+    assert "src/memex/server.py" not in content, (
         "plist references the source file directly; should be the pip-installed "
-        "console script `fidelis-server` so it works from any venv."
+        "console script `memex-server` so it works from any venv."
     )
 
 
@@ -133,11 +133,11 @@ def test_systemd_unit_includes_telemetry_kill(fake_home):
     """Same EMFILE concern, Linux flavor — Environment= lines in the unit."""
     # Bypass the systemctl + daemon-reload subprocess calls; we only care
     # about what's written to disk.
-    from fidelis.init_cmd import SYSTEMD_TEMPLATE
+    from memex.init_cmd import SYSTEMD_TEMPLATE
 
     rendered = SYSTEMD_TEMPLATE.format(
-        server_bin="/fake/venv/bin/fidelis-server",
-        log_path="/tmp/fidelis-test.log",
+        server_bin="/fake/venv/bin/memex-server",
+        log_path="/tmp/memex-test.log",
         working_dir="/tmp",
     )
 
@@ -160,7 +160,7 @@ def test_systemd_unit_includes_telemetry_kill(fake_home):
 def test_legacy_label_bootout_is_idempotent(fake_home):
     """`_bootout_legacy_macos` must work even when no legacy plist exists.
     Without explicit force=True, it should not remove legacy plists (gating change)."""
-    from fidelis.init_cmd import _bootout_legacy_macos
+    from memex.init_cmd import _bootout_legacy_macos
 
     # No legacy plist on disk; must not raise.
     _bootout_legacy_macos()

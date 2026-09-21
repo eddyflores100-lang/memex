@@ -5,7 +5,7 @@ import json
 
 import pytest
 
-from fidelis import telemetry
+from memex import telemetry
 
 
 @pytest.fixture

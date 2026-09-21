@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import pytest
 
-from fidelis.scaffold import is_scaffolded, preflight, wrap_system_prompt
+from memex.scaffold import is_scaffolded, preflight, wrap_system_prompt
 
 
 # ---------------------------------------------------------------------------

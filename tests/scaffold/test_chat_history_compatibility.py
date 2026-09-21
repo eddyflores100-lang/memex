@@ -1,4 +1,4 @@
-"""fidelis.scaffold v0.1.0 — chat-history API compatibility tests.
+"""memex.scaffold v0.1.0 — chat-history API compatibility tests.
 
 Validates that scaffold output (a plain UTF-8 string) fits without
 modification into Anthropic Messages API, OpenAI Chat Completions API,
@@ -8,7 +8,7 @@ raw concatenation, and multi-turn conversation history patterns.
 import json
 import pytest
 
-from fidelis.scaffold._core import (
+from memex.scaffold._core import (
     wrap_system_prompt,
     is_scaffolded,
     strip_scaffold,
@@ -113,11 +113,11 @@ class TestRawConcatenation:
         user_question = "When did I mention coffee?"
         prompt = f"{scaffold_default}\n\n{user_question}"
         # Count scaffold open markers — there must be exactly one
-        open_count = prompt.count("[FIDELIS-SCAFFOLD-")
+        open_count = prompt.count("[MEMEX-SCAFFOLD-")
         # Each version tag: one open, one close
         assert open_count >= 1, "scaffold open marker must be present in combined prompt"
         # Ensure no double-wrapping (idempotency at the string level)
-        assert open_count == prompt.count("[/FIDELIS-SCAFFOLD-"), (
+        assert open_count == prompt.count("[/MEMEX-SCAFFOLD-"), (
             "mismatched open/close scaffold tags in combined prompt"
         )
 
@@ -219,4 +219,4 @@ class TestMultiTurnHistory:
     def test_strip_scaffold_removes_markers_leaving_no_open_tag(self):
         turn1_system = self._make_turn1_system()
         stripped = strip_scaffold(turn1_system)
-        assert "[FIDELIS-SCAFFOLD-" not in stripped
+        assert "[MEMEX-SCAFFOLD-" not in stripped

@@ -1,7 +1,7 @@
 # Default retrieval evaluation for 0.3.0rc1
 
 This measures retrieval through the redesigned candidate's actual `POST /query`
-handler, the route used by `fidelis_recall` with its default `mode="fast"` and
+handler, the route used by `memex_recall` with its default `mode="fast"` and
 `limit=5`. It does not evaluate generated answers, the thorough hybrid path,
 write acceptance, or deployment reliability. The release proof covers installation
 and MCP separately.

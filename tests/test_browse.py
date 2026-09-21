@@ -4,7 +4,7 @@
 applicable, sidecar-backed, fail-open when the sidecar is unavailable.
 
 Harness: a REAL mem0 Chroma vector store under `tmp_path`, a real sqlite
-temporal sidecar, and the real HTTP handler from `fidelis.server.make_handler`
+temporal sidecar, and the real HTTP handler from `memex.server.make_handler`
 on an ephemeral port -- the same real-Chroma + hashing-embedder pattern as
 `tests/test_superseded_not_dropped.py` (itself mirroring
 `tests/test_time_aware_acceptance.py`).
@@ -24,9 +24,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from fidelis import degrade, recall_b, recall_hybrid, server
-from fidelis.degrade import configure_temporal
-from fidelis.relation_envelope import FEATURE_ENV
+from memex import degrade, recall_b, recall_hybrid, server
+from memex.degrade import configure_temporal
+from memex.relation_envelope import FEATURE_ENV
 
 TEXT_A = "The Corvid gateway service listens on port 6611."
 TEXT_B = "The Corvid gateway service was moved to port 6622."
@@ -117,14 +117,14 @@ def harness(tmp_path, monkeypatch):
     queue_dir = tmp_path / "queue"
     monkeypatch.setenv("HOME", str(home))
     monkeypatch.setenv("COGITO_QUEUE_DIR", str(queue_dir))
-    monkeypatch.setenv("FIDELIS_QUEUE_DIR", str(queue_dir))
-    monkeypatch.setenv("FIDELIS_RETRIEVAL_TELEMETRY", "0")
-    monkeypatch.setenv("FIDELIS_RETRIEVAL_TELEMETRY_LOG", str(tmp_path / "telemetry.jsonl"))
+    monkeypatch.setenv("MEMEX_QUEUE_DIR", str(queue_dir))
+    monkeypatch.setenv("MEMEX_RETRIEVAL_TELEMETRY", "0")
+    monkeypatch.setenv("MEMEX_RETRIEVAL_TELEMETRY_LOG", str(tmp_path / "telemetry.jsonl"))
     monkeypatch.setenv("MEM0_TELEMETRY", "False")
     monkeypatch.delenv("COGITO_TEMPORAL_V1", raising=False)
     monkeypatch.delenv(FEATURE_ENV, raising=False)
     monkeypatch.delenv("COGITO_HERMENEUTICS_EVIDENCE_STATUS", raising=False)
-    from fidelis import telemetry
+    from memex import telemetry
 
     monkeypatch.setattr(telemetry, "_LOG_PATH", tmp_path / "escalation.log", raising=False)
     monkeypatch.setattr(recall_b, "_batch_embed", lambda texts, cfg: None)
@@ -247,7 +247,7 @@ def test_get_cycle_safe(harness):
     harness.memory.vector_store.insert(
         vectors=[vector],
         payloads=[{
-            "data": TEXT_A, "user_id": USER, "temporal_schema": "fidelis.temporal/v1",
+            "data": TEXT_A, "user_id": USER, "temporal_schema": "memex.temporal/v1",
             "recorded_at": "2026-01-01T00:00:00Z", "recorded_at_source": "write",
             "content_sha256": hashlib.sha256(TEXT_A.encode()).hexdigest(),
             "supersedes_json": json.dumps(["cycle-b"]),
@@ -257,7 +257,7 @@ def test_get_cycle_safe(harness):
     harness.memory.vector_store.insert(
         vectors=[HashingEmbedder.vector(TEXT_B)],
         payloads=[{
-            "data": TEXT_B, "user_id": USER, "temporal_schema": "fidelis.temporal/v1",
+            "data": TEXT_B, "user_id": USER, "temporal_schema": "memex.temporal/v1",
             "recorded_at": "2026-01-02T00:00:00Z", "recorded_at_source": "write",
             "content_sha256": hashlib.sha256(TEXT_B.encode()).hexdigest(),
             "supersedes_json": json.dumps(["cycle-a"]),

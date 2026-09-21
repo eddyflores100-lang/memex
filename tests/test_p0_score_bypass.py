@@ -17,7 +17,7 @@ import io
 import json
 from unittest.mock import MagicMock
 
-from fidelis.server import make_handler
+from memex.server import make_handler
 
 
 class _BuggyScoreMemory:

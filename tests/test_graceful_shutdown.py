@@ -19,7 +19,7 @@ from pathlib import Path
 
 import pytest
 
-from fidelis import server
+from memex import server
 
 
 def _free_port() -> int:
@@ -59,17 +59,17 @@ def test_sigterm_triggers_clean_shutdown(tmp_path: Path):
     port = _free_port()
     env = {
         "PATH": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin",
-        "FIDELIS_PORT": str(port),
-        "COGITO_PORT": str(port),
+        "MEMEX_PORT": str(port),
+        "MEMEX_PORT": str(port),
         "COGITO_STORE_PATH": str(tmp_path / "store"),
-        "FIDELIS_QUEUE_DIR": str(tmp_path / "queue"),
+        "MEMEX_QUEUE_DIR": str(tmp_path / "queue"),
         "COGITO_LLM_MODEL": "qwen3.5:0.8b",
         "ANONYMIZED_TELEMETRY": "False",
         "POSTHOG_DISABLED": "1",
         "CHROMA_TELEMETRY_DISABLED": "True",
     }
     proc = subprocess.Popen(
-        [sys.executable, "-m", "fidelis.server"],
+        [sys.executable, "-m", "memex.server"],
         env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
         text=True,
     )
@@ -115,7 +115,7 @@ def test_signal_handlers_registered_in_main():
     """Light-weight test: verify the handler-registration code path exists in
     server.main(). Catches accidental removal of the signal hooks even if the
     Ollama-backed integration test is skipped on a CI runner."""
-    src = (Path(__file__).resolve().parent.parent / "src/fidelis/server.py").read_text()
+    src = (Path(__file__).resolve().parent.parent / "src/memex/server.py").read_text()
     assert "signal.SIGTERM" in src, "SIGTERM handler missing from server.main()"
     assert "signal.SIGINT" in src, "SIGINT handler missing from server.main()"
     assert "httpd.shutdown" in src, "graceful httpd.shutdown call missing"

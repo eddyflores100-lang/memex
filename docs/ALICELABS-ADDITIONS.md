@@ -1,18 +1,18 @@
-# AliceLabs Additions — Fidelis AliceLabs Edition
+# AliceLabs Additions — Memex AliceLabs Edition
 
 This document describes the AliceLabs-specific additions to the upstream
-Fidelis Memory project. All additions are licensed under the AliceLabs
+Memex project. All additions are licensed under the AliceLabs
 Proprietary License v1.0.
 
 ## New CLI commands
 
-### `fidelis doctor`
+### `memex doctor`
 
 Diagnostic command for prerequisites and runtime health.
 
 ```bash
-fidelis doctor              # human-readable output
-fidelis doctor --json       # JSON output for scripting
+memex doctor              # human-readable output
+memex doctor --json       # JSON output for scripting
 ```
 
 Checks:
@@ -30,21 +30,21 @@ Exit codes:
 - `1` — one or more checks failed (with details on stdout)
 - `2` — could not run checks (e.g., cannot load config)
 
-### `fidelis backup`
+### `memex backup`
 
 Export/import memories for backup and migration.
 
 ```bash
-fidelis backup export                # export to ~/.cogito/backups/fidelis-backup-<timestamp>.json
-fidelis backup export /path/to.json  # export to specific path
-fidelis backup import /path/to.json  # import from a backup file
-fidelis backup list                  # list available backups
+memex backup export                # export to ~/.cogito/backups/memex-backup-<timestamp>.json
+memex backup export /path/to.json  # export to specific path
+memex backup import /path/to.json  # import from a backup file
+memex backup list                  # list available backups
 ```
 
 Export format (stable JSON):
 ```json
 {
-  "version": "fidelis-backup/v1",
+  "version": "memex-backup/v1",
   "created_at": "2026-09-22T12:00:00Z",
   "package_version": "0.3.0rc1-alicelabs",
   "user_id": "agent",
@@ -66,7 +66,7 @@ No LLM is called during export or import — pure vector store I/O.
 
 ### `GET /export`
 
-Returns the same JSON payload as `fidelis backup export`. Useful for
+Returns the same JSON payload as `memex backup export`. Useful for
 scripted backups via curl:
 
 ```bash
@@ -86,29 +86,29 @@ curl http://127.0.0.1:19420/export > backup.json
 
 ### `.github/workflows/naming-audit.yml`
 
-Fails on any new `Fidelis` / `cogito.<module>` / `[cogito]` reference
+Fails on any new `Memex` / `cogito.<module>` / `[cogito]` reference
 in `src/` or `docs/`. Allowlist for historical refs and back-compat
 identifiers.
 
 ## New code modules
 
-### `src/fidelis/doctor.py`
+### `src/memex/doctor.py`
 
-Implements the `fidelis doctor` command. Pure stdlib, no mem0 dependency.
+Implements the `memex doctor` command. Pure stdlib, no mem0 dependency.
 
-### `src/fidelis/backup.py`
+### `src/memex/backup.py`
 
-Implements the `fidelis backup` subcommands. Pure stdlib, talks to the
-running fidelis-server via HTTP.
+Implements the `memex backup` subcommands. Pure stdlib, talks to the
+running memex-server via HTTP.
 
-### `src/fidelis/export_util.py`
+### `src/memex/export_util.py`
 
 Server-side helper used by the `/export` HTTP endpoint. Dumps all
 memories from the vector store without calling any LLM.
 
 ### `bench/_paths.py`
 
-Centralizes the LongMemEval data-dir lookup via `$FIDELIS_BENCH_DATA_DIR`
+Centralizes the LongMemEval data-dir lookup via `$MEMEX_BENCH_DATA_DIR`
 env var. Replaces hardcoded `~/Documents/projects/LongMemEval/data` in
 9 bench scripts.
 

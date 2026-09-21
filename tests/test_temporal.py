@@ -1,4 +1,4 @@
-"""Unit tests for fidelis.temporal against docs/TIME-AWARE-SPEC.md (contract v1)."""
+"""Unit tests for memex.temporal against docs/TIME-AWARE-SPEC.md (contract v1)."""
 
 from __future__ import annotations
 
@@ -9,8 +9,8 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from fidelis import temporal
-from fidelis.temporal import (
+from memex import temporal
+from memex.temporal import (
     SCHEMA,
     SupersessionIndex,
     apply_temporal,
@@ -107,7 +107,7 @@ def test_build_minimal_fields_only_system_keys():
         "recorded_at_source": "write",
         "content_sha256": content_sha256("some text"),
     }
-    assert SCHEMA == "fidelis.temporal/v1"
+    assert SCHEMA == "memex.temporal/v1"
 
 
 def test_build_full_declaration_is_scalar_and_normalised():
@@ -464,7 +464,7 @@ def test_apply_historical_leaves_order_untouched_but_annotates():
 
 def test_apply_does_not_mutate_inputs_and_text_is_byte_identical():
     index, memories = _scenario()
-    memories[0]["text"] = "  Fidelis listens on pört 19420.\r\n\t"
+    memories[0]["text"] = "  Memex listens on pört 19420.\r\n\t"
     before = copy.deepcopy(memories)
     out = apply_temporal(memories, index=index, now=NOW, as_of="2026-06-01")
     assert memories == before

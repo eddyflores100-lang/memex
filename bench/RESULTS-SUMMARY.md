@@ -1,4 +1,4 @@
-# Fidelis LongMemEval Benchmark Results
+# Memex LongMemEval Benchmark Results
 
 Last updated: 2026-04-18
 

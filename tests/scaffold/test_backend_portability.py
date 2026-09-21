@@ -1,4 +1,4 @@
-"""Backend portability tests for fidelis.scaffold.
+"""Backend portability tests for memex.scaffold.
 
 Validates that the load-bearing hedge instruction
   'I cannot answer this from the retrieved memory.'
@@ -29,7 +29,7 @@ from typing import NamedTuple
 
 import pytest
 
-from fidelis.scaffold import wrap_system_prompt
+from memex.scaffold import wrap_system_prompt
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -377,7 +377,7 @@ def test_claude_cli_backend_portability():
     """
     Validate hedge + answer compliance via the Claude CLI subscription.
 
-    Uses --print mode (no API credits). The full fidelis scaffold is passed
+    Uses --print mode (no API credits). The full memex scaffold is passed
     as the first part of the prompt since claude --print doesn't expose a
     --system flag the same way.
 
