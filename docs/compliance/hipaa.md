@@ -10,7 +10,7 @@ machine during retrieval.
 
 | Operation | PHI transmitted externally? | HIPAA risk |
 |---|---|---|
-| Store memory (fidelis store) | No — writes to local ChromaDB | None |
+| Store memory (memex store) | No — writes to local ChromaDB | None |
 | Recall memory (zero_llm tier) | No — BM25 + dense + RRF, no LLM call | None |
 | Recall memory (filter tier) | **Yes** — candidate text sent to filter LLM | Requires BAA |
 | Recall memory (flagship tier) | **Yes** — candidate text sent to flagship LLM | Requires BAA |
