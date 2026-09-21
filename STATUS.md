@@ -1,10 +1,10 @@
-# cogito-ergo — Status as of 2026-04-24
+# Fidelis — Status as of 2026-04-24
 
 One-page crystallization. If you only read one file, read this.
 
 ## Bottom line
 
-cogito-ergo has **two retrieval paths** living in the same server. Path A is the
+Fidelis has **two retrieval paths** living in the same server. Path A is the
 production path (atomic-fact recall). Path B is the session-retrieval pipeline,
 benchmarked at **96.4% R@1 on LongMemEval_S** (runP-v35, 2026-04-18). On
 cogito's own internal eval, Path B scores 54% — 21 points below Path A's 75%.

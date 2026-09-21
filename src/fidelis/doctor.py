@@ -127,7 +127,7 @@ def _check_store_writable(store_path: str) -> dict[str, Any]:
 
 def _check_service_installed() -> dict[str, Any]:
     if sys.platform == "darwin":
-        plist = Path.home() / "Library/LaunchAgents/ai.hermeslabs.fidelis-server.plist"
+        plist = Path.home() / "Library/LaunchAgents/ai.eddyflores100-lang.fidelis-server.plist"
         ok = plist.exists()
         return {
             "check": "service_installed",

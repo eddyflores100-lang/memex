@@ -138,7 +138,7 @@ upgrade; preserve the old environment for rollback. See [SECURITY.md](../SECURIT
 Alternatively, install the release-pinned native extension:
 
 ```sh
-gemini extensions install https://github.com/hermes-labs-ai/fidelis --ref=v0.3.0rc1
+gemini extensions install https://github.com/eddyflores100-lang/fidelis --ref=v0.3.0rc1
 ```
 
 `gemini-extension.json` pins the same PyPI package as the MCP registry manifest.

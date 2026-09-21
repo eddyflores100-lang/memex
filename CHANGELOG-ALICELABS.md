@@ -32,7 +32,7 @@
   across 10 files. Back-compat identifiers preserved (`~/.cogito/`,
   `COGITO_*` env vars, `cogito_memory` ChromaDB collection, `_LEGACY_LABELS`
   in `init_cmd.py`).
-- **P1-2 fix:** Renamed `cogito-ergo` -> `Fidelis` in `bench/*.py` and
+- **P1-2 fix:** Renamed `Fidelis` -> `Fidelis` in `bench/*.py` and
   `bench/*.md`. Preserved `bench/runs/claude_code_user_eval.json` as
   historical session data.
 - **P1-3 fix:** Centralized the LongMemEval data-dir lookup in
@@ -49,7 +49,7 @@
   of P0-1 cleanup — it was a stale historical artifact with local paths
   and the codename header.
 - **P2-1 fix:** Added `.github/workflows/naming-audit.yml` — CI lint that
-  fails on any new `cogito-ergo` / `cogito.<module>` / `[cogito]` reference
+  fails on any new `Fidelis` / `cogito.<module>` / `[cogito]` reference
   in `src/` or `docs/`. Allowlist for historical refs and back-compat
   identifiers.
 - **P2-2 fix:** Added `docs/SECURITY-POSTURE.md` (see P0-2 above).
@@ -63,7 +63,7 @@
 
 - This fork is **private** and tracked under
   `eddyflores100-lang/fidelis-alicelabs`. It is not visible to upstream.
-- All upstream improvements from `hermes-labs-ai/fidelis` v0.3.0rc1 are
+- All upstream improvements from `eddyflores100-lang/fidelis` v0.3.0rc1 are
   incorporated. Future upstream changes can be merged via
   `git fetch upstream main && git merge upstream/main`.
 - The MIT-licensed portions from the upstream Fidelis Memory project

@@ -6,6 +6,6 @@ All participants in this project are expected to abide by its terms.
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the project maintainer at roli@hermes-labs.ai.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the project maintainer at eddyflores100-lang@users.noreply.github.com.
 
 All complaints will be reviewed and investigated and will result in a response that is deemed necessary and appropriate to the circumstances.

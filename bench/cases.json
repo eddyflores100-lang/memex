@@ -1,7 +1,7 @@
 [
   {
-    "query": "lintlang version published PyPI",
-    "expected": ["lintlang", "v0.3", "published", "PyPI"],
+    "query": "alicelabs-lint version published PyPI",
+    "expected": ["alicelabs-lint", "v0.3", "published", "PyPI"],
     "difficulty": "easy"
   },
   {
@@ -36,7 +36,7 @@
   },
   {
     "query": "what is our open source adoption",
-    "expected": ["download", "PyPI", "lintlang", "canary", "monthly"],
+    "expected": ["download", "PyPI", "alicelabs-lint", "canary", "monthly"],
     "difficulty": "hard"
   },
   {

@@ -1,11 +1,11 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.hermes-labs-ai/fidelis-memory",
+  "name": "io.github.eddyflores100-lang/fidelis-memory",
   "title": "Fidelis Memory",
   "description": "Recall locally stored agent memories through an MCP-compatible host.",
-  "websiteUrl": "https://github.com/hermes-labs-ai/fidelis",
+  "websiteUrl": "https://github.com/eddyflores100-lang/fidelis",
   "repository": {
-    "url": "https://github.com/hermes-labs-ai/fidelis",
+    "url": "https://github.com/eddyflores100-lang/fidelis",
     "source": "github"
   },
   "version": "0.3.0rc1",

@@ -4,12 +4,12 @@
   "description": "Local agent memory with verbatim records, correction history, and time-aware recall. Provides fidelis_recall, fidelis_store, fidelis_correct, fidelis_get, fidelis_recent, and fidelis_health.",
   "version": "0.3.0rc1",
   "author": {
-    "name": "Hermes Labs",
-    "email": "roli@hermes-labs.ai",
-    "url": "https://github.com/hermes-labs-ai"
+    "name": "AliceLabs",
+    "email": "eddyflores100-lang@users.noreply.github.com",
+    "url": "https://github.com/eddyflores100-lang"
   },
-  "homepage": "https://github.com/hermes-labs-ai/fidelis",
-  "repository": "https://github.com/hermes-labs-ai/fidelis",
+  "homepage": "https://github.com/eddyflores100-lang/fidelis",
+  "repository": "https://github.com/eddyflores100-lang/fidelis",
   "license": "MIT",
   "keywords": [
     "memory",
@@ -18,6 +18,6 @@
     "retrieval",
     "rag",
     "local-first",
-    "hermes-labs"
+    "eddyflores100-lang"
   ]
 }

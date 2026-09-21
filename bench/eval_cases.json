@@ -1,12 +1,12 @@
 [
   {
     "query": "what tools and projects are being built",
-    "expected": ["lintlang", "canary", "suy", "cogito"],
+    "expected": ["alicelabs-lint", "canary", "suy", "cogito"],
     "case_type": "cross_reference"
   },
   {
     "query": "what open source packages have been released",
-    "expected": ["PyPI", "published", "release", "lintlang"],
+    "expected": ["PyPI", "published", "release", "alicelabs-lint"],
     "case_type": "cross_reference"
   },
   {
@@ -26,7 +26,7 @@
   },
   {
     "query": "what is our open source adoption",
-    "expected": ["download", "PyPI", "lintlang", "monthly", "installs"],
+    "expected": ["download", "PyPI", "alicelabs-lint", "monthly", "installs"],
     "case_type": "semantic_gap"
   },
   {

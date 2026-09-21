@@ -42,7 +42,7 @@ Historical benchmark scores are not evidence for the redesigned default path.
   Actions status badge so release documentation cannot advertise an obsolete
   count.
 - Preserve the historical `v0.1.0` and `v0.2.0` changelog entries under the
-  clearly labeled `cogito-ergo` predecessor-package section so they cannot be
+  clearly labeled `Fidelis` predecessor-package section so they cannot be
   mistaken for current Fidelis package releases.
 
 ## v0.0.97 — 2026-09-12
@@ -58,7 +58,7 @@ Historical benchmark scores are not evidence for the redesigned default path.
   at the repository root launches the MCP Registry package
   (`uvx --from fidelis-memory==0.0.97 fidelis mcp serve`) and `GEMINI.md`
   tells the model when to call `fidelis_orient` and `fidelis_recall`.
-  `gemini extensions install https://github.com/hermes-labs-ai/fidelis`
+  `gemini extensions install https://github.com/eddyflores100-lang/fidelis`
   registers the server without a manual `pip install`.
   `tests/test_gemini_extension.py` binds the manifest to `server.json` and
   `pyproject.toml` so a release bump cannot leave it on an older wheel.
@@ -144,7 +144,7 @@ Historical benchmark scores are not evidence for the redesigned default path.
 - Add a portable `fidelis mcp serve` entry point and official MCP Registry
   metadata for `uvx`-based installation.
 - Add the PyPI README ownership marker required for the
-  `io.github.hermes-labs-ai/fidelis-memory` registry namespace.
+  `io.github.eddyflores100-lang/fidelis-memory` registry namespace.
 
 ## v0.0.94 — 2026-09-02
 
@@ -159,7 +159,7 @@ Historical benchmark scores are not evidence for the redesigned default path.
 
 ## v0.0.93 — 2026-08-05
 
-- Publish the Hermes Labs distribution to PyPI as `fidelis-memory`.
+- Publish the AliceLabs distribution to PyPI as `fidelis-memory`.
 - Make **Fidelis Memory** the user-facing product name across package metadata
   and primary documentation, while preserving the `fidelis` repository, import,
   and CLI names for compatibility.
@@ -172,7 +172,7 @@ Historical benchmark scores are not evidence for the redesigned default path.
   expose the degraded fallback through HTTP and CLI, and apply the same
   no-silent-loss rule during queued-write replay.
 - Correct every current install surface to use tagged GitHub source; the PyPI
-  project named `fidelis` is unrelated to Hermes Labs Fidelis.
+  project named `fidelis` is unrelated to AliceLabs Fidelis.
 - Align public package status with v0.0.91 and remove a dead benchmark link.
 - Narrow local-data and compliance wording to the demonstrated boundary.
 - Default mem0 telemetry off for direct server launches so SIGTERM completes
@@ -187,12 +187,12 @@ Historical benchmark scores are not evidence for the redesigned default path.
 - Repo hygiene only: relativized benchmark paths, removed run-log artifacts, refreshed module naming, added Zenodo metadata. No API changes vs v0.0.9.
 
 
-## v0.0.5 — 2026-04-24 (first release as `fidelis`, renamed from `cogito-ergo`)
+## v0.0.5 — 2026-04-24 (first release as `fidelis`, renamed from `Fidelis`)
 
-**Package rename: `cogito-ergo` → `fidelis`.** Version reset for the new
-PyPI package. The old `cogito-ergo` PyPI entries (0.0.8 and 0.3.0) remain
+**Package rename: `Fidelis` → `fidelis`.** Version reset for the new
+PyPI package. The old `Fidelis` PyPI entries (0.0.8 and 0.3.0) remain
 published but are now deprecated pointers to this package. Note: a prior
-`cogito-ergo` v0.0.5 also exists in the changelog below — these are
+`Fidelis` v0.0.5 also exists in the changelog below — these are
 **different packages**; the version numbers do not collide on PyPI.
 
 **Headline: zero-LLM is the default retrieval tier.** The repositioning
@@ -202,7 +202,7 @@ benchmark-tuned and held as experimental until calibration is fixed.
 
 ### Rename details
 
-- PyPI package: `cogito-ergo` → `fidelis`
+- PyPI package: `Fidelis` → `fidelis`
 - Import name: `from cogito` → `from fidelis`
 - CLI: `cogito ...` → `fidelis ...`, `cogito-server` → `fidelis-server`
 - Data paths kept as `~/.cogito/` for backward-compat with existing deployments
@@ -258,7 +258,7 @@ benchmark-tuned and held as experimental until calibration is fixed.
 
 ---
 
-# cogito-ergo era (predecessor package, retained for history)
+# Fidelis era (predecessor package, retained for history)
 
 ## v0.3.0 — 2026-04-16
 
@@ -285,10 +285,10 @@ benchmark-tuned and held as experimental until calibration is fixed.
 ## v0.0.5 — 2026-03-28
 
 - Fixed benchmark attribution: qwen3.5:2b filter model (not claude-haiku-4-5)
-- Added Hermes Labs PyPI metadata (author, homepage, keywords)
+- Added AliceLabs PyPI metadata (author, homepage, keywords)
 - Added agents.md for AI agent discoverability
 - Updated llms.txt with full API shapes and integration notes
-- Added "Built by Hermes Labs" ecosystem section to README
+- Added "Built by AliceLabs" ecosystem section to README
 
 ## v0.1.0 — 2026-03
 

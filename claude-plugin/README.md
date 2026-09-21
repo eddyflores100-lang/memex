@@ -1,6 +1,6 @@
 # fidelis plugin root
 
-Portable plugin root for the Hermes Labs catalog. It carries two things and no
+Portable plugin root for the AliceLabs catalog. It carries two things and no
 product code:
 
 - `.mcp.json` — the fidelis MCP connection, launched from the released

@@ -681,7 +681,7 @@ def main():
                              "Fixes 83%% of E2 TR errors caused by GPT-4o using training cutoff as today.")
     parser.add_argument("--rate-limit-delay", type=float, default=0.3,
                         help="Seconds to sleep between API calls (default 0.3 to avoid rate limits)")
-    parser.add_argument("--use-fidelis-scaffold", action="store_true",
+    parser.add_argument("--use-alicelabs-scaffold", action="store_true",
                         help="Use Fidelis Scaffold v0.1.0 system prompts (drift-safe + hedge-calibrated)")
     parser.add_argument("--minimal-prompt", action="store_true",
                         help="Use a minimal raw prompt (for A/B baseline vs scaffold)")

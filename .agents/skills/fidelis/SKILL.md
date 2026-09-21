@@ -89,4 +89,4 @@ uvx --from fidelis-memory fidelis query "test query" --limit 2
 ## More
 
 Full docs, HTTP reference, and module map:
-https://github.com/hermes-labs-ai/fidelis
+https://github.com/eddyflores100-lang/fidelis

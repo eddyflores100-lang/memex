@@ -19,7 +19,7 @@ Supersedes ROADMAP-95.md. Same phases, disciplined loop, explicit checkpoints.
 3. **Measure** — full 470q run that emits per-question JSON (not just aggregates)
 4. **Diagnose** — `diff_runs.py baseline.json phaseN.json` → wins/losses by qtype + multi-answer flag
 5. **Generalize** — rerun on `eval_cases.json` (31-case) + 20-question cogito prod slice
-6. **Checkpoint with Roli** — GO / TWEAK / REVERT decision before next phase
+6. **Checkpoint with Eddy** — GO / TWEAK / REVERT decision before next phase
 7. **Log** — copy phase dir to `~/Documents/projects/research-corpus/agent-infra/raw/cogito-phase-N-YYYYMMDD/`
 
 ## Kill criteria (global)
@@ -46,7 +46,7 @@ Supersedes ROADMAP-95.md. Same phases, disciplined loop, explicit checkpoints.
 
 **Acceptance**: all three baselines recorded, diff tool works against existing data, no code changed that affects retrieval math.
 
-**Checkpoint**: post the diff tool output against `results-combined-pipeline-2026-04-15.json` vs itself (should be zero delta) + the three baseline numbers. Roli confirms rig is trustworthy.
+**Checkpoint**: post the diff tool output against `results-combined-pipeline-2026-04-15.json` vs itself (should be zero delta) + the three baseline numbers. Eddy confirms rig is trustworthy.
 
 ---
 
@@ -73,7 +73,7 @@ Supersedes ROADMAP-95.md. Same phases, disciplined loop, explicit checkpoints.
 After Phase 2, look at the per-q diff. Only THEN design scaffolds. Do not pre-commit to the contrastive-NOT / Korean evidential / code triad — that prescription assumes categories the router may have already solved or shifted.
 
 Deliverable: `bench/phase-3/SCAFFOLD-DESIGN.md` with per-category scaffold choice justified by per-q data from Phase 2.
-**Checkpoint before coding**: Roli reviews the design doc.
+**Checkpoint before coding**: Eddy reviews the design doc.
 
 ---
 
@@ -111,7 +111,7 @@ Borda / multi-scaffold voting. Don't touch unless earlier phases plateau.
 ## Execution split
 - **Main session (the agent that wrote ROADMAP-95.md)**: executes phases, writes per-q JSON, runs benchmarks, writes diagnosis
 - **Fresh-context reviewer (separate Claude Code session, cron'd)**: reads artifacts, audits kill-criteria calls, flags drift, checks generalization
-- **Roli**: final checkpoint GO / TWEAK / REVERT between phases
+- **Eddy**: final checkpoint GO / TWEAK / REVERT between phases
 
 ## File conventions
 - Runs: `bench/runs/<run_id>/per_question.json` + `aggregate.json`

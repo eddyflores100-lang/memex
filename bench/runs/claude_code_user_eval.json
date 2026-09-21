@@ -72,7 +72,7 @@
     "top_sid": "3d3f08d1-d17f-4aaf-842b-c142f7ca3c62",
     "top_date": "2026-04-16T00:57:46.343Z",
     "top_score": 0.6078922716219932,
-    "top_preview": "User: It was a subagent spawned by the\n  Round 6 Frontier hackathon session.\n  It doesn't have its own session ID \u2014\n  it was a Haiku agent spawned within\n  whatever Opus session ran that\n  hackathon. The persona, the code, and\n   the findings all live at\n  ~/Documents/projects/hermes-labs-hack\n  athon/round-6-frontier/ethics-audit/. -ession\n  86a6db7a-c171-4b28-a922-abbd7b06f26f\nAssistant: Now I s",
+    "top_preview": "User: It was a subagent spawned by the\n  Round 6 Frontier hackathon session.\n  It doesn't have its own session ID \u2014\n  it was a Haiku agent spawned within\n  whatever Opus session ran that\n  hackathon. The persona, the code, and\n   the findings all live at\n  ~/Documents/projects/eddyflores100-lang-hack\n  athon/round-6-frontier/ethics-audit/. -ession\n  86a6db7a-c171-4b28-a922-abbd7b06f26f\nAssistant: Now I s",
     "alt_2": "c4f03515-9465-4ecd-a57f-4c27034e3ef0",
     "alt_3": "ecde28d8-325e-4672-a7ce-a67af5755cd5"
   },
@@ -83,7 +83,7 @@
     "top_sid": "a8702ae3-459d-4323-9d97-b34ac15fd5c3",
     "top_date": "2026-04-14T19:01:32.133Z",
     "top_score": 0.6517527435984372,
-    "top_preview": "User: <command-message>loop</command-message>\n<command-name>/loop</command-name>\n<command-args>Monitor the hermes-labs-gtm-research folder for agent activity. Check: (1) files modified in last 5 min, (2) whether SEND-TODAY.md exists yet, (3) whether blog-post.md has grown, (4) any new files outside the assigned agent zones (09-psychographic, 11-compliance-index, 04-cold-emails). Report concisely w",
+    "top_preview": "User: <command-message>loop</command-message>\n<command-name>/loop</command-name>\n<command-args>Monitor the eddyflores100-lang-gtm-research folder for agent activity. Check: (1) files modified in last 5 min, (2) whether SEND-TODAY.md exists yet, (3) whether blog-post.md has grown, (4) any new files outside the assigned agent zones (09-psychographic, 11-compliance-index, 04-cold-emails). Report concisely w",
     "alt_2": "3d3f08d1-d17f-4aaf-842b-c142f7ca3c62",
     "alt_3": "8ff5381b-f7bc-4d58-a722-3f1d6e21b806"
   },
@@ -94,7 +94,7 @@
     "top_sid": "6b937869-f383-497d-a0af-62f9fe8bf073",
     "top_date": "2026-04-18T00:38:02.317Z",
     "top_score": 0.6656212658161147,
-    "top_preview": "User: MISSION BRIEF (for the specialist agent you will spawn \u2014 do not execute it yourself):\n\n  cogito-ergo retrieval: chase 97% R@1 on LongMemEval_S with full Hermes leverage. Aggressive but bounded.\n\n  ## Current state\n  - 93.4% R@1 (final Run B). R@5=98.3%, R@10=99.1%.\n  - Architecture: BM25 + chunks + nomic + prefixes + RRF + regex router + qwen-turbo filter + qwen-max flagship on\n   37-q hards",
+    "top_preview": "User: MISSION BRIEF (for the specialist agent you will spawn \u2014 do not execute it yourself):\n\n  Fidelis retrieval: chase 97% R@1 on LongMemEval_S with full Hermes leverage. Aggressive but bounded.\n\n  ## Current state\n  - 93.4% R@1 (final Run B). R@5=98.3%, R@10=99.1%.\n  - Architecture: BM25 + chunks + nomic + prefixes + RRF + regex router + qwen-turbo filter + qwen-max flagship on\n   37-q hards",
     "alt_2": "8ff5381b-f7bc-4d58-a722-3f1d6e21b806",
     "alt_3": "c4f03515-9465-4ecd-a57f-4c27034e3ef0"
   },

@@ -1,6 +1,6 @@
 """Continuity tests — exercise external dependency boundaries and assert graceful degradation.
 
-fidelis-scaffold has zero runtime dependencies. The relevant external boundaries are:
+alicelabs-scaffold has zero runtime dependencies. The relevant external boundaries are:
 
 1. Caller-provided qtype (must handle unknown gracefully)
 2. Caller-provided top_score (must handle None / weird floats)

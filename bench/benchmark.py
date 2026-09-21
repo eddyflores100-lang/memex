@@ -13,8 +13,8 @@ Usage:
 Test case format (bench/cases.json):
     [
       {
-        "query": "lintlang release version",
-        "expected": ["lintlang", "v0.", "release", "version"],   # ANY match = hit
+        "query": "alicelabs-lint release version",
+        "expected": ["alicelabs-lint", "v0.", "release", "version"],   # ANY match = hit
         "notes": "optional description"
       },
       ...

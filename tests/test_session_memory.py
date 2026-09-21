@@ -34,8 +34,8 @@ FIVE_SESSIONS = [
     {
         "session_id": "sess-alpha",
         "turns": [
-            {"role": "user",      "content": "Tell me about cogito-ergo memory retrieval", "ts": "2026-04-01T09:00:00Z"},
-            {"role": "assistant", "content": "cogito-ergo uses ChromaDB + BM25 hybrid",    "ts": "2026-04-01T09:00:10Z"},
+            {"role": "user",      "content": "Tell me about Fidelis memory retrieval", "ts": "2026-04-01T09:00:00Z"},
+            {"role": "assistant", "content": "Fidelis uses ChromaDB + BM25 hybrid",    "ts": "2026-04-01T09:00:10Z"},
         ],
     },
     {
@@ -219,15 +219,15 @@ class TestG5_QueryRanking:
             )
             stored_ids[sid] = cid
 
-        # Query for the cogito-ergo topic
-        query = "cogito-ergo memory retrieval ChromaDB"
+        # Query for the Fidelis topic
+        query = "Fidelis memory retrieval ChromaDB"
 
         with patch("fidelis.recall_sessions._resolve_store", return_value=str(tmp_path / "store")):
             with patch("fidelis.recall_sessions._embed_query", side_effect=_fake_embed):
                 results = query_sessions(query, top_k=3)
 
         assert len(results) >= 1, "query_sessions returned nothing"
-        # The alpha session (cogito-ergo) should score highest
+        # The alpha session (Fidelis) should score highest
         # (fake_embed is deterministic so cosine sim between matching texts is higher)
         top = results[0]
         assert top.session_id == "sess-alpha", (

@@ -7,7 +7,7 @@ package), please report it responsibly.
 
 **Do not open a public issue for security vulnerabilities.**
 
-Instead, email us at: **roli@hermes-labs.ai**
+Instead, email us at: **eddyflores100-lang@users.noreply.github.com**
 
 Include:
 - A description of the vulnerability.

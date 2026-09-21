@@ -1,7 +1,7 @@
 """Regression tests for DEFECT A and DEFECT B in fidelis init.
 
 DEFECT A (P0 - GLOBAL SINGLETON COLLISION):
-    Module-level constants PORT=19420 and SERVICE_LABEL="ai.hermeslabs.fidelis-server".
+    Module-level constants PORT=19420 and SERVICE_LABEL="ai.eddyflores100-lang.fidelis-server".
     fidelis init unconditionally writes ~/Library/LaunchAgents/<label>.plist and
     force-restarts that launchd service with NO check for an already-running instance.
     This destroys concurrent installations and orphans memories.
@@ -46,7 +46,7 @@ class TestDefectA_CollisionDetection:
         """DEFECT A: fidelis init should REFUSE when a service with this label
         is already loaded (even if from a different binary).
 
-        Setup: A launchd service labeled ai.hermeslabs.fidelis-server is running
+        Setup: A launchd service labeled ai.eddyflores100-lang.fidelis-server is running
                from /some/other/venv/bin/fidelis-server (older or different version).
 
         Expected behavior: fidelis init detects the label collision and prints
@@ -169,7 +169,7 @@ class TestDefectA_CollisionDetection:
 
             {
                 "PID" = 74977;
-                "Label" = "ai.hermeslabs.fidelis-server";
+                "Label" = "ai.eddyflores100-lang.fidelis-server";
                 "LastExitStatus" = 0;
                 ...
             };
@@ -207,7 +207,7 @@ class TestDefectA_CollisionDetection:
             '\t"StandardOutPath" = "/Users/testuser/.fidelis/server.log";\n'
             '\t"LimitLoadToSessionType" = "Aqua";\n'
             '\t"StandardErrorPath" = "/Users/testuser/.fidelis/server.log";\n'
-            '\t"Label" = "ai.hermeslabs.fidelis-server";\n'
+            '\t"Label" = "ai.eddyflores100-lang.fidelis-server";\n'
             '\t"OnDemand" = true;\n'
             '\t"LastExitStatus" = 0;\n'
             '\t"PID" = 74977;\n'
@@ -303,7 +303,7 @@ class TestDefectB_ConfigDegradation:
         """DEFECT B: When re-running fidelis init on an existing install,
         pre-existing EnvironmentVariables should be preserved.
 
-        Setup: An existing plist at ~/Library/LaunchAgents/ai.hermeslabs.fidelis-server.plist
+        Setup: An existing plist at ~/Library/LaunchAgents/ai.eddyflores100-lang.fidelis-server.plist
                with custom env vars: PYDANTIC_DISABLE_PLUGINS=__all__ and ThrottleInterval=15.
 
         Expected behavior: After re-init, those vars are still present in the new plist.
@@ -428,7 +428,7 @@ class TestLegacyLabelGating:
     """Tests for legacy label unlink gating.
 
     The code calls _bootout_legacy_macos() unconditionally, which unlinks
-    plists for ai.hermeslabs.cogito-server and ai.cogito.server.
+    plists for ai.eddyflores100-lang.cogito-server and ai.cogito.server.
     This should be gated behind an explicit flag (e.g., --migrate or only on first install).
     """
 
@@ -443,7 +443,7 @@ class TestLegacyLabelGating:
         legacy_agents = fake_home / "Library" / "LaunchAgents"
         legacy_agents.mkdir(parents=True)
 
-        legacy_plist = legacy_agents / "ai.hermeslabs.cogito-server.plist"
+        legacy_plist = legacy_agents / "ai.eddyflores100-lang.cogito-server.plist"
         legacy_plist.write_text("<xml>legacy</xml>")
 
         def mock_subprocess_run(cmd, *args, **kwargs):

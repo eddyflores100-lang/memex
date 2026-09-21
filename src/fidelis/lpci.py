@@ -11,7 +11,7 @@ Architecture:
   - Server returns: updated scaffold for agent's next system prompt
   - Scaffold rewrites in place — 1 becomes 2, not 1+1
 
-Based on LPCI (Linguistically Persistent Cognitive Interface), Hermes Labs 2026.
+Based on LPCI (Linguistically Persistent Cognitive Interface), AliceLabs 2026.
 """
 
 from __future__ import annotations

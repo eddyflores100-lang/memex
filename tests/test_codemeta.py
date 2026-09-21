@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ORCID = "https://orcid.org/0009-0005-4896-1112"
+ORCID = ""
 VOLATILE_DATE_KEYS = {"dateCreated", "dateModified", "datePublished"}
 
 

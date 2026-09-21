@@ -1,7 +1,7 @@
 """Bind the Gemini CLI extension manifest to the checked-in release truth.
 
 ``gemini-extension.json`` is what ``gemini extensions install
-https://github.com/hermes-labs-ai/fidelis`` and the geminicli.com gallery
+https://github.com/eddyflores100-lang/fidelis`` and the geminicli.com gallery
 crawler read. It must launch the same published package that ``server.json``
 advertises to the MCP Registry, at the same version, so a release bump cannot
 leave one surface pointing at an older wheel.
@@ -77,5 +77,5 @@ def test_context_file_names_only_tools_the_server_exposes():
 
 def test_reference_documents_the_extension_install_command():
     readme = (ROOT / "docs" / "full-reference.md").read_text()
-    assert "gemini extensions install https://github.com/hermes-labs-ai/fidelis" in readme
+    assert "gemini extensions install https://github.com/eddyflores100-lang/fidelis" in readme
     assert "gemini-extension.json" in readme

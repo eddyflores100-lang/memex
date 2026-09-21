@@ -6,7 +6,7 @@ WITHOUT modifying the LLM itself. It is designed to:
 1. Lift accuracy on questions where extraction-only fails (TR, MS, Pref).
 2. Preserve hedge ability — "I don't know" stays available when retrieval is thin.
 3. Bound multi-turn linguistic drift via versioned, removable scaffold wrap.
-4. Pass static validation (lintlang, scaffold-lint, custom preflight).
+4. Pass static validation (alicelabs-lint, scaffold-lint, custom preflight).
 5. Be idempotent: wrap(wrap(x)) == wrap(x).
 6. Stay below 200 input tokens at all qtypes.
 

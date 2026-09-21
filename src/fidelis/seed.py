@@ -84,7 +84,7 @@ _CURATE_SYSTEM = (
     "Discard: status updates that are now stale, meeting chatter with no outcome, "
     "and anything too vague to be actionable. "
     "Output ONLY a JSON array of strings — one fact per string, no explanation. "
-    'Example: ["lintlang v0.3.1 published to PyPI", "mem0 v1.0.5 reads from payload[\\"data\\"]"]'
+    'Example: ["alicelabs-lint v0.3.1 published to PyPI", "mem0 v1.0.5 reads from payload[\\"data\\"]"]'
 )
 
 

@@ -92,7 +92,7 @@ _RETROSPECTIVE_TOPIC_RE = re.compile(
     r")\b",
     re.IGNORECASE,
 )
-_CANONICAL_TOPIC_ALIASES = {"linter": "lintlang"}
+_CANONICAL_TOPIC_ALIASES = {"linter": "alicelabs-lint"}
 
 
 def canonical_topic_term(token: str) -> str:

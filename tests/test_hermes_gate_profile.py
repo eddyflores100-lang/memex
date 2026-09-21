@@ -1,12 +1,12 @@
 """Regression tests for the repository gate profile under ``.hermes/``.
 
-``hermes-gate fast`` spawns each step's argv verbatim, so ``python3`` is
+``alicelabs-gate fast`` spawns each step's argv verbatim, so ``python3`` is
 whatever PATH resolves. The copied runner refuses Python older than 3.11 (the
 CLI's floor), while this package supports 3.10, so the ``diff-check`` step used
 to exit inside that guard on a 3.10 host before checking a single file. The
 step now goes through ``.hermes/run_gate_runner.py``. These tests run it the
 way the gate does -- as a subprocess, in a throwaway Git repository, with
-``python3`` and the ``hermes-gate`` launcher on a PATH the test controls.
+``python3`` and the ``alicelabs-gate`` launcher on a PATH the test controls.
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ RUNNER_FLOOR = (3, 11)
 
 
 def _diff_check_argv() -> list[str]:
-    """The ``diff-check`` fast step exactly as ``hermes-gate`` reads it."""
+    """The ``diff-check`` fast step exactly as ``alicelabs-gate`` reads it."""
     text = GATE_PROFILE.read_text(encoding="utf-8")
     try:
         import tomllib
@@ -104,21 +104,21 @@ def gate_repo(tmp_path):
 
 
 def _run_step(root: Path, *, python3: str, launcher_python: str | None, files: list[str]):
-    """Spawn the diff-check step as ``hermes-gate fast`` does, with PATH pinned."""
+    """Spawn the diff-check step as ``alicelabs-gate fast`` does, with PATH pinned."""
     bin_dir = root.parent / "bin"
     bin_dir.mkdir(exist_ok=True)
     (bin_dir / "python3").unlink(missing_ok=True)
     (bin_dir / "python3").symlink_to(python3)
-    launcher = bin_dir / "hermes-gate"
+    launcher = bin_dir / "alicelabs-gate"
     launcher.unlink(missing_ok=True)
     if launcher_python is not None:
         launcher.write_text(f"#!{launcher_python}\nraise SystemExit('launcher stub')\n")
         launcher.chmod(0o755)
-    # Only the pinned bin dir and Git's own directory: the real ``hermes-gate``
+    # Only the pinned bin dir and Git's own directory: the real ``alicelabs-gate``
     # launcher of the host must not leak into a case that says there is none.
     git_dir = os.path.dirname(shutil.which("git") or "/usr/bin/git")
     path = os.pathsep.join([str(bin_dir), git_dir, "/usr/bin", "/bin"])
-    assert shutil.which("hermes-gate", path=path) == (str(launcher) if launcher_python else None)
+    assert shutil.which("alicelabs-gate", path=path) == (str(launcher) if launcher_python else None)
     env = dict(os.environ, PATH=path)
     argv = [part for step in _diff_check_argv() for part in (files if step == "{files}" else [step])]
     return subprocess.run(argv, cwd=root, env=env, capture_output=True, text=True, check=False)
@@ -169,5 +169,5 @@ def test_diff_check_step_names_the_gap_when_no_launcher_can_help(gate_repo):
     result = _run_step(gate_repo, python3=old, launcher_python=None, files=["dirty.txt"])
     assert result.returncode == 1
     assert "needs 3.11+" in result.stderr
-    assert "no hermes-gate launcher" in result.stderr
+    assert "no alicelabs-gate launcher" in result.stderr
     assert "Traceback" not in result.stderr

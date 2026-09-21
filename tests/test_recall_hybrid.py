@@ -32,7 +32,7 @@ from fidelis import recall_hybrid as rh
     ("most recently shipped feature", "llm"),
     ("how many bugs were tracked in total", "llm"),
     ("what is the recall score for snapshot layer", "default"),
-    ("describe the architecture of cogito-ergo", "default"),
+    ("describe the architecture of Fidelis", "default"),
 ])
 def test_classify_query(query, expected):
     assert rh.classify_query(query) == expected

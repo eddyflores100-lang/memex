@@ -40,7 +40,7 @@ CONTACT:
 
 ATTRIBUTION:
   This Software incorporates code originally licensed under the MIT License
-  from the Fidelis Memory project (https://github.com/hermes-labs-ai/fidelis)
-  by Hermes Labs (Roli Bosch). The MIT-licensed portions remain under their
+  from the Fidelis Memory project (https://github.com/eddyflores100-lang/fidelis)
+  by AliceLabs (Eddy Flores). The MIT-licensed portions remain under their
   original license; all modifications, improvements, and additions made by
   AliceLabs are licensed under the AliceLabs Proprietary License v1.0.

@@ -542,7 +542,7 @@ def main():
     p_seed.set_defaults(func=cmd_seed)
 
     # snapshot
-    p_snap = sub.add_parser("snapshot", help="Build compressed index (zer0dex-style MEMORY.md layer)")
+    p_snap = sub.add_parser("snapshot", help="Build compressed index (alicelabs-memory-style MEMORY.md layer)")
     p_snap.add_argument("--sample", type=int, default=500, help="Memories to sample (default: 500)")
     p_snap.add_argument("--dry-run", action="store_true", help="Preview without writing")
     p_snap.add_argument("--rebuild", action="store_true", help="Force rebuild even if snapshot exists")

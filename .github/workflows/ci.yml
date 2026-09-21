@@ -64,7 +64,7 @@ jobs:
 
       - name: Guard against operator-path leaks
         run: |
-          if git grep -nE 'rbr_lpci' -- ':!.git' \
+          if git grep -nE 'eddyflores100-lang' -- ':!.git' \
               ':!.github/workflows/ci.yml' ':!.pre-commit-config.yaml'; then
             echo "::error::Found the operator's real username in tracked files (see matches above). Use a placeholder like /Users/testuser/ instead."
             exit 1

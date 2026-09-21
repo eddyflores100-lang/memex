@@ -3,7 +3,7 @@ repos:
     hooks:
       - id: no-operator-username-leak
         name: block operator's real username in tracked files
-        entry: bash -c 'git grep -nE "rbr_lpci" -- ":!.pre-commit-config.yaml" && exit 1 || exit 0'
+        entry: bash -c 'git grep -nE "eddyflores100-lang" -- ":!.pre-commit-config.yaml" && exit 1 || exit 0'
         language: system
         pass_filenames: false
         always_run: true

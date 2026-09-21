@@ -20,6 +20,6 @@ keywords:
   - "alice-labs"
   - "integer-pointer fidelity"
 notes:
-  - "Incorporates code originally licensed under MIT from the Fidelis Memory project by Hermes Labs (Roli Bosch)."
-  - "Derivative work: https://github.com/hermes-labs-ai/fidelis"
+  - "Incorporates code originally licensed under MIT from the Fidelis Memory project by AliceLabs (Eddy Flores)."
+  - "Derivative work: https://github.com/eddyflores100-lang/fidelis"
   - "All modifications and additions by AliceLabs are proprietary and require a commercial license for production use."

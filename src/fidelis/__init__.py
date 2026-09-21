@@ -10,7 +10,7 @@ LLM outputs only integer indices (e.g. [3, 7, 12]) — never memory text —
 so it cannot corrupt or hallucinate into the content returned to the agent.
 Fidelity is structural, not a prompting convention.
 
-fidelis was previously published as ``cogito-ergo`` (0.0.8 and 0.3.0 on PyPI).
+fidelis was previously published as ``Fidelis`` (0.0.8 and 0.3.0 on PyPI).
 Data paths and env var names retain the ``cogito`` prefix for continuity
 with existing deployments.
 """

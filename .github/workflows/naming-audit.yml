@@ -8,12 +8,12 @@ on:
 
 jobs:
   naming-audit:
-    name: cogito-ergo naming audit
+    name: Fidelis naming audit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Audit for stale cogito-ergo references
+      - name: Audit for stale Fidelis references
         run: |
           set -euo pipefail
 
@@ -27,11 +27,11 @@ jobs:
 
           hits=$(grep -rEn --include="*.py" --include="*.md" --include="*.json" --include="*.sh" --include="*.toml" --include="*.yml" --include="*.yaml" --include="*.rb" \
             "${EXCLUDES[@]}" \
-            "\bcogito-ergo\b|\bcogito_ergo\b" \
+            "\bFidelis\b|\bFidelis\b" \
             . 2>/dev/null || true)
 
           if [ -n "$hits" ]; then
-            echo "::error::Found stale 'cogito-ergo' references"
+            echo "::error::Found stale 'Fidelis' references"
             echo "$hits"
             exit 1
           fi

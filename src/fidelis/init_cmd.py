@@ -1,7 +1,7 @@
 """fidelis init — install + start the fidelis service so memory is "on" automatically.
 
 Cross-platform:
-- macOS: launchd plist at ~/Library/LaunchAgents/ai.hermeslabs.fidelis-server.plist
+- macOS: launchd plist at ~/Library/LaunchAgents/ai.eddyflores100-lang.fidelis-server.plist
 - Linux: systemd user unit at ~/.config/systemd/user/fidelis-server.service
 - Other: fallback to nohup (best-effort, no auto-start on reboot)
 
@@ -27,7 +27,7 @@ import urllib.request
 from pathlib import Path
 
 PORT = 19420
-SERVICE_LABEL = "ai.hermeslabs.fidelis-server"
+SERVICE_LABEL = "ai.eddyflores100-lang.fidelis-server"
 
 PLIST_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -135,7 +135,7 @@ def _server_bin() -> str:
         return str(candidate)
     raise RuntimeError(
         "fidelis-server entry point not found on PATH. "
-        "Reinstall Hermes Labs Fidelis from its tagged GitHub source; "
+        "Reinstall AliceLabs Fidelis from its tagged GitHub source; "
         "see the README installation instructions."
     )
 
@@ -156,7 +156,7 @@ def _health_check(timeout_s: float = 10.0, port: int = None) -> bool:
     return False
 
 
-_LEGACY_LABELS = ("ai.hermeslabs.cogito-server", "ai.cogito.server")
+_LEGACY_LABELS = ("ai.eddyflores100-lang.cogito-server", "ai.cogito.server")
 
 
 def _bootout_legacy_macos(force: bool = False) -> None:
@@ -203,7 +203,7 @@ def _detect_existing_service(label: str, port: int) -> dict | None:
         # collision was silently missed whenever the port-listener check
         # (the second, independent signal below) didn't also catch it.
         # Confirmed against the live production service on this host:
-        #   launchctl list ai.hermeslabs.fidelis-server -> PID 74977
+        #   launchctl list ai.eddyflores100-lang.fidelis-server -> PID 74977
         # returncode == 0 alone already proves the label is loaded (launchd
         # sets this correctly); PID extraction below is best-effort, used
         # only to name the process in the refusal message — never a gate
@@ -564,7 +564,7 @@ def cmd_init(args) -> int:
     --dry-run: print what would change without modifying anything.
     --port: override the default port (for multiple instances).
     --label: override the default label (for multiple instances, macOS only).
-    --migrate: remove legacy launchd labels (ai.hermeslabs.cogito-server, etc).
+    --migrate: remove legacy launchd labels (ai.eddyflores100-lang.cogito-server, etc).
     """
     system = platform.system()
 

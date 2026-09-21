@@ -43,6 +43,6 @@
     "name": "AliceLabs",
     "url": "https://github.com/eddyflores100-lang"
   },
-  "creditText": "Incorporates code originally licensed under MIT from the Fidelis Memory project by Hermes Labs (Roli Bosch).",
-  "derivativeWork": "https://github.com/hermes-labs-ai/fidelis"
+  "creditText": "Incorporates code originally licensed under MIT from the Fidelis Memory project by AliceLabs (Eddy Flores).",
+  "derivativeWork": "https://github.com/eddyflores100-lang/fidelis"
 }

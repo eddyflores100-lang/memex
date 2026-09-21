@@ -66,7 +66,7 @@ def test_macos_plist_includes_telemetry_kill(fake_home):
         rc = _install_macos(uninstall=False)
         assert rc == 0
 
-    plist_path = fake_home / "Library/LaunchAgents/ai.hermeslabs.fidelis-server.plist"
+    plist_path = fake_home / "Library/LaunchAgents/ai.eddyflores100-lang.fidelis-server.plist"
     assert plist_path.exists(), f"plist not written at {plist_path}"
     content = plist_path.read_text()
 
@@ -117,7 +117,7 @@ def test_macos_plist_uses_console_script(fake_home):
     with patch("subprocess.run", side_effect=_fake_run):
         _install_macos(uninstall=False)
 
-    plist_path = fake_home / "Library/LaunchAgents/ai.hermeslabs.fidelis-server.plist"
+    plist_path = fake_home / "Library/LaunchAgents/ai.eddyflores100-lang.fidelis-server.plist"
     content = plist_path.read_text()
 
     # Path should end in the console-script name. Don't assert an absolute
@@ -168,7 +168,7 @@ def test_legacy_label_bootout_is_idempotent(fake_home):
     # Plant a fake legacy plist; verify it does NOT get removed without force=True.
     legacy_dir = fake_home / "Library/LaunchAgents"
     legacy_dir.mkdir(parents=True, exist_ok=True)
-    legacy_plist = legacy_dir / "ai.hermeslabs.cogito-server.plist"
+    legacy_plist = legacy_dir / "ai.eddyflores100-lang.cogito-server.plist"
     legacy_plist.write_text("<?xml version='1.0'?><plist></plist>")
 
     with patch("subprocess.run") as fake_run:

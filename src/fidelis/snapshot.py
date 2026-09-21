@@ -1,5 +1,5 @@
 """
-fidelis snapshot — compressed index layer (zer0dex-style).
+fidelis snapshot — compressed index layer (alicelabs-memory-style).
 
 Builds a structured markdown summary of the entire memory store — a semantic
 table of contents that an agent loads once at session start. Solves the

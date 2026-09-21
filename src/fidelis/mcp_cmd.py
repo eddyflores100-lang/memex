@@ -281,7 +281,7 @@ def _cmd_copilot_install(args) -> int:
     if not MCP_SERVER_FILE.exists():
         print(
             f"error: bundled MCP server not found at {MCP_SERVER_FILE}\n"
-            "  this install appears incomplete; reinstall Hermes Labs Fidelis "
+            "  this install appears incomplete; reinstall AliceLabs Fidelis "
             "from its tagged GitHub source (see README)",
             file=sys.stderr,
         )
@@ -713,7 +713,7 @@ def _cmd_gemini_install(args) -> int:
     if not MCP_SERVER_FILE.exists():
         print(
             f"error: bundled MCP server not found at {MCP_SERVER_FILE}\n"
-            "  this install appears incomplete; reinstall Hermes Labs Fidelis "
+            "  this install appears incomplete; reinstall AliceLabs Fidelis "
             "from its tagged GitHub source (see README)",
             file=sys.stderr,
         )
@@ -1145,7 +1145,7 @@ def _cmd_openclaw_install(args) -> int:
     if not MCP_SERVER_FILE.exists():
         print(
             f"error: bundled MCP server not found at {MCP_SERVER_FILE}\n"
-            "  this install appears incomplete; reinstall Hermes Labs Fidelis "
+            "  this install appears incomplete; reinstall AliceLabs Fidelis "
             "from its tagged GitHub source (see README)",
             file=sys.stderr,
         )
@@ -1312,7 +1312,7 @@ def cmd_mcp_install(args) -> int:
     if not MCP_SERVER_FILE.exists():
         print(
             f"error: bundled MCP server not found at {MCP_SERVER_FILE}\n"
-            "  this install appears incomplete; reinstall Hermes Labs Fidelis "
+            "  this install appears incomplete; reinstall AliceLabs Fidelis "
             "from its tagged GitHub source (see README)",
             file=sys.stderr,
         )

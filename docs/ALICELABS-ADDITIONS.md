@@ -86,7 +86,7 @@ curl http://127.0.0.1:19420/export > backup.json
 
 ### `.github/workflows/naming-audit.yml`
 
-Fails on any new `cogito-ergo` / `cogito.<module>` / `[cogito]` reference
+Fails on any new `Fidelis` / `cogito.<module>` / `[cogito]` reference
 in `src/` or `docs/`. Allowlist for historical refs and back-compat
 identifiers.
 

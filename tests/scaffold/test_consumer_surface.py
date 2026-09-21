@@ -18,7 +18,7 @@ import pytest
 def test_init_cmd_imports():
     from fidelis import init_cmd
     assert hasattr(init_cmd, "cmd_init")
-    assert init_cmd.SERVICE_LABEL == "ai.hermeslabs.fidelis-server"
+    assert init_cmd.SERVICE_LABEL == "ai.eddyflores100-lang.fidelis-server"
     assert init_cmd.PORT == 19420
 
 

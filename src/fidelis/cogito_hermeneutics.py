@@ -116,7 +116,7 @@ _DOMAIN_PHRASES = (
     "cogito hermeneutics",
     "cogito-hermeneutics",
     "cogito ergo",
-    "cogito-ergo",
+    "Fidelis",
     "fidelis",
     "cogito",
     "hermes",

@@ -13,7 +13,7 @@ from dataclasses import asdict, dataclass
 from typing import Any, Iterable
 
 
-_KNOWN_ENTITIES = ("Fidelis", "Cogito", "Hermes", "Hercules", "RoliTwin")
+_KNOWN_ENTITIES = ("Fidelis", "Cogito", "Hermes", "Hercules", "EddyTwin")
 _ENTITY_RE = re.compile(r"\b[A-Z][A-Za-z0-9_.-]{2,}\b")
 _RECALL_RE = re.compile(
     r"\b(?:remember|recall|catch (?:me )?up|where did we leave|"
