@@ -1474,6 +1474,24 @@ def make_handler(memory: object, cfg: dict) -> type:
                     )
                     self._json(result)
 
+                elif self.path == "/recall/stream":
+                    # AliceLabs addition: SSE streaming recall
+                    text = data.get("text", "")
+                    if not text or len(text.strip()) < 3:
+                        self._json({"error": "query must contain at least 3 characters"}, 400)
+                        return
+                    limit = int(data.get("limit", 20))
+                    _recall_start = time.monotonic()
+                    try:
+                        memories, method = do_recall_hybrid(
+                            memory, text, user_id=user_id, cfg=cfg,
+                            limit=limit, tier="zero_llm", top_k=5,
+                        )
+                        from memex.streaming import handle_sse_recall
+                        handle_sse_recall(self, memories, method, _recall_start)
+                    except Exception as e:
+                        logger.warning("/recall/stream failed: %s", e)
+                        self._json({"error": f"stream failed: {type(e).__name__}"}, 500)
                 elif self.path == "/recall_hybrid":
                     # BM25 + dense + RRF + tiered LLM escalation.
                     # Default tier: local zero_llm.
