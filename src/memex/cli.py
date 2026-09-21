@@ -706,6 +706,10 @@ def main():
     from memex.diff import register_parsers as register_diff
     register_diff(sub)
 
+    # graph — knowledge graph (AliceLabs addition)
+    from memex.graph import register_parser as register_graph
+    register_graph(sub)
+
     # init — install + start memex-server as a system service
     p_init = sub.add_parser(
         "init",
