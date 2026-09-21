@@ -1,0 +1,18 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "memex-sdk"
+version = "0.3.0"
+description = "Memex — local-first, zero-LLM agent memory SDK for Python"
+readme = "README.md"
+license = { text = "AliceLabs Proprietary v1.0" }
+requires-python = ">=3.10"
+authors = [
+  { name = "AliceLabs", email = "eddyflores100-lang@users.noreply.github.com" },
+]
+keywords = ["memex", "agent-memory", "zero-llm", "local-first", "rag", "retrieval"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["memex_sdk"]
