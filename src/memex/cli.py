@@ -395,6 +395,19 @@ def _cmd_doctor(args):
     return run_doctor()
 
 
+def cmd_stats(args):
+    """AliceLabs addition: cost-per-query comparison vs. competitors."""
+    import json as _json
+    import sys as _sys
+    from memex.cost import competitive_comparison, format_comparison_text
+    comparison = competitive_comparison(args.queries)
+    if args.json:
+        print(_json.dumps(comparison, indent=2))
+    else:
+        print(format_comparison_text(comparison))
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="memex",
@@ -575,6 +588,19 @@ def main():
     # ui — local web UI for browsing memories (AliceLabs addition)
     from memex.ui import register_parser as register_ui
     register_ui(sub)
+
+    # stats — cost comparison vs. competitors (AliceLabs addition)
+    p_stats = sub.add_parser(
+        "stats",
+        help="Show cost-per-query comparison vs. mem0, Zep, Letta, Pinecone, ChromaDB",
+    )
+    p_stats.add_argument("--queries", type=int, default=1000, help="Number of queries to compare (default: 1000)")
+    p_stats.add_argument("--json", action="store_true", help="Output JSON instead of text")
+    p_stats.set_defaults(func=cmd_stats)
+
+    # benchmark — reproducible LongMemEval runner (AliceLabs addition)
+    from memex.benchmark_cmd import register_parser as register_benchmark
+    register_benchmark(sub)
 
     # init — install + start memex-server as a system service
     p_init = sub.add_parser(

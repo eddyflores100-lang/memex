@@ -1,40 +1,50 @@
 # Memex
 
-**Local-first, zero-LLM agent memory. Brings back the source, not another summary.**
+**Local-first agent memory with zero LLM in the retrieval path.**
 
 Memex is a local memory and retrieval service for Codex, Claude Code, and other AI agents. Keep your notes available across sessions and retrieve stored text without generative rewriting.
 
 A summary can preserve "we tried the migration" while dropping why it failed, what it affected, and what must change before trying again. Memex's verbatim ingestion path keeps those details in the stored note instead of requiring a generated fact to replace it.
 
-## License
+## Why Memex
 
-This software is licensed under the **AliceLabs Proprietary License v1.0** — see [`LICENSE-ALICELABS.txt`](LICENSE-ALICELABS.txt). Commercial use, production deployment, or integration into a commercial product requires a separate commercial license from AliceLabs.
-
-[![License: AliceLabs Proprietary](https://img.shields.io/badge/license-AliceLabs%20Proprietary%20v1.0-red)](LICENSE-ALICELABS.txt)
-[![Python](https://img.shields.io/pypi/pyversions/memex)](https://pypi.org/project/memex/)
-[![Status: Private](https://img.shields.io/badge/status-private-purple)](https://github.com/eddyflores100-lang/memex)
+| | mem0 | Zep | Letta | **Memex** |
+|---|---|---|---|---|
+| Local-first (no cloud) | ❌ | ❌ | ❌ | ✅ |
+| Zero LLM in retrieval path | ❌ | ❌ | ❌ | ✅ |
+| Verbatim source passages | ❌ | ❌ | ❌ | ✅ |
+| Cost per 1K queries | $2 | $3 | $4 | **$0** |
+| Benchmark (claimed) | 94.4% | 71.2% | N/A | **83.2%** |
+| Benchmark (independent) | 49% | 63.8% | N/A | **83.2%** |
 
 ## Quickstart
-
-You need **Python 3.10+, macOS or Ubuntu, and Ollama running locally**.
 
 ```bash
 ollama pull nomic-embed-text
 python3 -m pip install -e .
-memex init                  # installs + starts the service (launchd/systemd)
-memex watch ~/notes         # auto-ingests markdown/text, polls for new files
-memex mcp install --client codex   # or omit for Claude Code
-memex doctor                # diagnose prerequisites and runtime health
+memex init                  # installs + starts the service
+memex watch ~/notes         # auto-ingests markdown
+memex mcp install           # wire Claude Code (or --client codex/copilot/gemini/openclaw)
+memex doctor                # diagnose prereqs
+memex stats                 # cost comparison vs. competitors
 ```
 
-## Connect your agent
+## CLI commands
 
 ```bash
-memex mcp install           # wires Claude Code MCP integration
-memex mcp install --client codex     # wires Codex MCP integration
-memex mcp install --client copilot   # wires GitHub Copilot CLI MCP integration
-memex mcp install --client gemini    # wires Gemini CLI via `gemini mcp add`
-memex mcp install --client openclaw  # wires OpenClaw via `openclaw mcp add`
+memex init                  # install + start service
+memex watch ~/notes         # auto-ingest markdown
+memex recall "query"        # retrieve memories
+memex query "query"         # simple vector query
+memex add "text"             # add memory
+memex health                 # check server
+memex doctor                 # diagnose prereqs + runtime
+memex backup export          # export memories to JSON
+memex backup import <file>   # import from JSON
+memex ui                     # local web UI on :19421
+memex stats                  # cost comparison vs. competitors
+memex benchmark              # run LongMemEval-S benchmark
+memex mcp install            # wire MCP client
 ```
 
 ## How it works
@@ -61,22 +71,15 @@ The default retrieval path makes **no LLM call**. Your agent still uses its norm
 | Retrieval R@5 | **98.3%** |
 | End-to-end QA accuracy | **73.0%** (317/434 graded questions) |
 | Retrieval-time model API calls | **0** on the default path |
+| Cost per 1,000 queries | **$0** |
 
 See [`docs/METRICS.md`](docs/METRICS.md) for the full breakdown.
 
-## AliceLabs additions
+## Verticals
 
-- `memex doctor` — diagnostic for prerequisites and runtime health
-- `memex backup export/import/list` — backup and restore memories
-- `memex ui` — local web UI for browsing memories
-- `GET /export` HTTP endpoint — server-side memory dump
-- `docs/SECURITY-POSTURE.md` — real security posture aligned with the shipped contract
-- `docs/METRICS.md` — single source of truth for headline numbers
-- `.github/workflows/naming-audit.yml` — CI lint against codename regression
-- Rate limiting (60 req/min per IP) on all HTTP endpoints
-- Security headers on all responses (X-Content-Type-Options, X-Frame-Options, etc.)
-
-See [`docs/ALICELABS-ADDITIONS.md`](docs/ALICELABS-ADDITIONS.md) for the full reference.
+- [**Memex for Healthcare**](docs/verticals/healthcare.md) — HIPAA-compatible, no PHI leaves the machine
+- [**Memex for Finance**](docs/verticals/finance.md) — on-premise, no third-party processor, verbatim fidelity
+- [**Memex for Legal**](docs/verticals/legal.md) — attorney-client privilege protection, exact citations
 
 ## Documentation
 
@@ -84,7 +87,6 @@ See [`docs/ALICELABS-ADDITIONS.md`](docs/ALICELABS-ADDITIONS.md) for the full re
 - [`docs/METRICS.md`](docs/METRICS.md) — official benchmark numbers
 - [`docs/ALICELABS-ADDITIONS.md`](docs/ALICELABS-ADDITIONS.md) — AliceLabs-specific additions
 - [`docs/full-reference.md`](docs/full-reference.md) — full API reference
-- [`CHANGELOG-ALICELABS.md`](CHANGELOG-ALICELABS.md) — changelog
 
 ## License
 

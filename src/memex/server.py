@@ -1189,6 +1189,12 @@ def make_handler(memory: object, cfg: dict) -> type:
                     stats = store_stats(memory, temporal_index())  # type: ignore
                     stats["queued"] = queued_count()
                     stats["dead_letter"] = dead_count()
+                    # AliceLabs addition: cost comparison vs. competitors
+                    try:
+                        from memex.cost import competitive_comparison
+                        stats["cost_comparison"] = competitive_comparison(1000)
+                    except Exception:
+                        pass  # don't break /stats if cost module fails
                     self._json(stats)
                 elif self.path == "/export":
                     # AliceLabs addition: export all memories for backup.
