@@ -26,7 +26,7 @@ from memex import __version__
 
 def _data_dir() -> Path:
     """Find the LongMemEval data directory."""
-    env = os.environ.get("MEMEX_BENCH_DATA_DIR") or os.environ.get("FIDELIS_BENCH_DATA_DIR")
+    env = os.environ.get("MEMEX_BENCH_DATA_DIR") 
     if env:
         return Path(env).expanduser().resolve()
     repo_local = Path(__file__).resolve().parent.parent.parent / "data" / "longmemeval"

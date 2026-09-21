@@ -34,3 +34,12 @@ ALICELABS-INTERNAL/
 *.log
 bench/runs/
 uv.lock
+
+# AliceLabs audit — prevent re-tracking of removed items
+.env
+skills/
+.agents/
+memex_rename.py
+alicelabs_hardening.py
+AUDIT-REPORT.md
+/home/
