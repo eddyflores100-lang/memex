@@ -1177,6 +1177,21 @@ def make_handler(memory: object, cfg: dict) -> type:
                     stats["queued"] = queued_count()
                     stats["dead_letter"] = dead_count()
                     self._json(stats)
+                elif self.path == "/export":
+                    # AliceLabs addition: export all memories for backup.
+                    # No LLM call — pure vector store dump.
+                    try:
+                        active_memory = _get_memory()
+                    except Exception as e:
+                        self._json(_memory_unavailable_response(e), 503)
+                        return
+                    try:
+                        from fidelis.export_util import export_all_memories
+                        payload = export_all_memories(active_memory, user_id)  # type: ignore
+                        self._json(payload)
+                    except Exception as e:
+                        logger.warning("export failed: %s", e)
+                        self._json({"error": f"export failed: {type(e).__name__}"}, 500)
                 else:
                     self._json({"error": "not found"}, 404)
             except Exception as e:
@@ -1596,6 +1611,21 @@ def make_handler(memory: object, cfg: dict) -> type:
                         since=since, kind=kind,
                     )
                     self._json(result)
+                elif self.path == "/export":
+                    # AliceLabs addition: export all memories for backup.
+                    # No LLM call — pure vector store dump.
+                    try:
+                        active_memory = _get_memory()
+                    except Exception as e:
+                        self._json(_memory_unavailable_response(e), 503)
+                        return
+                    try:
+                        from fidelis.export_util import export_all_memories
+                        payload = export_all_memories(active_memory, user_id)  # type: ignore
+                        self._json(payload)
+                    except Exception as e:
+                        logger.warning("export failed: %s", e)
+                        self._json({"error": f"export failed: {type(e).__name__}"}, 500)
 
                 else:
                     self._json({"error": "not found"}, 404)

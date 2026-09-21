@@ -389,6 +389,12 @@ def cmd_server(args):
     server_main()
 
 
+def _cmd_doctor(args):
+    """AliceLabs addition: diagnostic for prerequisites and runtime health."""
+    from fidelis.doctor import run_doctor
+    return run_doctor()
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="fidelis",
@@ -553,6 +559,18 @@ def main():
     # server
     p_server = sub.add_parser("server", help="Start the fidelis server")
     p_server.set_defaults(func=cmd_server)
+
+    # doctor — diagnostic for prerequisites and runtime health (AliceLabs addition)
+    p_doctor = sub.add_parser(
+        "doctor",
+        help="Diagnose prerequisites and runtime health (Python version, deps, Ollama, store, service, MCP clients)",
+    )
+    p_doctor.add_argument("--json", action="store_true", help="Output JSON instead of human-readable text")
+    p_doctor.set_defaults(func=lambda a: sys.exit(_cmd_doctor(a)))
+
+    # backup — export/import memories (AliceLabs addition)
+    from fidelis.backup import register_parsers as register_backup
+    register_backup(sub)
 
     # init — install + start fidelis-server as a system service
     p_init = sub.add_parser(
