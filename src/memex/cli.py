@@ -714,6 +714,10 @@ def main():
     from memex.vault import register_parser as register_vault
     register_vault(sub)
 
+    # format — cross-agent memory standard (AliceLabs addition)
+    from memex.format import register_parser as register_format
+    register_format(sub)
+
     # init — install + start memex-server as a system service
     p_init = sub.add_parser(
         "init",
