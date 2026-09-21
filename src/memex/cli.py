@@ -685,6 +685,10 @@ def main():
     from memex.autoupdate import register_parser as register_update
     register_update(sub)
 
+    # sync — cross-machine replication (AliceLabs addition)
+    from memex.sync import register_parser as register_sync
+    register_sync(sub)
+
     # encrypt — encryption management (AliceLabs addition)
     p_encrypt = sub.add_parser(
         "encrypt",

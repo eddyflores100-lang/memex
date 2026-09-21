@@ -1786,6 +1786,13 @@ def main():
     except Exception as e:
         logger.debug("autocleanup startup failed: %s", e)
 
+    # AliceLabs addition: start cross-machine sync
+    try:
+        from memex.sync import start_sync
+        start_sync(f"http://127.0.0.1:{cfg['port']}")
+    except Exception as e:
+        logger.debug("sync startup failed: %s", e)
+
     port = cfg["port"]
     handler = make_handler(memory, cfg)
     httpd = _BoundedThreadingHTTPServer((args.host, port), handler)
@@ -1836,6 +1843,11 @@ def main():
         try:
             from memex.autocleanup import stop_autocleanup
             stop_autocleanup()
+        except Exception:
+            pass
+        try:
+            from memex.sync import stop_sync
+            stop_sync()
         except Exception:
             pass
         try:
