@@ -710,6 +710,10 @@ def main():
     from memex.graph import register_parser as register_graph
     register_graph(sub)
 
+    # vault — Obsidian integration (AliceLabs addition)
+    from memex.vault import register_parser as register_vault
+    register_vault(sub)
+
     # init — install + start memex-server as a system service
     p_init = sub.add_parser(
         "init",
