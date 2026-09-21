@@ -572,6 +572,10 @@ def main():
     from fidelis.backup import register_parsers as register_backup
     register_backup(sub)
 
+    # ui — local web UI for browsing memories (AliceLabs addition)
+    from fidelis.ui import register_parser as register_ui
+    register_ui(sub)
+
     # init — install + start fidelis-server as a system service
     p_init = sub.add_parser(
         "init",

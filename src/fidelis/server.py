@@ -1071,6 +1071,13 @@ def make_handler(memory: object, cfg: dict) -> type:
                 self.send_response(status)
                 self.send_header("Content-Type", "application/json")
                 self.send_header("Content-Length", str(len(body)))
+                # AliceLabs addition: security headers
+                self.send_header("X-Content-Type-Options", "nosniff")
+                self.send_header("X-Frame-Options", "DENY")
+                self.send_header("X-XSS-Protection", "1; mode=block")
+                self.send_header("Referrer-Policy", "no-referrer")
+                self.send_header("Cache-Control", "no-store, no-cache, must-revalidate")
+                self.send_header("Server", "fidelis-alicelabs")
                 self.end_headers()
                 self.wfile.write(body)
             except (BrokenPipeError, ConnectionResetError):
@@ -1090,6 +1097,12 @@ def make_handler(memory: object, cfg: dict) -> type:
                 return {}
 
         def do_GET(self):
+            # AliceLabs addition: rate limiting
+            from fidelis.security import check_rate_limit, add_security_headers, sanitize_log_input
+            client_ip = self.client_address[0]
+            if not check_rate_limit(client_ip):
+                self._json({"error": "rate limit exceeded"}, 429)
+                return
             if isinstance(memory, MemoryHolder) and not memory.ready:
                 if self.path == "/health":
                     self._json({
@@ -1205,6 +1218,12 @@ def make_handler(memory: object, cfg: dict) -> type:
                     logger.debug("client disconnected before error response could be sent")
 
         def do_POST(self):
+            # AliceLabs addition: rate limiting
+            from fidelis.security import check_rate_limit
+            client_ip = self.client_address[0]
+            if not check_rate_limit(client_ip):
+                self._json({"error": "rate limit exceeded"}, 429)
+                return
             if isinstance(memory, MemoryHolder):
                 try:
                     memory.get()
