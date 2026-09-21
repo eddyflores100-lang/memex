@@ -44,8 +44,26 @@ memex backup import <file>   # import from JSON
 memex ui                     # local web UI on :19421
 memex stats                  # cost comparison vs. competitors
 memex benchmark              # run LongMemEval-S benchmark
+memex audit                  # view audit log (requires MEMEX_AUDIT_LOG=true)
+memex audit --stats          # audit log summary statistics
 memex mcp install            # wire MCP client
 ```
+
+## Security features
+
+- **API token auth** — set `MEMEX_API_TOKEN` to require Bearer token on all endpoints
+- **Rate limiting** — 60 req/min per IP (configurable)
+- **Security headers** — X-Frame-Options, X-Content-Type-Options, X-XSS-Protection
+- **Audit logging** — set `MEMEX_AUDIT_LOG=true` to log all operations (queries hashed, never raw content)
+- **Loopback-only** — binds to 127.0.0.1 by default
+
+## Autonomy features
+
+- **Auto-start on boot** — launchd (macOS) or systemd (Linux) service
+- **Self-healing watchdog** — monitors Ollama, ChromaDB, disk space, queue depth
+- **Auto-recovery queue** — writes queued if Ollama down, auto-replayed on recovery
+- **Dead-letter handling** — permanently failed writes move to `~/.memex/queue/dead/`
+- **Graceful shutdown** — SIGTERM/SIGINT handlers checkpoint SQLite WAL before exit
 
 ## How it works
 

@@ -1103,6 +1103,10 @@ def make_handler(memory: object, cfg: dict) -> type:
             if not check_rate_limit(client_ip):
                 self._json({"error": "rate limit exceeded"}, 429)
                 return
+            # AliceLabs addition: API token auth
+            from memex.auth import middleware_check
+            if not middleware_check(self, self.path):
+                return
             if isinstance(memory, MemoryHolder) and not memory.ready:
                 if self.path == "/health":
                     self._json({
@@ -1230,6 +1234,10 @@ def make_handler(memory: object, cfg: dict) -> type:
             if not check_rate_limit(client_ip):
                 self._json({"error": "rate limit exceeded"}, 429)
                 return
+            # AliceLabs addition: API token auth
+            from memex.auth import middleware_check
+            if not middleware_check(self, self.path):
+                return
             if isinstance(memory, MemoryHolder):
                 try:
                     memory.get()
@@ -1356,6 +1364,13 @@ def make_handler(memory: object, cfg: dict) -> type:
                     )
                     memories = filter_ephemera(memories, cfg)
                     print(f"[memex] /recall_b '{text[:50]}' → {len(memories)} results ({method})", flush=True)
+                    # AliceLabs addition: audit logging
+                    try:
+                        from memex.audit_log import log_operation
+                        log_operation("recall", query=text, result_count=len(memories),
+                                      method=method, client_ip=client_ip, user_id=user_id)
+                    except Exception:
+                        pass
                     self._json({"memories": mark_superseded(memories, cfg), "method": method})
 
                 elif self.path in ("/orient", "/cogito-hermeneutics"):
@@ -1749,6 +1764,13 @@ def main():
             stop_event.wait(sleep_s)
     replay_thread = threading.Thread(target=_replay_loop, daemon=True, name="memex-replay")
     replay_thread.start()
+
+    # AliceLabs addition: start watchdog for self-healing
+    try:
+        from memex.watchdog import start_watchdog as _start_watchdog
+        _start_watchdog(memory, cfg)
+    except Exception as e:
+        logger.debug("watchdog startup failed: %s", e)
 
     port = cfg["port"]
     handler = make_handler(memory, cfg)

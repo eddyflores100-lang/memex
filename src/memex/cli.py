@@ -408,6 +408,49 @@ def cmd_stats(args):
     return 0
 
 
+def cmd_audit(args):
+    """AliceLabs addition: view audit log entries."""
+    import json as _json
+    from memex.audit_log import is_enabled, get_audit_entries, get_audit_stats
+
+    if not is_enabled():
+        print("Audit logging is disabled.", file=sys.stderr)
+        print("Enable with: MEMEX_AUDIT_LOG=true memex-server", file=sys.stderr)
+        return 1
+
+    if args.stats:
+        stats = get_audit_stats()
+        if args.json:
+            print(_json.dumps(stats, indent=2))
+        else:
+            print("Memex Audit Log Statistics")
+            print("=" * 50)
+            print(f"  Enabled:     {stats.get('enabled')}")
+            print(f"  Path:        {stats.get('path')}")
+            print(f"  Size:        {stats.get('size_bytes', 0) // 1024} KB")
+            print(f"  Total ops:   {stats.get('entries', 0)}")
+            print(f"  By operation:")
+            for op, data in stats.get("ops", {}).items():
+                print(f"    {op:12s}: {data['count']:5d} calls, avg {data.get('avg_latency_ms', 0):.0f}ms")
+        return 0
+
+    entries = get_audit_entries(limit=args.limit, op=args.op)
+    if args.json:
+        print(_json.dumps(entries, indent=2))
+    else:
+        print(f"Memex Audit Log — last {len(entries)} entries")
+        print("=" * 80)
+        for e in entries:
+            ts = e.get("ts", "?")[:19]
+            op = e.get("op", "?")
+            count = e.get("result_count", 0)
+            method = e.get("method", "")
+            latency = e.get("latency_ms", 0)
+            ip = e.get("client_ip", "")
+            print(f"  {ts} | {op:8s} | {count:3d} results | {method:12s} | {latency:6.0f}ms | {ip}")
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="memex",
@@ -601,6 +644,17 @@ def main():
     # benchmark — reproducible LongMemEval runner (AliceLabs addition)
     from memex.benchmark_cmd import register_parser as register_benchmark
     register_benchmark(sub)
+
+    # audit — view audit log entries (AliceLabs addition)
+    p_audit = sub.add_parser(
+        "audit",
+        help="View audit log entries (requires MEMEX_AUDIT_LOG=true)",
+    )
+    p_audit.add_argument("--limit", type=int, default=20, help="Max entries to show (default: 20)")
+    p_audit.add_argument("--op", help="Filter by operation (recall/query/store/add/correct)")
+    p_audit.add_argument("--stats", action="store_true", help="Show summary statistics")
+    p_audit.add_argument("--json", action="store_true", help="Output JSON")
+    p_audit.set_defaults(func=cmd_audit)
 
     # init — install + start memex-server as a system service
     p_init = sub.add_parser(
