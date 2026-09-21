@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memex — Memory that stays yours</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #fafafa;
+  --bg-deep: #f0f0f0;
+  --ink: #1a1a1a;
+  --ink-soft: #4a4a4a;
+  --ink-faint: #8a8a8a;
+  --line: #e0e0e0;
+  --accent: #2a2a2a;
+  --glass: rgba(255,255,255,0.72);
+  --shadow-soft: 0 1px 3px rgba(0,0,0,0.04), 0 8px 30px rgba(0,0,0,0.06);
+  --shadow-deep: 0 4px 12px rgba(0,0,0,0.06), 0 24px 60px rgba(0,0,0,0.10);
+  --radius: 20px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-weight: 300;
+  line-height: 1.6;
+  overflow-x: hidden;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== SCROLL PROGRESS ===== */
+.progress {
+  position: fixed; top: 0; left: 0; height: 2px;
+  background: var(--ink); width: 0%;
+  z-index: 9999; transition: width 0.1s linear;
+}
+
+/* ===== NAV ===== */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 1000; padding: 18px 40px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: all 0.4s var(--ease);
+  backdrop-filter: blur(0px);
+}
+nav.scrolled {
+  background: var(--glass);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--line);
+  padding: 12px 40px;
+}
+.nav-logo {
+  font-size: 18px; font-weight: 500; letter-spacing: -0.03em;
+  color: var(--ink); text-decoration: none;
+  display: flex; align-items: center; gap: 8px;
+}
+.nav-logo .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--ink); display: inline-block;
+}
+.nav-links { display: flex; gap: 32px; }
+.nav-links a {
+  color: var(--ink-soft); text-decoration: none; font-size: 14px;
+  font-weight: 400; transition: color 0.3s;
+}
+.nav-links a:hover { color: var(--ink); }
+
+/* ===== HERO ===== */
+.hero {
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 120px 40px 80px;
+  position: relative; overflow: hidden;
+}
+.hero-bg {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse 80% 50% at 50% 30%, rgba(200,200,200,0.15), transparent 70%);
+  z-index: -1;
+}
+.hero-title {
+  font-size: clamp(48px, 8vw, 120px);
+  font-weight: 200; letter-spacing: -0.04em;
+  line-height: 0.95; margin-bottom: 24px;
+  opacity: 0; transform: translateY(40px);
+  animation: fadeInUp 1.2s var(--ease) 0.2s forwards;
+}
+.hero-title .emphasis {
+  font-weight: 600; display: block;
+}
+.hero-subtitle {
+  font-size: clamp(18px, 2vw, 22px); font-weight: 300;
+  color: var(--ink-soft); max-width: 580px; margin: 0 auto 48px;
+  line-height: 1.5;
+  opacity: 0; transform: translateY(30px);
+  animation: fadeInUp 1s var(--ease) 0.5s forwards;
+}
+.hero-actions {
+  display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+  opacity: 0; transform: translateY(20px);
+  animation: fadeInUp 0.8s var(--ease) 0.8s forwards;
+}
+.btn {
+  padding: 14px 32px; border-radius: 100px; font-size: 15px;
+  font-weight: 500; text-decoration: none; transition: all 0.4s var(--ease);
+  display: inline-flex; align-items: center; gap: 8px;
+  border: none; cursor: pointer; font-family: inherit;
+}
+.btn-primary {
+  background: var(--ink); color: var(--bg);
+}
+.btn-primary:hover {
+  transform: scale(1.03); box-shadow: var(--shadow-deep);
+}
+.btn-ghost {
+  background: transparent; color: var(--ink-soft);
+  border: 1px solid var(--line);
+}
+.btn-ghost:hover {
+  border-color: var(--ink-soft); color: var(--ink);
+}
+
+/* ===== SCROLL HINT ===== */
+.scroll-hint {
+  position: absolute; bottom: 40px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px; color: var(--ink-faint);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  opacity: 0; animation: fadeIn 1s ease 1.5s forwards;
+}
+.scroll-hint::after {
+  content: ''; display: block; width: 1px; height: 40px;
+  background: var(--ink-faint); margin: 12px auto 0;
+  animation: scrollLine 2s ease infinite;
+}
+
+/* ===== STACK SECTIONS (3D layered) ===== */
+.stack-container {
+  position: relative; height: 400vh;
+}
+.stack-section {
+  height: 100vh; display: flex; align-items: center;
+  justify-content: center; position: sticky; top: 0;
+  padding: 0 40px;
+}
+.stack-card {
+  max-width: 900px; width: 100%; padding: 60px;
+  background: white; border-radius: var(--radius);
+  box-shadow: var(--shadow-deep);
+  transition: all 0.8s var(--ease);
+  will-change: transform, opacity;
+}
+.stack-card .label {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--ink-faint);
+  margin-bottom: 16px;
+}
+.stack-card h2 {
+  font-size: clamp(32px, 5vw, 56px); font-weight: 300;
+  letter-spacing: -0.03em; line-height: 1.1;
+  margin-bottom: 20px;
+}
+.stack-card h2 .strong { font-weight: 600; }
+.stack-card p {
+  font-size: 18px; color: var(--ink-soft); line-height: 1.6;
+  max-width: 600px;
+}
+.stack-card .code-block {
+  margin-top: 32px; padding: 24px;
+  background: #1a1a1a; border-radius: 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 13px; color: #e0e0e0; line-height: 1.8;
+  overflow-x: auto;
+}
+.stack-card .code-block .comment { color: #6a6a6a; }
+.stack-card .code-block .keyword { color: #7eb8da; }
+.stack-card .code-block .string { color: #d4a4a4; }
+
+/* ===== STAT GRID ===== */
+.stats-section {
+  padding: 120px 40px; background: white;
+}
+.stats-grid {
+  max-width: 1000px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 40px;
+}
+.stat-item { text-align: center; }
+.stat-value {
+  font-size: clamp(48px, 6vw, 80px); font-weight: 200;
+  letter-spacing: -0.04em; color: var(--ink);
+  line-height: 1; margin-bottom: 8px;
+}
+.stat-label {
+  font-size: 14px; color: var(--ink-faint);
+  letter-spacing: 0.05em;
+}
+
+/* ===== COMPARE ===== */
+.compare-section {
+  padding: 120px 40px; background: var(--bg-deep);
+}
+.compare-container { max-width: 900px; margin: 0 auto; }
+.compare-header {
+  text-align: center; margin-bottom: 60px;
+}
+.compare-header h2 {
+  font-size: clamp(32px, 5vw, 48px); font-weight: 300;
+  letter-spacing: -0.03em; margin-bottom: 12px;
+}
+.compare-table {
+  width: 100%; border-collapse: collapse;
+  background: white; border-radius: var(--radius);
+  overflow: hidden; box-shadow: var(--shadow-soft);
+}
+.compare-table th, .compare-table td {
+  padding: 16px 24px; text-align: center;
+  border-bottom: 1px solid var(--line);
+  font-size: 15px;
+}
+.compare-table th {
+  font-weight: 600; color: var(--ink);
+  background: #fafafa; font-size: 13px;
+  letter-spacing: 0.02em;
+}
+.compare-table th.highlight { color: var(--ink); }
+.compare-table td:first-child { text-align: left; font-weight: 500; }
+.compare-table .yes { color: #4a9a4a; }
+.compare-table .no { color: #c0c0c0; }
+.compare-table .memex-col {
+  background: rgba(42,42,42,0.02);
+  font-weight: 500;
+}
+
+/* ===== QUOTE ===== */
+.quote-section {
+  padding: 160px 40px; text-align: center;
+  background: var(--bg);
+}
+.quote {
+  font-size: clamp(28px, 4vw, 44px); font-weight: 200;
+  letter-spacing: -0.02em; line-height: 1.3;
+  max-width: 700px; margin: 0 auto;
+  color: var(--ink);
+}
+.quote-attr {
+  margin-top: 24px; font-size: 14px;
+  color: var(--ink-faint); letter-spacing: 0.05em;
+}
+
+/* ===== CTA ===== */
+.cta-section {
+  padding: 140px 40px; text-align: center;
+  background: var(--ink); color: var(--bg);
+  position: relative; overflow: hidden;
+}
+.cta-section::before {
+  content: ''; position: absolute; top: 50%; left: 50%;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(255,255,255,0.03), transparent 70%);
+  transform: translate(-50%, -50%); border-radius: 50%;
+}
+.cta-title {
+  font-size: clamp(36px, 6vw, 72px); font-weight: 200;
+  letter-spacing: -0.04em; line-height: 1.1;
+  margin-bottom: 24px; position: relative;
+}
+.cta-title .strong { font-weight: 600; }
+.cta-subtitle {
+  font-size: 18px; font-weight: 300; color: rgba(255,255,255,0.5);
+  margin-bottom: 48px; max-width: 500px; margin-left: auto; margin-right: auto;
+}
+.cta-actions { position: relative; }
+.btn-light {
+  background: var(--bg); color: var(--ink);
+  padding: 16px 40px; border-radius: 100px;
+  font-size: 16px; font-weight: 500;
+  text-decoration: none; transition: all 0.4s var(--ease);
+  display: inline-block;
+}
+.btn-light:hover { transform: scale(1.03); }
+
+/* ===== FOOTER ===== */
+footer {
+  padding: 60px 40px; background: var(--bg-deep);
+  border-top: 1px solid var(--line);
+}
+.footer-content {
+  max-width: 1000px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 24px;
+}
+.footer-brand {
+  font-size: 16px; font-weight: 500; letter-spacing: -0.02em;
+}
+.footer-links { display: flex; gap: 24px; }
+.footer-links a {
+  color: var(--ink-soft); text-decoration: none; font-size: 13px;
+  transition: color 0.3s;
+}
+.footer-links a:hover { color: var(--ink); }
+.footer-copy {
+  font-size: 12px; color: var(--ink-faint);
+  margin-top: 24px; width: 100%; text-align: center;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeInUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+@keyframes scrollLine {
+  0% { transform: scaleY(0); transform-origin: top; }
+  50% { transform: scaleY(1); transform-origin: top; }
+  50.01% { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+.reveal {
+  opacity: 0; transform: translateY(40px);
+  transition: all 1s var(--ease);
+}
+.reveal.visible {
+  opacity: 1; transform: translateY(0);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  nav { padding: 16px 20px; }
+  nav.scrolled { padding: 10px 20px; }
+  .nav-links { display: none; }
+  .hero { padding: 100px 20px 60px; }
+  .stack-card { padding: 32px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .compare-table th, .compare-table td { padding: 12px 8px; font-size: 13px; }
+}
+
+/* ===== 3D PARALLAX TILT ===== */
+.tilt {
+  transition: transform 0.6s var(--ease);
+  transform-style: preserve-3d;
+}
+.tilt-inner {
+  transform: translateZ(40px);
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">
+    <span class="dot"></span> memex
+  </a>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#compare">Compare</a>
+    <a href="#docs">Docs</a>
+    <a href="#install">Install</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <h1 class="hero-title">
+    Memory that
+    <span class="emphasis">stays yours.</span>
+  </h1>
+  <p class="hero-subtitle">
+    Local-first agent memory with zero LLM in the retrieval path.
+    No cloud. No token cost. No rephrasing. Your words, returned verbatim.
+  </p>
+  <div class="hero-actions">
+    <a href="#install" class="btn btn-primary">Get started</a>
+    <a href="#how" class="btn btn-ghost">See how it works</a>
+  </div>
+  <div class="scroll-hint">Scroll</div>
+</section>
+
+<!-- STACK SECTIONS (3D layered parallax) -->
+<div class="stack-container" id="how">
+
+  <!-- Layer 1: Zero-LLM -->
+  <section class="stack-section" data-stack="0">
+    <div class="stack-card tilt" id="card-0">
+      <div class="tilt-inner">
+        <div class="label">01 — Architecture</div>
+        <h2>Zero LLM<br><span class="strong">in the retrieval path.</span></h2>
+        <p>Every other memory tool calls an LLM when you retrieve. Memex doesn't. BM25 + dense vectors + reciprocal rank fusion. Pure math, zero inference tokens, zero latency tax.</p>
+        <div class="code-block">
+<span class="comment"># Default retrieval — zero LLM calls, zero cost</span>
+<span class="keyword">from</span> memex <span class="keyword">import</span> memex
+
+client = memex(<span class="string">"http://127.0.0.1:19420"</span>)
+result = client.recall(<span class="string">"what did we decide about auth?"</span>)
+
+<span class="comment"># → 83.2% R@1, $0.00 per query, 90ms avg latency</span>
+<span class="comment"># → No model API call. No token consumption. No privacy risk.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Layer 2: Verbatim fidelity -->
+  <section class="stack-section" data-stack="1">
+    <div class="stack-card tilt" id="card-1">
+      <div class="tilt-inner">
+        <div class="label">02 — Fidelity</div>
+        <h2>Verbatim text.<br><span class="strong">Never rephrased.</span></h2>
+        <p>You stored "auth tokens expire after 3600 seconds. The window is non-configurable." Other tools return "authentication has a configurable timeout." Memex returns your exact words — the qualifier survives, every detail intact.</p>
+        <div class="code-block">
+<span class="comment"># You stored:</span>
+<span class="string">"auth tokens expire after 3600s. Non-configurable."</span>
+
+<span class="comment"># mem0 returns:</span>
+<span class="string">"authentication has a configurable timeout"</span>
+<span class="comment"># ← the "non-configurable" detail is gone</span>
+
+<span class="comment"># Memex returns:</span>
+<span class="string">"auth tokens expire after 3600s. Non-configurable."</span>
+<span class="comment"># ← your exact words. Every qualifier preserved.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Layer 3: Local-first -->
+  <section class="stack-section" data-stack="2">
+    <div class="stack-card tilt" id="card-2">
+      <div class="tilt-inner">
+        <div class="label">03 — Privacy</div>
+        <h2>Your data<br><span class="strong">never leaves.</span></h2>
+        <p>Memex binds to 127.0.0.1. No cloud account. No third-party processor. No API keys to manage. Your memories live in <code style="font-family:monospace;font-size:14px;background:#f0f0f0;padding:2px 6px;border-radius:4px;">~/.memex/</code> — on your machine, under your control.</p>
+        <div class="code-block">
+<span class="comment"># Install. Watch. Recall. That's it.</span>
+$ memex init              <span class="comment"># start service</span>
+$ memex watch ~/notes     <span class="comment"># auto-ingest</span>
+$ memex recall <span class="string">"what did we decide?"</span>
+
+<span class="comment"># Your data path:</span>
+~/.memex/
+  store/     <span class="comment"># ChromaDB + SQLite</span>
+  audit.log  <span class="comment"># access trail (if enabled)</span>
+  backups/   <span class="comment"># auto-compressed</span>
+
+<span class="comment"># No cloud. No account. No telemetry.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Layer 4: Cost -->
+  <section class="stack-section" data-stack="3">
+    <div class="stack-card tilt" id="card-3">
+      <div class="tilt-inner">
+        <div class="label">04 — Economics</div>
+        <h2>$0 per query.<br><span class="strong">$0 per 1,000 queries.</span></h2>
+        <p>mem0 costs $2 per 1,000 queries. Zep costs $3. Letta costs $4. Memex costs nothing on the default path — no LLM call means no inference cost. Scale to millions of queries without a billing surprise.</p>
+        <div class="code-block">
+<span class="comment"># 1,000 queries — cost comparison</span>
+
+mem0:     $2.00    (2 LLM calls per query)
+zep:      $3.00    (3 LLM calls, requires Neo4j)
+letta:    $4.00    (every op = LLM tool call)
+memex:    $0.00    (0 LLM calls, pure math)
+
+<span class="comment"># 10,000 queries/day for a year:</span>
+mem0:     $7,200/yr
+memex:    $0/yr
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- STATS -->
+<section class="stats-section">
+  <div class="stats-grid">
+    <div class="stat-item reveal">
+      <div class="stat-value" data-target="83.2" data-suffix="%">0</div>
+      <div class="stat-label">Retrieval R@1</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-value" data-target="0" data-prefix="$">0</div>
+      <div class="stat-label">Cost per query</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-value" data-target="90" data-suffix="ms">0</div>
+      <div class="stat-label">Avg latency</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-value" data-target="0" data-suffix="">0</div>
+      <div class="stat-label">LLM calls on default path</div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section class="compare-section" id="compare">
+  <div class="compare-container">
+    <div class="compare-header reveal">
+      <h2>How we compare</h2>
+      <p style="color: var(--ink-faint); font-size: 16px;">No cloud. No LLM tax. No vendor lock-in.</p>
+    </div>
+    <table class="compare-table reveal">
+      <thead>
+        <tr>
+          <th></th>
+          <th>mem0</th>
+          <th>Zep</th>
+          <th>Letta</th>
+          <th class="highlight">Memex</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Local-first</td>
+          <td class="no">—</td>
+          <td class="no">—</td>
+          <td class="no">—</td>
+          <td class="yes memex-col">✓</td>
+        </tr>
+        <tr>
+          <td>Zero LLM in retrieval</td>
+          <td class="no">—</td>
+          <td class="no">—</td>
+          <td class="no">—</td>
+          <td class="yes memex-col">✓</td>
+        </tr>
+        <tr>
+          <td>Verbatim passages</td>
+          <td class="no">—</td>
+          <td class="no">—</td>
+          <td class="no">—</td>
+          <td class="yes memex-col">✓</td>
+        </tr>
+        <tr>
+          <td>Cost / 1K queries</td>
+          <td>$2</td>
+          <td>$3</td>
+          <td>$4</td>
+          <td class="memex-col">$0</td>
+        </tr>
+        <tr>
+          <td>R@1 (independent)</td>
+          <td>49%</td>
+          <td>63.8%</td>
+          <td>—</td>
+          <td class="memex-col">83.2%</td>
+        </tr>
+        <tr>
+          <td>Graph memory</td>
+          <td class="no">—</td>
+          <td>Neo4j</td>
+          <td class="no">—</td>
+          <td class="yes memex-col">SQLite</td>
+        </tr>
+        <tr>
+          <td>External dependencies</td>
+          <td>Cloud</td>
+          <td>Neo4j + LLM</td>
+          <td>LLM</td>
+          <td class="memex-col">None</td>
+        </tr>
+        <tr>
+          <td>SDKs</td>
+          <td>Python</td>
+          <td>Python</td>
+          <td>Python</td>
+          <td class="memex-col">4 languages</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<section class="quote-section">
+  <p class="quote reveal">
+    "A summary can preserve 'we tried the migration'
+    while dropping why it failed. Memex keeps those details
+    in the stored note — not a generated fact."
+  </p>
+  <p class="quote-attr reveal">DESIGN PRINCIPLE — VERBATIM FIDELITY</p>
+</section>
+
+<!-- INSTALL -->
+<section class="stack-section" id="install" style="background: var(--bg-deep);">
+  <div class="stack-card reveal">
+    <div class="label">Get started</div>
+    <h2>Install in<br><span class="strong">60 seconds.</span></h2>
+    <p style="margin-bottom: 32px;">Python 3.10+, macOS or Ubuntu, Ollama running locally. That's it.</p>
+    <div class="code-block" style="margin-top: 0;">
+<span class="comment"># 1. Install</span>
+pip install -e .
+
+<span class="comment"># 2. Start</span>
+memex init
+
+<span class="comment"># 3. Ingest</span>
+memex watch ~/notes
+
+<span class="comment"># 4. Recall</span>
+memex recall <span class="string">"what did we decide about auth?"</span>
+
+<span class="comment"># 5. Browse</span>
+memex ui            <span class="comment"># web UI on :19421</span>
+memex tui           <span class="comment"># terminal UI</span>
+memex graph auth    <span class="comment"># knowledge graph</span>
+memex stats         <span class="comment"># cost comparison</span>
+    </div>
+    <div style="margin-top: 32px; display: flex; gap: 16px; flex-wrap: wrap;">
+      <a href="#" class="btn btn-primary">Read the docs</a>
+      <a href="#" class="btn btn-ghost">View on GitHub</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2 class="cta-title">
+    Your agent
+    <span class="strong">forgets everything.</span>
+  </h2>
+  <p class="cta-subtitle">
+    Stop re-explaining context. Stop losing decisions between sessions.
+    Give your agent memory that stays.
+  </p>
+  <div class="cta-actions">
+    <a href="#install" class="btn-light">Get Memex</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-content">
+    <div class="footer-brand">memex</div>
+    <div class="footer-links">
+      <a href="#how">How it works</a>
+      <a href="#compare">Compare</a>
+      <a href="#install">Install</a>
+      <a href="#">Docs</a>
+      <a href="#">Security</a>
+      <a href="#">Compliance</a>
+    </div>
+  </div>
+  <p class="footer-copy">
+    Memex by AliceLabs — AliceLabs Proprietary License v1.0 — © 2026
+  </p>
+</footer>
+
+<script>
+// Scroll progress bar
+const progress = document.getElementById('progress');
+window.addEventListener('scroll', () => {
+  const scrolled = (window.scrollY / document.documentElement.scrollHeight) * 100;
+  progress.style.width = scrolled + '%';
+});
+
+// Nav background on scroll
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 40) {
+    nav.classList.add('scrolled');
+  } else {
+    nav.classList.remove('scrolled');
+  }
+});
+
+// Intersection observer for reveal animations
+const revealEls = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.15 });
+revealEls.forEach(el => observer.observe(el));
+
+// Counter animation for stats
+const statValues = document.querySelectorAll('.stat-value');
+const statObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      const target = parseFloat(el.dataset.target);
+      const suffix = el.dataset.suffix || '';
+      const prefix = el.dataset.prefix || '';
+      const duration = 1800;
+      const start = performance.now();
+
+      function animate(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const value = target * eased;
+
+        if (target === 0) {
+          el.textContent = prefix + '0' + suffix;
+        } else if (target < 1) {
+          el.textContent = prefix + value.toFixed(1) + suffix;
+        } else {
+          el.textContent = prefix + Math.round(value) + suffix;
+        }
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          el.textContent = prefix + (target < 1 ? target.toFixed(1) : target) + suffix;
+        }
+      }
+      requestAnimationFrame(animate);
+      statObserver.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+statValues.forEach(el => statObserver.observe(el));
+
+// 3D parallax stack effect
+const stackCards = document.querySelectorAll('.stack-card.tilt');
+const stackContainer = document.querySelector('.stack-container');
+
+window.addEventListener('scroll', () => {
+  const containerRect = stackContainer.getBoundingClientRect();
+  const containerTop = containerRect.top;
+  const containerHeight = containerRect.height;
+  const viewportHeight = window.innerHeight;
+
+  stackCards.forEach((card, index) => {
+    const sectionHeight = containerHeight / stackCards.length;
+    const sectionTop = containerTop + (index * sectionHeight);
+    const progress = Math.max(0, Math.min(1,
+      (viewportHeight - sectionTop) / (viewportHeight + sectionHeight)
+    ));
+
+    // Cards behind: scale down + fade + translate back
+    if (progress < 0.5) {
+      const t = progress * 2; // 0 to 1
+      card.style.transform = `scale(${0.92 + t * 0.08}) translateY(${(1-t) * 40}px)`;
+      card.style.opacity = t;
+    } else if (progress < 0.85) {
+      // Card in focus
+      card.style.transform = `scale(1) translateY(0px)`;
+      card.style.opacity = 1;
+    } else {
+      // Card moving away
+      const t = (progress - 0.85) / 0.15; // 0 to 1
+      card.style.transform = `scale(${1 - t * 0.08}) translateY(${-t * 40}px)`;
+      card.style.opacity = 1 - t * 0.5;
+    }
+  });
+});
+
+// 3D tilt on mouse move
+document.querySelectorAll('.tilt').forEach(card => {
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = (y - centerY) / centerY * -4;
+    const rotateY = (x - centerX) / centerX * 4;
+
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+  });
+
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+  });
+});
+
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
+
+</body>
+</html>
