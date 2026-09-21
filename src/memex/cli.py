@@ -398,7 +398,6 @@ def _cmd_doctor(args):
 def cmd_stats(args):
     """AliceLabs addition: cost-per-query comparison vs. competitors."""
     import json as _json
-    import sys as _sys
     from memex.cost import competitive_comparison, format_comparison_text
     comparison = competitive_comparison(args.queries)
     if args.json:
@@ -429,7 +428,7 @@ def cmd_audit(args):
             print(f"  Path:        {stats.get('path')}")
             print(f"  Size:        {stats.get('size_bytes', 0) // 1024} KB")
             print(f"  Total ops:   {stats.get('entries', 0)}")
-            print(f"  By operation:")
+            print("  By operation:")
             for op, data in stats.get("ops", {}).items():
                 print(f"    {op:12s}: {data['count']:5d} calls, avg {data.get('avg_latency_ms', 0):.0f}ms")
         return 0

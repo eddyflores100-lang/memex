@@ -1,0 +1,20 @@
+{
+  "name": "memex",
+  "title": "Memex",
+  "version": "0.3.0rc1",
+  "description": "Local-first, zero-LLM agent memory: recall, store, and correct facts with stable IDs, correction history, and time-aware recall.",
+  "contextFileName": "GEMINI.md",
+  "mcpServers": {
+    "memex": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "memex-memory==0.3.0rc1",
+        "memex",
+        "mcp",
+        "serve"
+      ],
+      "env": {}
+    }
+  }
+}

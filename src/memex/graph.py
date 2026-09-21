@@ -31,7 +31,6 @@ from __future__ import annotations
 import re
 import sqlite3
 import threading
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -402,7 +401,7 @@ def cmd_graph(args) -> int:
         print(f"  Entities:   {stats['entities']}")
         print(f"  Relations:  {stats['relations']}")
         if stats["predicates"]:
-            print(f"\n  By predicate:")
+            print("\n  By predicate:")
             for pred, count in sorted(stats["predicates"].items(), key=lambda x: -x[1]):
                 print(f"    {pred:20s}: {count}")
         return 0

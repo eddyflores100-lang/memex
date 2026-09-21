@@ -18,7 +18,6 @@ import json
 import logging
 import os
 import shutil
-import sys
 import threading
 import time
 import urllib.error
@@ -48,8 +47,7 @@ def _check_ollama(ollama_url: str) -> bool:
     try:
         req = urllib.request.Request(f"{ollama_url}/api/tags", method="GET")
         with urllib.request.urlopen(req, timeout=5) as resp:
-            data = json.loads(resp.read())
-        models = [m.get("name", "") for m in data.get("models", [])]
+            json.loads(resp.read())
         return True
     except Exception as e:
         logger.warning("Ollama health check failed: %s", e)
@@ -119,7 +117,7 @@ def _watchdog_loop(
                 # Try to trigger replay if memory is loaded
                 try:
                     if memory_holder and memory_holder.ready:
-                        from memex.degrade import replay_queue, queued_count
+                        from memex.degrade import queued_count
                         pending = queued_count()
                         if pending > 0:
                             logger.info("[watchdog] Ollama recovered — attempting queue replay (%d pending)", pending)

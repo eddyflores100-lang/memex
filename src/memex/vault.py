@@ -24,14 +24,12 @@ import json
 import os
 import re
 import sys
-import time
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from memex import __version__
 
 # Wikilink pattern: [[note-name]] or [[note-name|display text]]
 _WIKILINK_RE = re.compile(r"\[\[([^\]|]+)(?:\|[^\]]+)?\]\]")
@@ -150,7 +148,7 @@ def index_vault(vault_path: Path, server_url: str = "", verbose: bool = False) -
 
             # Add wikilinks as entity references
             if wikilinks:
-                links_str = ", ".join(f"[[{l}]]" for l in wikilinks[:10])
+                links_str = ", ".join(f"[[{link}]]" for link in wikilinks[:10])
                 memory_text += f"\n\nReferences: {links_str}"
 
             # Add tags

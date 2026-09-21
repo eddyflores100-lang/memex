@@ -160,7 +160,7 @@ def cmd_benchmark(args) -> int:
         print(f"Error: could not load longmemeval_s_cleaned.json from {data_dir}", file=sys.stderr)
         return 1
 
-    print(f"Memex Benchmark — LongMemEval-S", file=sys.stderr)
+    print("Memex Benchmark — LongMemEval-S", file=sys.stderr)
     print(f"  Data dir: {data_dir}", file=sys.stderr)
     print(f"  Questions: {len(questions)}", file=sys.stderr)
     print(f"  Tier: {args.tier}", file=sys.stderr)

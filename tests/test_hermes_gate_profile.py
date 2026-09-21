@@ -26,6 +26,15 @@ GATE_PROFILE = REPO / ".hermes" / "gate.toml"
 RUNNER_FLOOR = (3, 11)
 
 
+# The gate profile is local dev tooling and is deliberately not shipped in
+# this repository (fresh checkouts — including CI — have no .hermes/). Skip
+# the whole module there instead of erroring in setup.
+pytestmark = pytest.mark.skipif(
+    not GATE_PROFILE.is_file(),
+    reason=".hermes/ gate profile is not shipped in this repository",
+)
+
+
 def _diff_check_argv() -> list[str]:
     """The ``diff-check`` fast step exactly as ``alicelabs-gate`` reads it."""
     text = GATE_PROFILE.read_text(encoding="utf-8")

@@ -15,10 +15,25 @@ Usage in server.py:
 """
 from __future__ import annotations
 
+import os
 import time
 import threading
 from collections import defaultdict, deque
 from typing import Deque
+
+
+def _configured_limit() -> int:
+    """Per-IP request budget for the current window.
+
+    Read from the MEMEX_RATE_LIMIT_MAX environment variable so deployments
+    can tune (or disable with 0) the default 60 req/min without code
+    changes. Read per call so tests and subprocesses pick up changes made
+    after import time. Values <= 0 disable limiting entirely.
+    """
+    try:
+        return int(os.environ.get("MEMEX_RATE_LIMIT_MAX", 60))
+    except (TypeError, ValueError):
+        return 60
 
 
 class RateLimiter:
@@ -37,6 +52,10 @@ class RateLimiter:
 
     def check(self, ip: str) -> bool:
         """Check if the IP is within the rate limit. Returns True if allowed."""
+        max_requests = _configured_limit()
+        if max_requests <= 0:
+            return True  # limiting disabled via MEMEX_RATE_LIMIT_MAX=0
+
         now = time.monotonic()
         cutoff = now - self.window_seconds
 
@@ -46,7 +65,7 @@ class RateLimiter:
             while requests and requests[0] < cutoff:
                 requests.popleft()
 
-            if len(requests) >= self.max_requests:
+            if len(requests) >= max_requests:
                 return False
 
             requests.append(now)
@@ -54,6 +73,10 @@ class RateLimiter:
 
     def remaining(self, ip: str) -> int:
         """Return remaining requests for the IP in the current window."""
+        max_requests = _configured_limit()
+        if max_requests <= 0:
+            return -1  # unlimited
+
         now = time.monotonic()
         cutoff = now - self.window_seconds
 
@@ -61,7 +84,7 @@ class RateLimiter:
             requests = self._requests[ip]
             while requests and requests[0] < cutoff:
                 requests.popleft()
-            return max(0, self.max_requests - len(requests))
+            return max(0, max_requests - len(requests))
 
     def reset(self, ip: str | None = None) -> None:
         """Reset rate limit state for an IP (or all IPs if None)."""

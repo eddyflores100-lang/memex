@@ -25,7 +25,6 @@ import hmac
 import os
 import secrets
 import time
-from typing import Any
 
 # Endpoints that don't require auth (health checks, liveness)
 PUBLIC_ENDPOINTS = {"/health", "/live", "/capabilities"}

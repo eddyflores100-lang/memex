@@ -32,9 +32,11 @@ COPY pyproject.toml README.md LICENSE-ALICELABS.txt ./
 COPY src/ ./src/
 RUN pip install --no-cache-dir -e .
 
-# Persist memory store outside the container
+# Persist memory store outside the container. MEMEX_* env names are
+# canonical post-rename; the legacy COGITO_* spellings are still honored
+# by config._ENV_MAP for pre-rename deployments.
 VOLUME ["/data"]
-ENV COGITO_STORE_PATH=/data/store
+ENV MEMEX_STORE_PATH=/data/store
 ENV MEMEX_QUEUE_DIR=/data/queue
 ENV MEM0_TELEMETRY=False
 ENV ANONYMIZED_TELEMETRY=False
@@ -42,7 +44,7 @@ ENV CHROMA_TELEMETRY_DISABLED=True
 ENV MEMEX_PORT=19420
 
 # Default Ollama URL points at host (override via env)
-ENV COGITO_OLLAMA_URL=http://host.docker.internal:11434
+ENV MEMEX_OLLAMA_URL=http://host.docker.internal:11434
 
 # Which server to run: "mcp" (default, stdio, no Ollama needed) or "http"
 ENV MEMEX_ENTRYPOINT=mcp

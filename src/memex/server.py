@@ -1098,7 +1098,7 @@ def make_handler(memory: object, cfg: dict) -> type:
 
         def do_GET(self):
             # AliceLabs addition: rate limiting
-            from memex.security import check_rate_limit, add_security_headers, sanitize_log_input
+            from memex.security import check_rate_limit
             client_ip = self.client_address[0]
             if not check_rate_limit(client_ip):
                 self._json({"error": "rate limit exceeded"}, 429)
@@ -1204,9 +1204,9 @@ def make_handler(memory: object, cfg: dict) -> type:
                     # AliceLabs addition: export all memories for backup.
                     # No LLM call — pure vector store dump.
                     try:
-                        active_memory = _get_memory()
-                    except Exception as e:
-                        self._json(_memory_unavailable_response(e), 503)
+                        active_memory = memory.get() if isinstance(memory, MemoryHolder) else memory
+                    except Exception:
+                        self._json({"error": "memory store unavailable"}, 503)
                         return
                     try:
                         from memex.export_util import export_all_memories
@@ -1673,9 +1673,9 @@ def make_handler(memory: object, cfg: dict) -> type:
                     # AliceLabs addition: export all memories for backup.
                     # No LLM call — pure vector store dump.
                     try:
-                        active_memory = _get_memory()
-                    except Exception as e:
-                        self._json(_memory_unavailable_response(e), 503)
+                        active_memory = memory.get() if isinstance(memory, MemoryHolder) else memory
+                    except Exception:
+                        self._json({"error": "memory store unavailable"}, 503)
                         return
                     try:
                         from memex.export_util import export_all_memories

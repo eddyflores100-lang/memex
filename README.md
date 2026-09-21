@@ -14,14 +14,18 @@ A summary can preserve "we tried the migration" while dropping why it failed, wh
 | Zero LLM in retrieval path | ❌ | ❌ | ❌ | ✅ |
 | Verbatim source passages | ❌ | ❌ | ❌ | ✅ |
 | Cost per 1K queries | $2 | $3 | $4 | **$0** |
-| Benchmark (claimed) | 94.4% | 71.2% | N/A | **83.2%** |
-| Benchmark (independent) | 49% | 63.8% | N/A | **83.2%** |
+| Benchmark (claimed) | 94.4% | 71.2% | N/A | per-release† |
+| Benchmark (independent) | 49% | 63.8% | N/A | per-release† |
+
+† Memex publishes per-release, post-release measurements in
+[`docs/releases/`](docs/releases/) rather than quoting one recycled number —
+see Benchmarks below.
 
 ## Quickstart
 
 ```bash
 ollama pull nomic-embed-text
-python3 -m pip install -e .
+python3 -m pip install "memex-memory==0.3.0rc1"
 memex init                  # installs + starts the service
 memex watch ~/notes         # auto-ingests markdown
 memex mcp install           # wire Claude Code (or --client codex/copilot/gemini/openclaw)
@@ -89,15 +93,11 @@ The default retrieval path makes **no LLM call**. Your agent still uses its norm
 
 ## Benchmarks
 
-| Metric | Value |
-|---|---|
-| Retrieval R@1 | **83.2%** |
-| Retrieval R@5 | **98.3%** |
-| End-to-end QA accuracy | **73.0%** (317/434 graded questions) |
-| Retrieval-time model API calls | **0** on the default path |
-| Cost per 1,000 queries | **$0** |
-
-See [`docs/METRICS.md`](docs/METRICS.md) for the full breakdown.
+Benchmark numbers are Historical: every tagged release records its own
+post-release measurements in [`docs/releases/`](docs/releases/) (start with
+[`docs/releases/0.3.0rc1.md`](docs/releases/0.3.0rc1.md)). Current-release
+surfaces deliberately quote no recycled score — the methodology and
+per-release protocol live in [`docs/METRICS.md`](docs/METRICS.md).
 
 ## Verticals
 

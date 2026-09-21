@@ -57,7 +57,6 @@ def test_server_health_ok_without_ollama(tmp_path: Path):
         "PATH": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin",
         "PYTHONPATH": SRC,
         "MEMEX_PORT": str(port),
-        "MEMEX_PORT": str(port),
         "COGITO_STORE_PATH": str(tmp_path / "store"),
         "MEMEX_QUEUE_DIR": str(tmp_path / "queue"),
         "COGITO_QUEUE_DIR": str(tmp_path / "queue"),
@@ -99,7 +98,6 @@ def test_server_post_endpoint_returns_503_without_ollama(tmp_path: Path):
     env = {
         "PATH": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin",
         "PYTHONPATH": SRC,
-        "MEMEX_PORT": str(port),
         "MEMEX_PORT": str(port),
         "COGITO_STORE_PATH": str(tmp_path / "store"),
         "MEMEX_QUEUE_DIR": str(tmp_path / "queue"),

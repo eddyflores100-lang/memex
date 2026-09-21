@@ -75,14 +75,13 @@ _DEFAULTS: dict[str, Any] = {
 }
 
 _ENV_MAP = {
-    "MEMEX_PORT": ("port", int),
-    # Every client path (cli, mcp_server, watch, augment) reads MEMEX_PORT
-    # first and falls back to MEMEX_PORT. The server resolves its bind port
-    # through this map, so MEMEX_PORT has to land here too or a client and
-    # its own server end up on different ports. Listed after MEMEX_PORT so
-    # that when both are set the MEMEX_ name wins, matching the clients.
+    # Legacy COGITO_PORT alias kept for pre-rename deployments; MEMEX_PORT is
+    # listed after it so when both are set the MEMEX_ name wins, matching the
+    # clients (cli, mcp_server, watch, augment) which read MEMEX_PORT first.
+    "COGITO_PORT": ("port", int),
     "MEMEX_PORT": ("port", int),
     "COGITO_USER_ID": ("user_id", str),
+    "MEMEX_USER_ID": ("user_id", str),
     "COGITO_FILTER_ENDPOINT": ("filter_endpoint", str),
     "COGITO_FILTER_TOKEN": ("filter_token", str),
     "COGITO_FILTER_MODEL": ("filter_model", str),
@@ -94,13 +93,21 @@ _ENV_MAP = {
     "COGITO_FLAGSHIP_TIMEOUT_MS": ("flagship_timeout_ms", int),
     "COGITO_HYBRID_COSINE_WEIGHT": ("hybrid_cosine_weight", float),
     "COGITO_STORE_PATH": ("store_path", str),
+    "MEMEX_STORE_PATH": ("store_path", str),
     "COGITO_COLLECTION": ("collection", str),
+    "MEMEX_COLLECTION": ("collection", str),
     "COGITO_OLLAMA_URL": ("ollama_url", str),
+    "MEMEX_OLLAMA_URL": ("ollama_url", str),
     "COGITO_LLM_MODEL": ("llm_model", str),
+    "MEMEX_LLM_MODEL": ("llm_model", str),
     "COGITO_EMBED_MODEL": ("embed_model", str),
+    "MEMEX_EMBED_MODEL": ("embed_model", str),
     "COGITO_RECALL_LIMIT": ("recall_limit", int),
+    "MEMEX_RECALL_LIMIT": ("recall_limit", int),
     "COGITO_RECALL_THRESHOLD": ("recall_threshold", float),
+    "MEMEX_RECALL_THRESHOLD": ("recall_threshold", float),
     "COGITO_QUERY_THRESHOLD": ("query_threshold", float),
+    "MEMEX_QUERY_THRESHOLD": ("query_threshold", float),
     # Also accept raw Anthropic key for direct calls (no gateway needed)
     "ANTHROPIC_API_KEY": ("anthropic_api_key", str),
     "COGITO_SCAFFOLD_MODEL": ("scaffold_model", str),

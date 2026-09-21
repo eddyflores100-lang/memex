@@ -7,9 +7,10 @@ authors:
   - family-names: "Flores"
     given-names: "Eddy"
     affiliation: "AliceLabs"
+    orcid: ""
 license: "AliceLabs Proprietary License v1.0"
-repository-code: "https://github.com/eddyflores100-lang/memex-alicelabs"
-version: "0.3.0rc1-alicelabs"
+repository-code: "https://github.com/eddyflores100-lang/memex"
+version: "0.3.0rc1"
 keywords:
   - "agent memory"
   - "zero-LLM retrieval"

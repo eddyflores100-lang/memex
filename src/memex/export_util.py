@@ -19,7 +19,6 @@ No LLM is called — this is a pure vector store dump.
 """
 from __future__ import annotations
 
-import json
 from datetime import datetime, timezone
 from typing import Any
 

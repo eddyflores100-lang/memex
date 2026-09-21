@@ -64,9 +64,13 @@ jobs:
 
       - name: Guard against operator-path leaks
         run: |
-          if git grep -nE 'eddyflores100-lang' -- ':!.git' \
+          # The operator's login legitimately appears in repository URLs,
+          # contact emails, and manifests — what must NOT appear is the
+          # login embedded in a filesystem path (a leaked dev-machine
+          # path, e.g. /Users/<login>/...). Placeholder paths are the fix.
+          if git grep -nE '/(Users|home)/eddyflores100-lang' -- ':!.git' \
               ':!.github/workflows/ci.yml' ':!.pre-commit-config.yaml'; then
-            echo "::error::Found the operator's real username in tracked files (see matches above). Use a placeholder like /Users/testuser/ instead."
+            echo "::error::Found the operator's login inside a filesystem path (see matches above). Use a placeholder like /Users/testuser/ instead."
             exit 1
           fi
 
@@ -74,6 +78,10 @@ jobs:
         env:
           MEMEX_QUEUE_DIR: ${{ runner.temp }}/memex-ci-queue
         run: |
+          # The chromadb-backed tests hold one persistent client per test;
+          # the runner's default soft fd limit (1024) is exhausted late in
+          # the suite. Raise it for the pytest process only.
+          ulimit -n 4096 2>/dev/null || true
           pytest tests/ \
             --ignore=tests/scaffold/test_e2e_store_query.py \
             --ignore=tests/scaffold/test_backend_portability.py \
@@ -91,6 +99,53 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           pytest tests/test_init_plist_contents.py -v --no-header
+
+  docker:
+    name: docker build + smoke
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t memex:ci .
+
+      - name: Smoke — package importable inside image
+        run: docker run --rm memex:ci python -c "import memex; print('memex', memex.__version__)"
+
+      - name: Smoke — MCP stdio initialize round-trip (default entrypoint)
+        run: |
+          resp=$(printf '%s\n' \
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"ci-probe","version":"0.0.0"}}}' \
+            | timeout 300 docker run -i --rm memex:ci) || true
+          if ! echo "$resp" | grep -q '"serverInfo"'; then
+            echo "::error::MCP initialize round-trip failed (no serverInfo in response)."
+            echo "Response was: ${resp:-<empty>}"
+            exit 1
+          fi
+          echo "MCP initialize round-trip OK"
+
+      - name: Smoke — HTTP server boots without Ollama (compose mode)
+        run: |
+          docker run -d --name memex-http \
+            -e MEMEX_ENTRYPOINT=http -p 127.0.0.1:19420:19420 memex:ci
+          ok=""
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:19420/live >/dev/null 2>&1; then ok=1; break; fi
+            sleep 2
+          done
+          if [ -z "$ok" ]; then
+            echo "::error::HTTP /live never became reachable within 120s"
+            docker logs memex-http || true
+            docker rm -f memex-http >/dev/null 2>&1 || true
+            exit 1
+          fi
+          curl -fsS http://127.0.0.1:19420/live | grep -q '"alive"' \
+            || { echo "::error::/live did not report status alive"; docker logs memex-http || true; exit 1; }
+          curl -fsS http://127.0.0.1:19420/health | grep -q '"status"' \
+            || { echo "::error::/health did not report a status object"; docker logs memex-http || true; exit 1; }
+          echo "HTTP boot OK — serving /live + /health with no Ollama reachable (lazy MemoryHolder)."
+          docker rm -f memex-http >/dev/null 2>&1 || true
 
   build:
     name: build sdist + wheel

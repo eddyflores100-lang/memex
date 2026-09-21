@@ -49,7 +49,6 @@ def get_interval() -> int:
 
 def _cleanup_dead_letters(memory_holder: Any, cfg: dict) -> dict[str, int]:
     """Remove old dead-letter queue items."""
-    from memex.degrade import dead_count
     retention_days = int(os.environ.get("MEMEX_DEAD_LETTER_RETENTION_DAYS", str(DEFAULT_DEAD_LETTER_RETENTION)))
 
     queue_dir = Path(cfg.get("queue_dir", str(Path.home() / ".memex" / "queue")))

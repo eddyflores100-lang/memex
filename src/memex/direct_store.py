@@ -21,11 +21,7 @@ interface that server.py expects.
 """
 from __future__ import annotations
 
-import hashlib
-import json
 import logging
-import os
-import time
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -236,7 +232,6 @@ class _VectorStoreWrapper:
         if results and results.get("ids") and results["ids"][0]:
             for i, mid in enumerate(results["ids"][0]):
                 distance = results["distances"][0][i] if results.get("distances") else 0
-                score = max(0.0, 1.0 - distance / 2)
                 payload = results["metadatas"][0][i] if results.get("metadatas") else {}
 
                 items.append(Result(

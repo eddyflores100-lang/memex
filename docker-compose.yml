@@ -6,7 +6,8 @@
 #
 # Ollama service is included so this is fully self-contained on a fresh host.
 # If you already run Ollama on the host, you can omit the ollama service and set
-# COGITO_OLLAMA_URL=http://host.docker.internal:11434 in memex-server's environment.
+# MEMEX_OLLAMA_URL=http://host.docker.internal:11434 in memex-server's environment.
+# (Legacy COGITO_OLLAMA_URL is still honored by config._ENV_MAP.)
 
 services:
   memex-server:
@@ -22,7 +23,7 @@ services:
     environment:
       MEMEX_ENTRYPOINT: "http"
       MEMEX_PORT: "19420"
-      COGITO_OLLAMA_URL: "http://ollama:11434"
+      MEMEX_OLLAMA_URL: "http://ollama:11434"
     depends_on:
       ollama:
         condition: service_healthy

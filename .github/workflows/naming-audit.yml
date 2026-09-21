@@ -13,25 +13,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Audit for stale Memex references
+      - name: Audit for stale Fidelis references
         run: |
           set -euo pipefail
 
           EXCLUDES=(
             --exclude="CHANGELOG.md"
+            --exclude="CHANGELOG-ALICELABS.md"
             --exclude="LICENSE-ALICELABS.txt"
             --exclude="claude_code_user_eval.json"
             --exclude="test_session_memory.py"
             --exclude="test_recall_hybrid.py"
           )
 
+          # Catches leftover references to the pre-rename project name
+          # (Fidelis). Historical records — CHANGELOG* and per-version
+          # release notes — legitimately mention it for migration context,
+          # so they are excluded. The audit itself lives under .github/,
+          # which is excluded so the workflow cannot match its own text.
           hits=$(grep -rEn --include="*.py" --include="*.md" --include="*.json" --include="*.sh" --include="*.toml" --include="*.yml" --include="*.yaml" --include="*.rb" \
+            --exclude-dir=".github" \
+            --exclude-dir="releases" \
             "${EXCLUDES[@]}" \
-            "\bMemex\b|\bMemex\b" \
+            "\bFidelis\b|\bfidelis\b" \
             . 2>/dev/null || true)
 
           if [ -n "$hits" ]; then
-            echo "::error::Found stale 'Memex' references"
+            echo "::error::Found stale 'Fidelis' references"
             echo "$hits"
             exit 1
           fi

@@ -28,7 +28,6 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
 
 from memex import __version__
 
@@ -149,7 +148,7 @@ def cmd_import(args) -> int:
         if not text or len(text.strip()) < 3:
             continue
         try:
-            result = _post("/store", {"text": text, "id": m.get("id")})
+            _post("/store", {"text": text, "id": m.get("id")})
             imported += 1
         except SystemExit:
             failed += 1

@@ -60,7 +60,6 @@ def test_sigterm_triggers_clean_shutdown(tmp_path: Path):
     env = {
         "PATH": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin",
         "MEMEX_PORT": str(port),
-        "MEMEX_PORT": str(port),
         "COGITO_STORE_PATH": str(tmp_path / "store"),
         "MEMEX_QUEUE_DIR": str(tmp_path / "queue"),
         "COGITO_LLM_MODEL": "qwen3.5:0.8b",

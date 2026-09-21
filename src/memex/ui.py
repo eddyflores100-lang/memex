@@ -21,10 +21,8 @@ import urllib.error
 import urllib.request
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from pathlib import Path
 from typing import Any
 
-from memex import __version__
 
 _UI_HTML = """<!DOCTYPE html>
 <html lang="en">
@@ -331,15 +329,15 @@ def cmd_ui(args) -> int:
         with urllib.request.urlopen(req, timeout=3) as resp:
             health = json.loads(resp.read())
         print(f"[memex-ui] Connected to memex-server (v{health.get('version')}, {health.get('count')} memories)")
-    except Exception as e:
+    except Exception:
         print(f"[memex-ui] Warning: memex-server not reachable at {_server_url()}", file=sys.stderr)
-        print(f"[memex-ui] Start it first: `memex init` or `memex-server`", file=sys.stderr)
+        print("[memex-ui] Start it first: `memex init` or `memex-server`", file=sys.stderr)
         return 1
 
     server = ThreadingHTTPServer((host, port), UIHandler)
     url = f"http://{host}:{port}"
     print(f"[memex-ui] Listening on {url}")
-    print(f"[memex-ui] Press Ctrl+C to stop")
+    print("[memex-ui] Press Ctrl+C to stop")
 
     if not args.no_browser:
         threading.Thread(target=lambda: webbrowser.open(url), daemon=True).start()

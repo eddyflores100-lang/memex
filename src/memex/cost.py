@@ -11,7 +11,7 @@ Usage:
 """
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from typing import Any
 
 # Memex tier costs (from bench/runs/runP-v35/aggregate.json + LAUNCH_DEFENSE.md)

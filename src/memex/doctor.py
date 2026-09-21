@@ -18,9 +18,7 @@ Exit codes:
 from __future__ import annotations
 
 import json
-import os
 import socket
-import subprocess
 import sys
 import urllib.error
 import urllib.request
@@ -175,7 +173,7 @@ def _check_server_alive(port: int) -> dict[str, Any]:
             "ok": False,
             "port": port,
             "error": str(e),
-            "fix": f"Start the server: `memex-server` or `memex init` if not installed",
+            "fix": "Start the server: `memex-server` or `memex init` if not installed",
         }
 
 

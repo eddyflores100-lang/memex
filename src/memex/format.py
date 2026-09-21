@@ -212,9 +212,6 @@ def load_from_file(path: str | Path) -> dict[str, Any]:
 
 def cmd_format(args) -> int:
     """CLI handler for `memex format`."""
-    import os
-    import sys
-    import urllib.request
 
     if args.validate:
         # Validate a file

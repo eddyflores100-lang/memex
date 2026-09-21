@@ -16,8 +16,8 @@ Usage in server.py:
 """
 from __future__ import annotations
 
+import os
 import re
-from typing import Any
 
 # Maximum query length (prevents DoS via extremely long queries)
 MAX_QUERY_LENGTH = 10_000
@@ -30,7 +30,6 @@ ALLOWED_CONTENT_TYPES = {"application/json", "application/json; charset=utf-8"}
 
 # CORS origins (empty = no CORS, loopback only)
 # Set MEMEX_CORS_ORIGIN to allow specific origins (e.g., http://localhost:3000)
-import os
 _CORS_ORIGIN = os.environ.get("MEMEX_CORS_ORIGIN", "")
 
 # User ID validation pattern (alphanumeric + dash + underscore, max 64 chars)
@@ -75,7 +74,7 @@ def validate_user_id(user_id: str) -> str | None:
     if not user_id:
         return None  # empty is OK (uses default)
     if not _USER_ID_PATTERN.match(user_id):
-        return f"invalid user_id: must be alphanumeric, dash, or underscore (max 64 chars)"
+        return "invalid user_id: must be alphanumeric, dash, or underscore (max 64 chars)"
     return None
 
 
