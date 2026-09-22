@@ -2,7 +2,7 @@
   "@context": "https://w3id.org/codemeta/3.1",
   "@type": "SoftwareSourceCode",
   "name": "memex",
-  "description": "Memex (distribution memex-memory): local-first, zero-LLM memory for AI agents with integer-pointer fidelity. AliceLabs proprietary.",
+  "description": "Memex (distribution memex-memory): local-first, zero-LLM memory for AI agents. Built by AliceLabs LLC.",
   "codeRepository": "https://github.com/eddyflores100-lang/memex",
   "issueTracker": "https://github.com/eddyflores100-lang/memex/issues",
   "readme": "https://github.com/eddyflores100-lang/memex/blob/main/README.md",
@@ -33,19 +33,18 @@
       "@type": "Person",
       "givenName": "Eddy",
       "familyName": "Flores",
-      "identifier": "",
       "affiliation": {
         "@type": "Organization",
-        "name": "AliceLabs",
-        "url": "https://github.com/eddyflores100-lang"
-      }
+        "name": "AliceLabs LLC",
+        "url": "https://alicelabs.site"
+      },
+      "identifier": ""
     }
   ],
   "publisher": {
     "@type": "Organization",
-    "name": "AliceLabs",
-    "url": "https://github.com/eddyflores100-lang"
+    "name": "AliceLabs LLC",
+    "url": "https://alicelabs.site"
   },
-  "creditText": "Incorporates code originally licensed under MIT from the Memex project by AliceLabs (Eddy Flores).",
-  "derivativeWork": "https://github.com/eddyflores100-lang/memex"
+  "creditText": "Built by AliceLabs LLC."
 }

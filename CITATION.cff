@@ -1,13 +1,13 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below. This is an AliceLabs proprietary derivative; commercial use requires a separate license."
-title: "memex-alicelabs: local-first, zero-LLM memory for AI agents (AliceLabs proprietary fork)"
-abstract: "AliceLabs proprietary fork of Memex. Stores agent-curated records locally and retrieves their original text with stable IDs, correction history, and validity dates. Default MCP recall uses local vector search without a generative LLM. Licensed under the AliceLabs Proprietary License v1.0 — commercial use requires a separate license from AliceLabs."
+message: "If you use this software, please cite it as below. AliceLabs Proprietary License v1.0 — commercial use requires a separate license."
+title: "Memex: local-first, zero-LLM agent memory"
+abstract: "Memex stores agent-curated records locally and retrieves their original text with stable IDs, correction history, and validity dates. Default MCP recall uses local vector search without a generative LLM. Built by AliceLabs LLC."
 type: software
 authors:
   - family-names: "Flores"
     given-names: "Eddy"
-    affiliation: "AliceLabs"
     orcid: ""
+    affiliation: "AliceLabs LLC"
 license: "AliceLabs Proprietary License v1.0"
 repository-code: "https://github.com/eddyflores100-lang/memex"
 version: "0.3.0rc1"
@@ -15,12 +15,7 @@ keywords:
   - "agent memory"
   - "zero-LLM retrieval"
   - "local-first"
-  - "Claude Code"
   - "verbatim retrieval"
-  - "memex-alicelabs"
+  - "memex"
   - "alice-labs"
   - "integer-pointer fidelity"
-notes:
-  - "Incorporates code originally licensed under MIT from the Memex project by AliceLabs (Eddy Flores)."
-  - "Derivative work: https://github.com/eddyflores100-lang/memex"
-  - "All modifications and additions by AliceLabs are proprietary and require a commercial license for production use."
