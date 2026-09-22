@@ -84,11 +84,11 @@ To wipe: `memex init --uninstall` then `rm -rf ~/.cogito ~/.memex`.
 ## Known limitations
 
 - Ollama is a hard dependency for service boot (inherited from upstream).
-- No multi-user isolation. `user_id` is a namespace, not an identity.
+- No multi-user isolation. `user_id` is a namespace, not an identity or authorization boundary.
 - No hosted service.
 - Pre-release API. Pin the version if you build on it.
-- No encryption at rest (ChromaDB + SQLite store is plaintext).
-- No built-in audit log of retrieval events.
+- Encryption at rest is available as an **opt-in** feature (`MEMEX_ENCRYPTION_KEY`), not enabled by default. The ChromaDB + SQLite store is plaintext unless explicitly configured.
+- Audit logging is available as an **opt-in** feature (`MEMEX_AUDIT_LOG=true`), not enabled by default. When enabled, queries are SHA-256 hashed — raw query text is never logged.
 
 ## Headline metrics
 
@@ -104,7 +104,9 @@ This AliceLabs fork does **not** claim:
 - EU AI Act conformity
 - Resistance to side-channel attacks on the local store
 - Availability guarantees
-- Protection against a malicious local user with read access to `~/.cogito/`
+- Protection against a malicious local user with read access to `~/.memex/`
+- Multi-tenant isolation (user_id is a namespace, not an auth boundary)
+- That encryption at rest or audit logging are enabled by default (both are opt-in)
 
 ## Reporting a vulnerability
 

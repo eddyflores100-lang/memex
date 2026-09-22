@@ -1,4 +1,4 @@
-# Memex — HIPAA Compatibility Assessment
+# Memex — HIPAA Compatibility Assessment (zero-LLM path)
 
 ## Summary
 

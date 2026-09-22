@@ -1,8 +1,8 @@
-# Memex — GDPR Compliance Assessment
+# Memex — GDPR Controls Mapping
 
 ## Summary
 
-Memex is **GDPR-compatible** when deployed with the zero-LLM retrieval
+Memex is **GDPR-compatible (zero-LLM path)** when deployed with the zero-LLM retrieval
 path (default). No personal data is transmitted to any third-party
 processor during retrieval.
 

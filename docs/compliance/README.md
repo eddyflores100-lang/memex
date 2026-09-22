@@ -1,28 +1,33 @@
-# Memex Compliance Pack
+# Memex Compliance Documentation
 
-**Enterprise compliance documentation for Memex deployment.**
+**Deployment documentation for compliance reviews. Not a certification.**
 
-This pack provides the documentation templates needed for enterprise
-compliance reviews. Memex is designed to simplify — not eliminate —
-the compliance process for regulated deployments.
+This pack provides documentation that assists enterprises in their own compliance
+assessments. Memex is **not** SOC 2 certified, HIPAA certified, or GDPR certified.
+These documents map Memex's controls to compliance frameworks so that deployers
+can perform their own assessment.
 
-## Available compliance docs
+## Available documentation
 
-- [SOC 2 Type II Readiness](soc2.md) — controls mapping
-- [HIPAA Compatibility](hipaa.md) — PHI handling assessment
-- [GDPR Compliance](gdpr.md) — data subject rights mapping
-- [EU AI Act Assessment](eu-ai-act.md) — risk classification
+- [SOC 2 Controls Mapping](soc2.md) — how Memex controls map to Trust Services Criteria
+- [HIPAA Compatibility Assessment](hipaa.md) — PHI flow analysis for healthcare deployments
+- [GDPR Controls Mapping](gdpr.md) — data subject rights implementation
+- [EU AI Act Risk Classification](eu-ai-act.md) — risk classification assessment
 
 ## Memex compliance posture
 
 | Framework | Status | Notes |
 |---|---|---|
-| SOC 2 Type II | **Ready** | No cloud processor; data stays on-premise |
-| HIPAA | **Compatible** | Zero-LLM retrieval = no PHI leaves the machine |
-| GDPR | **Compatible** | No third-party data processing on default path |
+| SOC 2 Type II | **Controls mapping available** | No cloud processor on default path; deployer owns the audit |
+| HIPAA | **Compatible (zero-LLM path)** | No PHI leaves the machine; no BAA required on default path |
+| GDPR | **Compatible (zero-LLM path)** | No third-party data processing on default path |
 | EU AI Act | **Not high-risk** | Retrieval library, not a trained model |
 | ISO 27001 | **Pending** | Requires org-level ISMS, not product-level |
 | PCI DSS | **N/A** | Not a payment system |
+
+**Important:** "Compatible" means the architecture does not prevent compliance.
+It does **not** mean Memex is certified. The deployer owns the compliance
+assessment and any required certifications.
 
 ## Why Memex simplifies compliance
 

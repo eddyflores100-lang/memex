@@ -2,7 +2,7 @@
 
 ## Summary
 
-Memex is **SOC 2 Type II ready** when deployed with the recommended
+Memex is **SOC 2 controls mapping available** when deployed with the recommended
 security configuration. The zero-LLM architecture eliminates most
 third-party processing risks.
 

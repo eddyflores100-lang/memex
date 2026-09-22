@@ -55,14 +55,15 @@ memex mcp install            # wire MCP client
 
 ## Security features
 
-- **API token auth** — set `MEMEX_API_TOKEN` to require Bearer token on all endpoints
-- **Rate limiting** — 60 req/min per IP (configurable)
-- **Security headers** — X-Frame-Options, X-Content-Type-Options, X-XSS-Protection
-- **Audit logging** — set `MEMEX_AUDIT_LOG=true` to log all operations (queries hashed, never raw content)
-- **Encryption at rest** — set `MEMEX_ENCRYPTION_KEY` to encrypt memory content with Fernet (AES-128-CBC)
-- **Request validation** — Content-Type, query length, user_id format, null byte injection prevention
-- **CORS hardening** — configurable origin via `MEMEX_CORS_ORIGIN`
+- **API token auth** — set `MEMEX_API_TOKEN` to require Bearer token (opt-in, off by default)
+- **Rate limiting** — 60 req/min per IP (on by default)
+- **Security headers** — X-Frame-Options, X-Content-Type-Options, X-XSS-Protection (on by default)
+- **Audit logging** — set `MEMEX_AUDIT_LOG=true` to log all operations (opt-in, queries hashed, never raw content)
+- **Encryption at rest** — set `MEMEX_ENCRYPTION_KEY` to encrypt memory text with Fernet (opt-in, store is plaintext by default)
+- **Request validation** — Content-Type, query length, user_id format, null byte prevention (on by default)
 - **Loopback-only** — binds to 127.0.0.1 by default
+
+**Important:** Encryption at rest and audit logging are **opt-in** features. The default store is plaintext. For production deployments, enable both. See [`docs/SECURITY-POSTURE.md`](docs/SECURITY-POSTURE.md) for the full security posture.
 
 ## Autonomy features
 

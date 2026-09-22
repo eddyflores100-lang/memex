@@ -40,7 +40,10 @@ pre-release software (0.3.0rc1); expect breaking changes between versions.
 
 Thank you for helping keep memex safe.
 
-Local records and queues are not application-encrypted. The HTTP interface is
-intended for trusted loopback use and has no network authentication. Write
-screening recognizes common secrets and junk but is not comprehensive data-loss
-prevention. Do not store credentials or expose the service to untrusted networks.
+Local records and queues are not application-encrypted by default. Encryption
+at rest is available as an opt-in feature via `MEMEX_ENCRYPTION_KEY`. Audit
+logging is available as an opt-in feature via `MEMEX_AUDIT_LOG=true`. Neither
+is enabled by default. The HTTP interface is intended for trusted loopback use
+and has no network authentication unless `MEMEX_API_TOKEN` is explicitly set.
+Do not store credentials or expose the service to untrusted networks without
+enabling these features.
