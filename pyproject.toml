@@ -48,7 +48,7 @@ dependencies = [
 [project.optional-dependencies]
 ollama = []  # no extra deps — Ollama runs locally
 hybrid = ["bm25s>=0.2"]  # BM25 fusion for recall_hybrid; degrades gracefully if absent
-dev = ["pytest", "pytest-asyncio", "httpx", "ruff==0.15.22", "build>=1.2", "anthropic>=0.40"]
+dev = ["pytest", "pytest-asyncio", "httpx", "ruff==0.16.8", "build>=1.2", "anthropic>=0.40"]
 
 [project.scripts]
 memex = "memex.cli:main"
