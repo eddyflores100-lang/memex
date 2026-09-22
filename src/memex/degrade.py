@@ -1,6 +1,6 @@
 """Graceful-degradation layer for memex writes.
 
-When the upstream LLM (Ollama / mem0) is unreachable, we MUST NOT lose the
+When the LLM (Ollama / mem0) is unreachable, we MUST NOT lose the
 write. Instead, queue it locally as JSONL and let a sync job replay later.
 
 This module exists because of the 2026-04-19 incident: Ollama's socket layer

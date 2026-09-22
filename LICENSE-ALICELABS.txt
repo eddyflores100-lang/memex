@@ -1,0 +1,32 @@
+AliceLabs Proprietary License v1.0
+===================================
+
+Copyright (c) 2026 AliceLabs LLC. All rights reserved.
+
+This software and associated documentation files (the "Software") are
+proprietary and confidential. No rights are granted to use, copy, modify,
+merge, publish, distribute, sublicense, or sell copies of the Software
+except as expressly provided in this License.
+
+GRANTED PERMISSIONS:
+  - Read and review the Software for evaluation purposes.
+  - Internal use within AliceLabs LLC for development and improvement.
+
+PROHIBITED USES:
+  - Redistribution of the Software source code in any form.
+  - Use of the Software in production without a separate commercial license.
+  - Sublicensing or transferring the Software to third parties.
+  - Removing or altering the AliceLabs copyright notice or license header.
+  - Using the Software as the basis for a competing product.
+
+COMMERCIAL LICENSE:
+  For production use, enterprise deployment, or integration into a
+  commercial product, contact AliceLabs LLC for a separate commercial
+  license agreement: eddyflores100-lang@users.noreply.github.com
+
+NO WARRANTY:
+  The Software is provided "AS IS", without warranty of any kind.
+
+COPYRIGHT:
+  Copyright (c) 2026 AliceLabs LLC. All rights reserved.
+  https://alicelabs.site

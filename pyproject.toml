@@ -10,7 +10,7 @@ name = "memex-memory"
 version = "0.3.0rc1"
 description = "Memex — local-first, zero-LLM agent memory. AliceLabs proprietary."
 readme = "README.md"
-license = { text = "Apache-2.0" }
+license = { text = "AliceLabs Proprietary v1.0" }
 requires-python = ">=3.10"
 authors = [
   { name = "AliceLabs", email = "eddyflores100-lang@users.noreply.github.com" },
@@ -33,7 +33,7 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
   "Typing :: Typed",
-  "License :: OSI Approved :: Apache Software License",
+  "License :: Other/Proprietary License",
 ]
 dependencies = [
   "mem0ai>=2.0.0,<3.0",

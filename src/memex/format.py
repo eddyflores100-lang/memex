@@ -281,7 +281,7 @@ Rules:
 - "source" identifies which agent created the memory.
 
 Compatibility:
-- Claude Code: stores via MCP fidelis_recall tool
+- Claude Code: stores via MCP memex_recall tool
 - Cursor: stores via TypeScript SDK
 - Codex: stores via MCP
 - Windsurf: stores via TypeScript SDK

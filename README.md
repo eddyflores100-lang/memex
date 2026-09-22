@@ -115,15 +115,13 @@ per-release protocol live in [`docs/METRICS.md`](docs/METRICS.md).
 
 ## License
 
-Memex is licensed under the **Apache License 2.0** — see [`LICENSE`](LICENSE).
+Memex is licensed under the **AliceLabs Proprietary License v1.0** — see [`LICENSE-ALICELABS.txt`](LICENSE-ALICELABS.txt).
 
-You are free to use, modify, and distribute Memex. If you use it in your project,
-you must include attribution to AliceLabs LLC:
+Commercial use requires a license from AliceLabs LLC.
+For commercial licensing:
 
 > "Powered by Memex — https://memex.alicelabs.site"
-> "Built by AliceLabs LLC"
 
-⭐ **Star the repository** at https://github.com/eddyflores100-lang/memex
 if you find Memex useful.
 
 Commercial support and enterprise licenses available at

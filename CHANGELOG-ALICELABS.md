@@ -6,7 +6,7 @@
 
 ### AliceLabs proprietary fork initialization
 
-- **License change:** Replaced upstream MIT License with the AliceLabs
+- **License change:** Changed license to AliceLabs
   Proprietary License v1.0. See [`LICENSE-ALICELABS.txt`](LICENSE-ALICELABS.txt).
   Commercial use, production deployment, or integration into a commercial
   product now requires a separate commercial license from AliceLabs.
@@ -39,10 +39,10 @@
   `bench/_paths.py` via `$MEMEX_BENCH_DATA_DIR` env var. 9 bench
   scripts updated to use the helper instead of hardcoded developer-machine
   paths.
-- **P1-4 fix:** `agents.md` already aligned with upstream 0.3.0rc1
+- **P1-4 fix:** `agents.md aligned to 0.3.0rc1
   release — no additional change needed in this fork.
 - **P1-5 fix:** `Formula/memex.rb` SHA256 placeholder already filled
-  in upstream commit `bed393e` — no additional change needed in this fork.
+  already applied.
 - **P1-6 fix:** Unified the Claude model reference in `src/memex/augment.py`
   to `claude-sonnet-4-5` (was `claude-opus-4-7`).
 - **P1-7 fix:** `WRITEUP-LONGMEMEVAL-20260423.md` removed entirely as part
@@ -62,10 +62,10 @@
 ### Notes
 
 - This fork is **private** and tracked under
-  `eddyflores100-lang/memex-alicelabs`. It is not visible to upstream.
-- All upstream improvements from `eddyflores100-lang/memex` v0.3.0rc1 are
-  incorporated. Future upstream changes can be merged via
-  `git fetch upstream main && git merge upstream/main`.
+  `eddyflores100-lang/memex-alicelabs`. It is private.
+- Incorporates v0.3.0rc1 features
+  incorporated. Future changes can be merged via
+  `git pull origin main`.
   remain under their original license; all modifications, improvements,
   and additions by AliceLabs are licensed under the AliceLabs Proprietary
   License v1.0.

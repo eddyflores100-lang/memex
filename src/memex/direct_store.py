@@ -5,7 +5,7 @@ direct ChromaDB + Ollama calls, eliminating the hard dependency on mem0ai.
 
 Benefits:
   - No mem0 telemetry (even if MEM0_TELEMETRY defaults to False)
-  - No mem0's broken score_and_rank wrapper (bypassed in upstream too)
+  - No mem0 broken score_and_rank wrapper
   - Faster boot (no mem0 config validation)
   - Fewer dependencies = smaller attack surface
   - Direct control over embeddings and vector store

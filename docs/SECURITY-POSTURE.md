@@ -37,7 +37,7 @@ Out of scope:
 ### Default zero-LLM retrieval path
 
 - Memory contents are stored in `~/.cogito/` (the directory name is preserved
-  from the upstream codename for migration safety).
+  from the codename for migration safety).
 - The default retrieval path (BM25 + dense + RRF, `tier="zero_llm"`) does
   **not** call any model API. Memory contents do not leave the local machine
   on this path.
@@ -83,7 +83,7 @@ To wipe: `memex init --uninstall` then `rm -rf ~/.cogito ~/.memex`.
 
 ## Known limitations
 
-- Ollama is a hard dependency for service boot (inherited from upstream).
+- Ollama is a hard dependency for service boot (inherited).
 - No multi-user isolation. `user_id` is a namespace, not an identity or authorization boundary.
 - No hosted service.
 - Pre-release API. Pin the version if you build on it.

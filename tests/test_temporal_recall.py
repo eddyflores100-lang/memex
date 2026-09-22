@@ -482,7 +482,7 @@ class TestSupersededKeptInEligibilityWindow:
     (invariant 4), computed before any current-first reordering. A
     superseded record that survives into the window then pulls its newest
     superseder INTO VIEW from the POOL ONLY (never a fresh store fetch,
-    which would bypass the ephemera/user filters already applied upstream
+    which would bypass the ephemera/user filters already applied
     and could surface a stale mid-chain record — an earlier version that did
     fetch by id was removed on review). The result may exceed `limit` by at
     most the number of records pulled in this way.

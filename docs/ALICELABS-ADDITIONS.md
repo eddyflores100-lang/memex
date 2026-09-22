@@ -1,6 +1,6 @@
 # AliceLabs Additions — Memex AliceLabs Edition
 
-This document describes the AliceLabs-specific additions to the upstream
+This document describes the AliceLabs-specific additions to the
 Memex project. All additions are licensed under the AliceLabs
 Proprietary License v1.0.
 
@@ -79,7 +79,7 @@ curl http://127.0.0.1:19420/export > backup.json
   aligned with the shipped contract. Replaces the removed `COMPLIANCE-DRAFT.md`.
 - [`docs/METRICS.md`](METRICS.md) — single source of truth for headline numbers.
 - [`CHANGELOG-ALICELABS.md`](../CHANGELOG-ALICELABS.md) — AliceLabs-specific
-  changelog separate from upstream.
+  changelog separate from the main project.
 - [`LICENSE-ALICELABS.txt`](../LICENSE-ALICELABS.txt) — proprietary license.
 
 ## New CI lint

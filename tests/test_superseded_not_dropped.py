@@ -68,12 +68,12 @@ _FILLER_TOPICS = [
     "logs access records to var log zephyrine",
     "authenticates clients via mutual TLS certificates",
     "rate limits requests per client above a threshold",
-    "caches upstream responses for thirty seconds",
+    "caches responses for thirty seconds",
     "exposes a health check endpoint for the load balancer",
     "rotates its credentials on a weekly schedule",
     "is deployed across three availability zones",
     "compresses response bodies above one kilobyte",
-    "retries upstream failures with exponential backoff",
+    "retries failures with exponential backoff",
     "emits structured metrics to the telemetry collector",
     "was configured by the platform team last quarter",
     "supports both ipv4 and ipv6 listeners",
@@ -82,7 +82,7 @@ _FILLER_TOPICS = [
     "shares a connection pool with the sibling service",
     "was audited for compliance earlier this year",
     "runs behind a dedicated reverse proxy layer",
-    "buffers slow client writes to protect upstream workers",
+    "buffers slow client writes to protect workers",
     "was migrated to the new container runtime",
     "reports uptime to the internal status page",
     "supports websocket upgrades for streaming clients",
@@ -314,12 +314,12 @@ def test_paraphrase_query_ranks_b_first_a_present_only_if_in_window(harness, end
         assert ids.index(b["id"]) < ids.index(a["id"])
 
 
-# ── known, separately-tracked gap: near-identical A/B upstream of temporal_view ──
+# ── known, separately-tracked gap: near-identical A/B before temporal_view ──
 
 
 @pytest.mark.xfail(
     strict=False,
-    reason="known gap P6: near-duplicate collapse upstream of temporal_view",
+    reason="known gap P6: near-duplicate collapse before temporal_view",
 )
 def test_recall_near_identical_pair_collapses_before_temporal_view(harness):
     """Observed behaviour (2026-09-21, this harness): when A and B differ by
