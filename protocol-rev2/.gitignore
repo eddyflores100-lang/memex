@@ -30,8 +30,8 @@ ENV/
 .coverage
 htmlcov/
 
-# memex runtime dirs (never commit a real .memex/)
-.memex/
-*.memex/
-*.memex.tar
+# alethech runtime dirs (never commit a real .alethech/)
+.alethech/
+*.alethech/
+*.alethech.tar
 *.checkpoint.json

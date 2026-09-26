@@ -1,6 +1,6 @@
-"""Filesystem layout for a memex store.
+"""Filesystem layout for an alethech store.
 
-.memex/
+.alethech/
     identities/<agent_id>.json      # Identity records (public only)
     keys/signing.key                # Private signing key (PEM, 0600)
     keys/recovery.key               # Private recovery key (PEM, 0600)
@@ -27,7 +27,7 @@ class StoreError(Exception):
 
 @dataclass
 class Store:
-    """A memex store on disk."""
+    """A alethech store on disk."""
 
     root: Path
 
@@ -48,7 +48,7 @@ class Store:
     def open(cls, root: Path) -> "Store":
         root = Path(root)
         if not (root / "identities").is_dir():
-            raise StoreError(f"not a memex store: {root}")
+            raise StoreError(f"not an alethech store: {root}")
         return cls(root=root)
 
     # ---------- identities ----------

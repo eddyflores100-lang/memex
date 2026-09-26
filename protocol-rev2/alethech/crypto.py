@@ -121,7 +121,7 @@ class KeyPair:
 # ---------- agent_id derivation (corrección 1 de GPT) ----------
 
 def derive_agent_id(public_jwk: dict) -> str:
-    """agent_id = 'did:memex:' + base32(sha256(canonical_jwk)[0:16]).
+    """agent_id = 'did:alethech:' + base32(sha256(canonical_jwk)[0:16]).
 
     The public key in JWK form is canonicalized via JCS, hashed with SHA-256,
     and the first 16 bytes (128 bits) are encoded in base32 lowercase.
@@ -129,4 +129,4 @@ def derive_agent_id(public_jwk: dict) -> str:
     from .canonical import canonical_json_bytes
     pk_canonical = canonical_json_bytes(public_jwk)
     pk_hash = sha256(pk_canonical)
-    return "did:memex:" + b32lower(pk_hash[0:16])
+    return "did:alethech:" + b32lower(pk_hash[0:16])

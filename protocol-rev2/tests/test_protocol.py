@@ -1,4 +1,4 @@
-"""Tests for the memex protocol — rev 2 spec.
+"""Tests for the alethech protocol — rev 2 spec.
 
 Each test verifies a specific property of the spec.
 """
@@ -11,19 +11,19 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
-from memex import crypto
-from memex.canonical import canonical_json, canonical_json_bytes
-from memex.cli import cli
-from memex.objects import Identity, MemoryCommit, EvidenceCommit, Checkpoint
-from memex.store import Store
-from memex.verify import verify_store
+from alethech import crypto
+from alethech.canonical import canonical_json, canonical_json_bytes
+from alethech.cli import cli
+from alethech.objects import Identity, MemoryCommit, EvidenceCommit, Checkpoint
+from alethech.store import Store
+from alethech.verify import verify_store
 
 
 # ---------- fixtures ----------
 
 @pytest.fixture
 def tmp_store_dir():
-    d = tempfile.mkdtemp(prefix="memex-test-")
+    d = tempfile.mkdtemp(prefix="alethech-test-")
     yield Path(d)
     shutil.rmtree(d, ignore_errors=True)
 
@@ -35,7 +35,7 @@ def runner():
 
 @pytest.fixture
 def initialized_store(tmp_store_dir, runner):
-    """Run `memex init` in tmp_store_dir and return the path."""
+    """Run `alethech init` in tmp_store_dir and return the path."""
     result = runner.invoke(cli, ["--store", str(tmp_store_dir), "init"])
     assert result.exit_code == 0, result.output
     return tmp_store_dir
@@ -76,7 +76,7 @@ def test_agent_id_derivation_is_deterministic():
     a1 = crypto.derive_agent_id(jwk)
     a2 = crypto.derive_agent_id(jwk)
     assert a1 == a2
-    assert a1.startswith("did:memex:")
+    assert a1.startswith("did:alethech:")
 
 
 def test_agent_id_changes_with_different_key():
@@ -309,9 +309,9 @@ def test_verify_detects_identity_mismatch(tmp_store_dir, runner, initialized_sto
     ident = Identity.from_dict(json.loads(ident_files[0].read_text()))
     # Tamper: change agent_id but keep public_key
     data = json.loads(ident_files[0].read_text())
-    data["agent_id"] = "did:memex:faketamperedagentid"
+    data["agent_id"] = "did:alethech:faketamperedagentid"
     # Write a new identity file with the tampered id (don't overwrite the original)
-    (tmp_store_dir / "identities" / "did:memex:faketamperedagentid.json").write_text(json.dumps(data, indent=2))
+    (tmp_store_dir / "identities" / "did:alethech:faketamperedagentid.json").write_text(json.dumps(data, indent=2))
     # Remove the original
     ident_files[0].unlink()
     result = runner.invoke(cli, ["--store", str(tmp_store_dir), "verify"])

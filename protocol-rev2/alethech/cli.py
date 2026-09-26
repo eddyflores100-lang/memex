@@ -1,11 +1,11 @@
-"""memex CLI — six commands. No more, no less.
+"""alethech CLI — six commands. No more, no less.
 
-    memex init
-    memex commit
-    memex evidence
-    memex verify
-    memex export
-    memex import
+    alethech init
+    alethech commit
+    alethech evidence
+    alethech verify
+    alethech export
+    alethech import
 """
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ from .verify import verify_store
 # ---------- helpers ----------
 
 def _store_path(ctx: click.Context) -> Path:
-    """Get the memex store path from the click context."""
+    """Get the alethech store path from the click context."""
     return Path(ctx.obj["store"])
 
 
@@ -51,13 +51,13 @@ def _hash_file(path: str) -> str:
 @click.group()
 @click.option(
     "--store",
-    default=".memex",
-    envvar="MEMEX_STORE",
-    help="Path to the memex store directory (default: .memex/)",
+    default=".alethech",
+    envvar="ALETHECH_STORE",
+    help="Path to the alethech store directory (default: .alethech/)",
 )
 @click.pass_context
 def cli(ctx: click.Context, store: str) -> None:
-    """memex — verifiable agent continuity protocol."""
+    """alethech — verifiable agent continuity protocol."""
     ctx.ensure_object(dict)
     ctx.obj["store"] = store
 
@@ -67,7 +67,7 @@ def cli(ctx: click.Context, store: str) -> None:
 @cli.command()
 @click.option("--recovery-key-file", type=click.Path(exists=True), help="Existing recovery private key (PEM)")
 def init(recovery_key_file: str | None) -> None:
-    """Initialize a new memex store with identity + genesis commit."""
+    """Initialize a new alethech store with identity + genesis commit."""
     store_path = Path(click.get_current_context().obj["store"])
 
     # Refuse if directory exists and is non-empty
@@ -153,7 +153,7 @@ def commit(content: str, memory_type: str, evidence_ids: tuple[str, ...], sessio
 
     identities = store.load_identities()
     if not identities:
-        raise click.ClickException("no identities in store — run `memex init` first")
+        raise click.ClickException("no identities in store — run `alethech init` first")
     # Use the first identity (rev 2 supports only one agent per store)
     identity = next(iter(identities.values()))
 
@@ -164,10 +164,10 @@ def commit(content: str, memory_type: str, evidence_ids: tuple[str, ...], sessio
     # Load current HEAD
     head = store.read_head()
     if head is None:
-        raise click.ClickException("HEAD missing — store may be corrupted; run `memex verify`")
+        raise click.ClickException("HEAD missing — store may be corrupted; run `alethech verify`")
     commits = store.load_commits()
     if head not in commits:
-        raise click.ClickException(f"HEAD points to nonexistent commit {head} — run `memex verify`")
+        raise click.ClickException(f"HEAD points to nonexistent commit {head} — run `alethech verify`")
 
     # Verify evidence IDs exist
     if evidence_ids:
@@ -228,7 +228,7 @@ def evidence(tool: str, input_file: str, output_file: str, result: str,
 
     identities = store.load_identities()
     if not identities:
-        raise click.ClickException("no identities in store — run `memex init` first")
+        raise click.ClickException("no identities in store — run `alethech init` first")
     identity = next(iter(identities.values()))
 
     input_hash = _hash_file(input_file)
@@ -438,7 +438,7 @@ def export(output: str, include_artifacts: bool, emit_checkpoint: bool) -> None:
 
 @cli.command(name="import")
 @click.option("--input", "input_path", required=True, type=click.Path(exists=True), help="Path to import from")
-@click.option("--target", "target_path", default=None, help="Target memex store (default: same as --store)")
+@click.option("--target", "target_path", default=None, help="Target alethech store (default: same as --store)")
 @click.option("--trust-unknown-identities", is_flag=True, help="Allow importing commits from unknown identities")
 @click.option("--allow-conflicts", is_flag=True, help="Allow HEAD conflicts (will not auto-update HEAD)")
 @click.option("--checkpoint", "checkpoint_file", type=click.Path(exists=True), help="External checkpoint to verify continuity")
@@ -598,7 +598,7 @@ def import_(input_path: str, target_path: str | None,
     click.echo(f"identities: {len(pkg_identities)} in package")
     click.echo(f"conflicts: 0")
     click.echo(f"continuity: {continuity}")
-    click.echo("HEAD not updated — use `memex merge` (rev 3+) or manually set HEAD")
+    click.echo("HEAD not updated — use `alethech merge` (rev 3+) or manually set HEAD")
 
 
 if __name__ == "__main__":

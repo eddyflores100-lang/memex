@@ -1,6 +1,6 @@
 """Verification engine — the core of the protocol.
 
-memex verify is the standalone verifier. It runs without LLM, without network,
+alethech verify is the standalone verifier. It runs without LLM, without network,
 without blockchain, without MarketNow, without UTA, without cloud, without any
 external service. Only bytes and cryptographic properties.
 
@@ -24,7 +24,7 @@ from .store import Store
 
 @dataclass
 class VerifyReport:
-    """Result of running `memex verify`."""
+    """Result of running `alethech verify`."""
 
     identities_total: int = 0
     identities_invalid: int = 0

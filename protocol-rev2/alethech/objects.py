@@ -34,9 +34,9 @@ def sha256_commit_id(canonical_bytes: bytes) -> str:
 
 @dataclass
 class Identity:
-    """Agent identity record. Public only — private keys live in .memex/keys/."""
+    """Agent identity record. Public only — private keys live in .alethech/keys/."""
 
-    agent_id: str  # did:memex:...
+    agent_id: str  # did:alethech:...
     public_key: dict  # JWK {kty, crv, x}
     key_id: str = "key-001"
     created_at: str = field(default_factory=utc_now_iso)

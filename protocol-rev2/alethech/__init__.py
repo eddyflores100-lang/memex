@@ -1,4 +1,4 @@
-"""memex — verifiable agent continuity protocol.
+"""alethech — verifiable agent continuity protocol.
 
 Reference implementation of the protocol specified in rev 2.
 Local-first, zero-LLM, zero-blockchain.
