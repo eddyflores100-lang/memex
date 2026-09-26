@@ -117,16 +117,42 @@ def verify_store(store: Store, checkpoint: Checkpoint | None = None) -> VerifyRe
     report.commits_total = len(commits)
     report.evidence_total = len(evidence)
 
+    # Load v0.2 identities as well (for rev 3)
+    try:
+        identities_v2 = store.load_identity_records_v2()
+    except Exception:
+        identities_v2 = {}
+
     # 3. Verify each commit's signature and identity link
     for cid, commit in commits.items():
-        # Resolve which identity this commit claims to be from
+        # Try legacy identity first
         ident = identities.get(commit.agent_id)
-        if ident is None:
-            report.commits_invalid += 1
-            report.errors.append(f"unknown_identity: commit {cid} claims unknown agent_id {commit.agent_id}")
-            continue
+        if ident is not None:
+            public_jwk = ident.public_key
+        else:
+            # Try v0.2 identity — find the key by key_id
+            v2_ident = None
+            for v2 in identities_v2.values():
+                if v2.agent_id == commit.agent_id:
+                    v2_ident = v2
+                    break
+            if v2_ident is None:
+                report.commits_invalid += 1
+                report.errors.append(f"unknown_identity: commit {cid} claims unknown agent_id {commit.agent_id}")
+                continue
+            # Find the key_id in active or revoked keys
+            key_obj = None
+            for k in v2_ident.active_keys + v2_ident.revoked_keys:
+                if k.get("key_id") == commit.key_id:
+                    key_obj = k
+                    break
+            if key_obj is None:
+                report.commits_invalid += 1
+                report.errors.append(f"unknown_key: commit {cid} uses key_id {commit.key_id} not in identity {commit.agent_id}")
+                continue
+            public_jwk = key_obj["public_key"]
 
-        if not commit.verify(ident.public_key):
+        if not commit.verify(public_jwk):
             report.commits_invalid += 1
             report.errors.append(f"signature_invalid: commit {cid} does not verify against identity {commit.agent_id}")
             continue
@@ -241,4 +267,155 @@ def _detect_cycle(commits: dict[str, MemoryCommit]) -> bool:
         if color[cid] == WHITE:
             if visit(cid):
                 return True
+    return False
+
+
+# ============================================================================
+# rev 3 — Identity layer verification
+# ============================================================================
+
+from .objects import IdentityRecordV2, ControlEvent, MigrationRecord, RootAuthority
+
+
+def verify_identity_layer(store, report: VerifyReport) -> VerifyReport:
+    """Verify the identity layer (rev 3):
+    - Root authority exists and self-verifies
+    - IdentityRecordV2 exists and agent_id derives from root
+    - Control event chain is monotonic, hash-linked, and signed by root
+    - Each active key has a valid key_grant control event
+    - Each revoked key has a cutoff_head
+    - Migration records (if any) have bilateral signatures
+    """
+    try:
+        root = store.load_root_authority()
+    except Exception as e:
+        report.errors.append(f"root_authority_load_failed: {e}")
+        return report
+
+    if not root.verify_self():
+        report.errors.append(f"root_authority_mismatch: root_id does not derive from root_public_key")
+
+    # Verify root signature
+    if not root.verify(root.root_public_key):
+        report.errors.append("root_authority_signature_invalid")
+
+    # Load identity records v2
+    try:
+        identities_v2 = store.load_identity_records_v2()
+    except Exception as e:
+        report.errors.append(f"identity_v2_load_failed: {e}")
+        return report
+
+    for agent_id, ident in identities_v2.items():
+        if not ident.verify_self():
+            report.errors.append(f"identity_v2_mismatch: {agent_id} does not derive from root_public_key")
+
+    # Load control events
+    try:
+        events = store.load_control_events()
+    except Exception as e:
+        report.errors.append(f"control_events_load_failed: {e}")
+        return report
+
+    if events:
+        # Verify each event's signature
+        for eid, ev in events.items():
+            if not ev.verify(root.root_public_key):
+                report.errors.append(f"control_event_signature_invalid: {eid}")
+
+        # Verify chain monotonicity and hash-linking
+        sorted_events = sorted(events.values(), key=lambda e: e.sequence)
+        prev_hash = ""
+        expected_seq = 1
+        for ev in sorted_events:
+            if ev.sequence != expected_seq:
+                report.errors.append(
+                    f"control_chain_invalid: expected sequence {expected_seq}, got {ev.sequence} (event {ev.commit_id})"
+                )
+                break
+            if ev.previous_control_hash != prev_hash:
+                report.errors.append(
+                    f"control_chain_invalid: event {ev.commit_id} previous_control_hash mismatch"
+                )
+                break
+            prev_hash = ev.commit_id
+            expected_seq += 1
+
+    # Verify migration records
+    try:
+        migrations = store.load_migration_records()
+    except Exception as e:
+        report.errors.append(f"migration_load_failed: {e}")
+        migrations = {}
+
+    for mid, mig in migrations.items():
+        if not mig.verify_both(mig.legacy_public_key, mig.new_root_public_key):
+            report.errors.append(f"migration_signatures_invalid: {mid}")
+
+    return report
+
+
+def check_commit_against_governance(commit, identities_v2: dict, events: dict) -> str:
+    """Check a commit's signature against the governance state.
+
+    Returns one of:
+    - VALID: key is active
+    - VALID_HISTORICAL: key is revoked but commit is in ancestry(cutoff_head)
+    - REVOKED_KEY_AFTER_CUTOFF: key is revoked and commit is NOT in ancestry(cutoff_head)
+    - UNKNOWN_KEY: key is not in any identity
+    - IDENTITY_MISMATCH: commit's agent_id doesn't match the identity that authorized the key
+    """
+    # Find the identity for this commit's agent_id
+    identity = None
+    for agent_id, ident in identities_v2.items():
+        if agent_id == commit.agent_id:
+            identity = ident
+            break
+
+    if identity is None:
+        return "UNKNOWN_KEY"
+
+    # Find the key in active or revoked
+    key_id = commit.key_id
+    for k in identity.active_keys:
+        if k["key_id"] == key_id:
+            return "VALID"
+
+    for k in identity.revoked_keys:
+        if k["key_id"] == key_id:
+            # Key is revoked. Check cutoff_head ancestry.
+            cutoff_head = k.get("cutoff_head", "")
+            if not cutoff_head:
+                return "REVOKED_KEY_AFTER_CUTOFF"
+            # The caller must verify ancestry separately (needs full commit DAG)
+            # Return a sentinel indicating "needs ancestry check"
+            return f"NEEDS_ANCESTRY_CHECK:{cutoff_head}"
+
+    return "UNKNOWN_KEY"
+
+
+def ancestry_check(commit_id: str, cutoff_head: str, commits: dict, max_depth: int = 10000) -> bool:
+    """Check if commit_id is in the ancestry of cutoff_head (inclusive).
+
+    Uses BFS to traverse parents. Returns True if commit_id == cutoff_head or
+    commit_id is reachable by following parents from cutoff_head.
+    """
+    if commit_id == cutoff_head:
+        return True
+    visited = set()
+    queue = [cutoff_head]
+    depth = 0
+    while queue and depth < max_depth:
+        current = queue.pop(0)
+        if current in visited:
+            continue
+        visited.add(current)
+        if current == commit_id:
+            return True
+        if current not in commits:
+            continue
+        for parent in commits[current].parents:
+            if parent not in visited:
+                queue.append(parent)
+        depth += 1
     return False

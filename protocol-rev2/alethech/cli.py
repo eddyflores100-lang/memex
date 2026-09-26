@@ -151,15 +151,32 @@ def commit(content: str, memory_type: str, evidence_ids: tuple[str, ...], sessio
     except StoreError as e:
         raise click.ClickException(str(e))
 
-    identities = store.load_identities()
-    if not identities:
-        raise click.ClickException("no identities in store — run `alethech init` first")
-    # Use the first identity (rev 2 supports only one agent per store)
-    identity = next(iter(identities.values()))
+    # Prefer v0.2 identity (root-derived) over v0.1 (operational-derived)
+    v2_identities = store.load_identity_records_v2()
+    legacy_identities = store.load_identities()
 
-    # Verify agent_id matches public key
-    if not identity.verify_self():
-        raise click.ClickException("identity_mismatch: agent_id does not derive from public_key in store")
+    if v2_identities:
+        identity_record = next(iter(v2_identities.values()))
+        # For commit, we need agent_id and key_id from the active key
+        if not identity_record.active_keys:
+            raise click.ClickException("no active key in v0.2 identity")
+        active = identity_record.active_keys[0]
+        agent_id = identity_record.agent_id
+        key_id = active["key_id"]
+        # Use a wrapper object for compatibility with the rest of the function
+        class _IdentityShim:
+            pass
+        identity = _IdentityShim()
+        identity.agent_id = agent_id
+        identity.key_id = key_id
+        identity.public_key = active["public_key"]
+        identity.verify_self = lambda: identity_record.verify_self()
+    elif legacy_identities:
+        identity = next(iter(legacy_identities.values()))
+        if not identity.verify_self():
+            raise click.ClickException("identity_mismatch: agent_id does not derive from public_key in store")
+    else:
+        raise click.ClickException("no identities in store — run `alethech init` first")
 
     # Load current HEAD
     head = store.read_head()
@@ -603,3 +620,353 @@ def import_(input_path: str, target_path: str | None,
 
 if __name__ == "__main__":
     cli()
+
+
+# ============================================================================
+# rev 3 — Identity layer commands
+# ============================================================================
+
+@cli.group()
+def key() -> None:
+    """Operational key management (rotate, revoke, authorize)."""
+    pass
+
+
+@key.command("rotate")
+@click.option("--reason", default="rotation", type=click.Choice(["rotation", "compromise", "expiry"]))
+@click.option("--content", "content_file", type=click.Path(exists=True), help="Optional content for a post-rotation commit")
+def key_rotate(reason: str, content_file: str | None) -> None:
+    """Atomically rotate the active operational key.
+
+    Produces a single ControlEvent with event_type=key_rotation that:
+    - revokes the current active key (with cutoff_head = current HEAD)
+    - authorizes a new key
+    """
+    ctx = click.get_current_context()
+    store_path = Path(ctx.obj["store"])
+    store = Store.open(store_path)
+
+    try:
+        root_keypair = store.load_root_key()
+    except StoreError as e:
+        raise click.ClickException(f"root key not available: {e}")
+
+    # Load identity records v2 (only the first one for now; multi-wallet comes later)
+    identities = store.load_identity_records_v2()
+    if not identities:
+        raise click.ClickException("no IdentityRecordV2 in store — run `alethech migrate --to v0.2` first")
+    identity = next(iter(identities.values()))
+
+    # Find current active key
+    if not identity.active_keys:
+        raise click.ClickException("no active key in identity — cannot rotate")
+    current_key = identity.active_keys[0]
+    old_key_id = current_key["key_id"]
+    old_public_jwk = current_key["public_key"]
+
+    # Get current HEAD as cutoff
+    cutoff_head = store.read_head()
+    if cutoff_head is None:
+        raise click.ClickException("HEAD missing — store may be corrupted")
+
+    # Generate new operational keypair
+    new_keypair = crypto.KeyPair.generate()
+    new_public_jwk = new_keypair.public_jwk()
+    new_key_id = f"key-{int(old_key_id.split('-')[1]) + 1:03d}" if old_key_id.startswith("key-") else "key-next"
+
+    # Build ControlEvent for rotation (atomic)
+    events = store.load_control_events()
+    prev_seq = max((e.sequence for e in events.values()), default=0)
+    prev_hash = max((e.commit_id for e in events.values()), key=lambda h: 0) if events else ""
+
+    # Find the latest control event to chain from
+    if events:
+        latest = max(events.values(), key=lambda e: e.sequence)
+        prev_hash = latest.commit_id
+
+    rotation_event = ControlEvent(
+        root_id=identity.root_id,
+        sequence=prev_seq + 1,
+        previous_control_hash=prev_hash,
+        event_type="key_rotation",
+        key_id=new_key_id,
+        public_key=new_public_jwk,
+        old_key_id=old_key_id,
+        cutoff_head=cutoff_head,
+        reason=reason,
+    )
+    rotation_event.sign(root_keypair)
+    store.write_control_event(rotation_event)
+
+    # Update IdentityRecord
+    identity.revoked_keys.append({
+        "key_id": old_key_id,
+        "public_key": old_public_jwk,
+        "revoked_at": rotation_event.timestamp,
+        "revoked_by": rotation_event.commit_id,
+        "cutoff_head": cutoff_head,
+    })
+    identity.active_keys = [{
+        "key_id": new_key_id,
+        "public_key": new_public_jwk,
+        "authorized_at": rotation_event.timestamp,
+        "authorized_by": rotation_event.commit_id,
+        "expires_at": None,
+    }]
+    # Re-sign identity with root
+    identity.sign(root_keypair)
+    store.write_identity_record_v2(identity)
+
+    # Save new operational key (replaces signing.key)
+    store.write_signing_key(new_keypair)
+
+    click.echo(f"rotated: {old_key_id} → {new_key_id}")
+    click.echo(f"cutoff_head: {cutoff_head}")
+    click.echo(f"control_event: {rotation_event.commit_id}")
+    click.echo(f"sequence: {rotation_event.sequence}")
+
+
+@key.command("revoke")
+@click.option("--key-id", required=True, help="Key ID to revoke")
+@click.option("--reason", default="compromise", type=click.Choice(["compromise", "rotation", "expiry"]))
+def key_revoke(key_id: str, reason: str) -> None:
+    """Revoke an operational key without generating a new one (emergency)."""
+    ctx = click.get_current_context()
+    store_path = Path(ctx.obj["store"])
+    store = Store.open(store_path)
+
+    try:
+        root_keypair = store.load_root_key()
+    except StoreError as e:
+        raise click.ClickException(f"root key not available: {e}")
+
+    identities = store.load_identity_records_v2()
+    if not identities:
+        raise click.ClickException("no IdentityRecordV2 in store")
+    identity = next(iter(identities.values()))
+
+    # Find the key to revoke
+    target_key = None
+    for k in identity.active_keys:
+        if k["key_id"] == key_id:
+            target_key = k
+            break
+    if target_key is None:
+        raise click.ClickException(f"key {key_id} not in active_keys")
+
+    cutoff_head = store.read_head() or ""
+
+    events = store.load_control_events()
+    prev_seq = max((e.sequence for e in events.values()), default=0)
+    prev_hash = events[prev_seq].commit_id if events and prev_seq in [e.sequence for e in events.values()] else ""
+    # Get latest by sequence
+    if events:
+        latest = max(events.values(), key=lambda e: e.sequence)
+        prev_hash = latest.commit_id
+
+    revoke_event = ControlEvent(
+        root_id=identity.root_id,
+        sequence=prev_seq + 1,
+        previous_control_hash=prev_hash,
+        event_type="key_revoke",
+        key_id=key_id,
+        public_key={},
+        old_key_id="",
+        cutoff_head=cutoff_head,
+        reason=reason,
+    )
+    revoke_event.sign(root_keypair)
+    store.write_control_event(revoke_event)
+
+    # Move key from active to revoked
+    identity.active_keys = [k for k in identity.active_keys if k["key_id"] != key_id]
+    identity.revoked_keys.append({
+        "key_id": key_id,
+        "public_key": target_key["public_key"],
+        "revoked_at": revoke_event.timestamp,
+        "revoked_by": revoke_event.commit_id,
+        "cutoff_head": cutoff_head,
+    })
+    identity.sign(root_keypair)
+    store.write_identity_record_v2(identity)
+
+    click.echo(f"revoked: {key_id}")
+    click.echo(f"cutoff_head: {cutoff_head}")
+    click.echo(f"control_event: {revoke_event.commit_id}")
+    click.echo("no new key generated — run `alethech key authorize --new` manually when safe")
+
+
+@cli.command()
+@click.option("--to", "target_version", required=True, type=click.Choice(["v0.2"]))
+def migrate(target_version: str) -> None:
+    """Migrate identity from v0.1 (agent_id derives from operational key) to v0.2 (agent_id derives from root).
+
+    Produces a MigrationRecord signed bilaterally by the legacy key and the new root.
+    The legacy agent_id is preserved as legacy; the new agent_id derives from the root.
+    """
+    ctx = click.get_current_context()
+    store_path = Path(ctx.obj["store"])
+    store = Store.open(store_path)
+
+    # Load v0.1 identity (legacy)
+    legacy_identities = store.load_identities()
+    if not legacy_identities:
+        raise click.ClickException("no legacy Identity in store — already migrated?")
+    legacy_identity = next(iter(legacy_identities.values()))
+
+    # Load the signing key (which is K1, the legacy operational key)
+    try:
+        legacy_keypair = store.load_signing_key()
+    except StoreError as e:
+        raise click.ClickException(f"legacy signing key not available: {e}")
+
+    # Generate new root
+    root_keypair = crypto.KeyPair.generate()
+    root_public_jwk = root_keypair.public_jwk()
+    root_id = "did:alethech:root:" + crypto.b32lower(crypto.sha256(canonical_json_bytes(root_public_jwk))[0:16])
+
+    # New agent_id derives from root
+    new_agent_id = "did:alethech:" + crypto.b32lower(crypto.sha256(canonical_json_bytes(root_public_jwk))[0:16])
+
+    # Build MigrationRecord
+    migration = MigrationRecord(
+        legacy_agent_id=legacy_identity.agent_id,
+        legacy_public_key=legacy_identity.public_key,
+        new_agent_id=new_agent_id,
+        new_root_id=root_id,
+        new_root_public_key=root_public_jwk,
+    )
+    migration.sign_both(legacy_keypair, root_keypair)
+    store.write_migration_record(migration)
+
+    # Build RootAuthority
+    root_auth = RootAuthority(
+        root_id=root_id,
+        root_public_key=root_public_jwk,
+    )
+    root_auth.sign(root_keypair)
+    store.write_root_authority(root_auth)
+    store.write_root_key(root_keypair)
+
+    # Build IdentityRecordV2
+    new_identity = IdentityRecordV2(
+        agent_id=new_agent_id,
+        root_id=root_id,
+        root_public_key=root_public_jwk,
+        active_keys=[{
+            "key_id": "key-001",
+            "public_key": legacy_identity.public_key,
+            "authorized_at": migration.migration_timestamp,
+            "authorized_by": "",  # will fill after signing
+            "expires_at": None,
+        }],
+        revoked_keys=[],
+    )
+
+    # Authorize the legacy key K1 via ControlEvent (genesis control event)
+    genesis_event = ControlEvent(
+        root_id=root_id,
+        sequence=1,
+        previous_control_hash="",
+        event_type="key_grant",
+        key_id="key-001",
+        public_key=legacy_identity.public_key,
+        reason="migration",
+        migration_record_id=migration.commit_id,
+    )
+    genesis_event.sign(root_keypair)
+    store.write_control_event(genesis_event)
+
+    # Update identity with the control event id
+    new_identity.active_keys[0]["authorized_by"] = genesis_event.commit_id
+    new_identity.sign(root_keypair)
+    store.write_identity_record_v2(new_identity)
+
+    # Update HEAD — the existing commits still have agent_id=legacy, but new commits will use new agent_id
+    # We do NOT change the agent_id of existing commits (they remain legacy)
+    # The user must update their tooling to use the new agent_id going forward
+
+    click.echo(f"migrated: {legacy_identity.agent_id} → {new_agent_id}")
+    click.echo(f"root_id: {root_id}")
+    click.echo(f"migration_record: {migration.commit_id}")
+    click.echo(f"genesis_control_event: {genesis_event.commit_id}")
+    click.echo(f"key-001 (legacy) authorized by new root")
+    click.echo("")
+    click.echo("Existing commits retain their legacy agent_id.")
+    click.echo("New commits should use the new agent_id.")
+    click.echo("Both are verifiable via the MigrationRecord.")
+
+
+@cli.group()
+def identity() -> None:
+    """Identity management (list, create, publish)."""
+    pass
+
+
+@identity.command("list")
+def identity_list() -> None:
+    """List all identities in the store."""
+    ctx = click.get_current_context()
+    store_path = Path(ctx.obj["store"])
+    store = Store.open(store_path)
+
+    # Legacy identities
+    legacy = store.load_identities()
+    for agent_id, ident in legacy.items():
+        click.echo(f"  [v0.1]  {agent_id}  (legacy, key={ident.key_id})")
+
+    # v0.2 identities
+    v2 = store.load_identity_records_v2()
+    for agent_id, ident in v2.items():
+        active = ", ".join(k["key_id"] for k in ident.active_keys)
+        revoked = ", ".join(k["key_id"] for k in ident.revoked_keys)
+        click.echo(f"  [v0.2]  {agent_id}  (active={active}, revoked={revoked})")
+
+    if not legacy and not v2:
+        click.echo("  (no identities — run `alethech init` or `alethech migrate --to v0.2`)")
+
+
+@identity.command("publish")
+@click.option("--output", required=True, type=click.Path(), help="Output file path")
+def identity_publish(output: str) -> None:
+    """Generate an AlethechIdentityPublication for .well-known."""
+    ctx = click.get_current_context()
+    store_path = Path(ctx.obj["store"])
+    store = Store.open(store_path)
+
+    identities = store.load_identity_records_v2()
+    if not identities:
+        raise click.ClickException("no IdentityRecordV2 in store — run `alethech migrate --to v0.2` first")
+    identity = next(iter(identities.values()))
+
+    try:
+        root_keypair = store.load_root_key()
+    except StoreError as e:
+        raise click.ClickException(f"root key not available: {e}")
+
+    publication = {
+        "type": "AlethechIdentityPublication",
+        "version": 1,
+        "identity": identity.to_signed_dict(),
+        "published_at": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z"),
+    }
+    # Compute hash and sign
+    from .canonical import canonical_json_bytes
+    pub_no_hash = {k: v for k, v in publication.items()}
+    pub_no_hash["identity_hash"] = "sha256:" + crypto.sha256_hex(canonical_json_bytes(identity.to_signed_dict()))
+    publication["identity_hash"] = pub_no_hash["identity_hash"]
+    msg = canonical_json_bytes(publication)
+    sig = root_keypair.sign(msg)
+    publication["publication_signature"] = "ed25519:" + crypto.b64url(sig)
+
+    Path(output).write_text(json.dumps(publication, indent=2), encoding="utf-8")
+    click.echo(f"published to: {output}")
+    click.echo(f"identity: {identity.agent_id}")
+    click.echo(f"identity_hash: {publication['identity_hash']}")
+
+
+# Need imports at the top
+import os as _os
+from .objects import IdentityRecordV2, ControlEvent, MigrationRecord, RootAuthority
+from .canonical import canonical_json_bytes
+

@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from . import crypto
-from .canonical import canonical_json_bytes
+from .canonical import canonical_json, canonical_json_bytes
 
 
 # ---------- helpers ----------
@@ -341,3 +341,289 @@ class Checkpoint(SignedObject):
             commit_id=d.get("checkpoint_id", d.get("commit_id", "")),
             signature=d.get("signature", ""),
         )
+
+
+# ============================================================================
+# rev 3 — Identity layer objects
+# ============================================================================
+
+
+@dataclass
+class RootAuthority(SignedObject):
+    """The root authority for an identity. Inmutable for a given identity.
+
+    Only used for governance: key grants, key revokes, key rotations, migrations.
+    Does NOT sign commits or evidence.
+    """
+
+    root_id: str = ""  # did:alethech:root:<base32(sha256(root_public_jwk)[0:16])>
+    root_public_key: dict = field(default_factory=dict)
+    created_at: str = field(default_factory=utc_now_iso)
+    recovery_quorum: dict = field(default_factory=lambda: {"type": "single", "threshold": 1, "members": []})
+
+    @staticmethod
+    def object_type() -> str:
+        return "RootAuthority"
+
+    def to_signable_dict(self) -> dict:
+        return {
+            "type": "RootAuthority",
+            "version": 1,
+            "root_id": self.root_id,
+            "root_public_key": self.root_public_key,
+            "created_at": self.created_at,
+            "recovery_quorum": self.recovery_quorum,
+        }
+
+    def to_signed_dict(self) -> dict:
+        d = self.to_signable_dict()
+        d["commit_id"] = self.commit_id
+        d["signature"] = self.signature
+        return d
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "RootAuthority":
+        if d.get("type") != "RootAuthority":
+            raise ValueError(f"not a RootAuthority: type={d.get('type')}")
+        return cls(
+            root_id=d.get("root_id", ""),
+            root_public_key=d.get("root_public_key", {}),
+            created_at=d.get("created_at", utc_now_iso()),
+            recovery_quorum=d.get("recovery_quorum", {"type": "single", "threshold": 1, "members": []}),
+            commit_id=d.get("commit_id", ""),
+            signature=d.get("signature", ""),
+        )
+
+    def verify_self(self) -> bool:
+        """Verify that root_id derives from root_public_key."""
+        derived = "did:alethech:root:" + crypto.b32lower(crypto.sha256(
+            canonical_json_bytes(self.root_public_key)
+        )[0:16])
+        return derived == self.root_id
+
+
+@dataclass
+class IdentityRecordV2(SignedObject):
+    """Identity record rev 2 — agent_id derives from root, not operational key.
+
+    Contains:
+    - agent_id (derived from root_public_key)
+    - root_id (link to RootAuthority)
+    - active_keys[] (each with KeyAuthorization commit_id)
+    - revoked_keys[] (each with cutoff_head from the KeyRotation that revoked it)
+    """
+
+    agent_id: str = ""
+    root_id: str = ""
+    root_public_key: dict = field(default_factory=dict)
+    active_keys: list = field(default_factory=list)  # [{key_id, public_key, authorized_by, authorized_at, expires_at}]
+    revoked_keys: list = field(default_factory=list)  # [{key_id, public_key, revoked_at, revoked_by, cutoff_head}]
+    created_at: str = field(default_factory=utc_now_iso)
+
+    @staticmethod
+    def object_type() -> str:
+        return "IdentityRecordV2"
+
+    def to_signable_dict(self) -> dict:
+        return {
+            "type": "IdentityRecordV2",
+            "version": 2,
+            "agent_id": self.agent_id,
+            "root_id": self.root_id,
+            "root_public_key": self.root_public_key,
+            "active_keys": self.active_keys,
+            "revoked_keys": self.revoked_keys,
+            "created_at": self.created_at,
+        }
+
+    def to_signed_dict(self) -> dict:
+        d = self.to_signable_dict()
+        d["commit_id"] = self.commit_id
+        d["signature"] = self.signature
+        return d
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "IdentityRecordV2":
+        if d.get("type") not in ("IdentityRecordV2", "Identity"):
+            raise ValueError(f"not an IdentityRecordV2: type={d.get('type')}")
+        return cls(
+            agent_id=d.get("agent_id", ""),
+            root_id=d.get("root_id", ""),
+            root_public_key=d.get("root_public_key", d.get("public_key", {})),
+            active_keys=d.get("active_keys", []),
+            revoked_keys=d.get("revoked_keys", []),
+            created_at=d.get("created_at", utc_now_iso()),
+            commit_id=d.get("commit_id", ""),
+            signature=d.get("signature", ""),
+        )
+
+    def verify_self(self) -> bool:
+        """Verify that agent_id derives from root_public_key."""
+        derived = "did:alethech:" + crypto.b32lower(crypto.sha256(
+            canonical_json_bytes(self.root_public_key)
+        )[0:16])
+        return derived == self.agent_id
+
+
+@dataclass
+class ControlEvent(SignedObject):
+    """A signed governance event from the root authority.
+
+    Forms a monotonic chain: each event references the hash of the previous one.
+    The chain is the source of truth for key authorization state.
+
+    Types of events:
+    - key_grant: authorize a new operational key
+    - key_revoke: revoke an operational key (compromise)
+    - key_rotation: atomically revoke K_old and authorize K_new with cutoff_head
+    - migration: declare migration from legacy identity to new identity
+    """
+
+    root_id: str = ""
+    sequence: int = 1
+    previous_control_hash: str = ""  # commit_id of previous ControlEvent, or "" for genesis
+    event_type: str = "key_grant"  # key_grant | key_revoke | key_rotation | migration
+    key_id: str = ""                # for key_grant, key_revoke: the key being affected
+    public_key: dict = field(default_factory=dict)  # for key_grant, key_rotation (new key)
+    old_key_id: str = ""            # for key_rotation: the key being replaced
+    cutoff_head: str = ""           # for key_rotation: causal marker in commit DAG
+    reason: str = "rotation"        # rotation | compromise | expiry | migration
+    timestamp: str = field(default_factory=utc_now_iso)
+    migration_record_id: str = ""   # for migration events: links to MigrationRecord
+
+    @staticmethod
+    def object_type() -> str:
+        return "ControlEvent"
+
+    def to_signable_dict(self) -> dict:
+        return {
+            "type": "ControlEvent",
+            "version": 1,
+            "root_id": self.root_id,
+            "sequence": self.sequence,
+            "previous_control_hash": self.previous_control_hash,
+            "event_type": self.event_type,
+            "key_id": self.key_id,
+            "public_key": self.public_key,
+            "old_key_id": self.old_key_id,
+            "cutoff_head": self.cutoff_head,
+            "reason": self.reason,
+            "timestamp": self.timestamp,
+            "migration_record_id": self.migration_record_id,
+        }
+
+    def to_signed_dict(self) -> dict:
+        d = self.to_signable_dict()
+        d["commit_id"] = self.commit_id
+        d["signature"] = self.signature
+        return d
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "ControlEvent":
+        if d.get("type") != "ControlEvent":
+            raise ValueError(f"not a ControlEvent: type={d.get('type')}")
+        return cls(
+            root_id=d.get("root_id", ""),
+            sequence=d.get("sequence", 1),
+            previous_control_hash=d.get("previous_control_hash", ""),
+            event_type=d.get("event_type", "key_grant"),
+            key_id=d.get("key_id", ""),
+            public_key=d.get("public_key", {}),
+            old_key_id=d.get("old_key_id", ""),
+            cutoff_head=d.get("cutoff_head", ""),
+            reason=d.get("reason", "rotation"),
+            timestamp=d.get("timestamp", utc_now_iso()),
+            migration_record_id=d.get("migration_record_id", ""),
+            commit_id=d.get("commit_id", ""),
+            signature=d.get("signature", ""),
+        )
+
+
+@dataclass
+class MigrationRecord(SignedObject):
+    """Bilateral migration record: legacy identity → new identity.
+
+    Requires TWO signatures:
+    - legacy_signature: signed by the legacy identity's operational key
+    - root_signature: signed by the new root authority
+
+    This proves continuity without pretending A == B.
+    """
+
+    legacy_agent_id: str = ""  # did:alethech:<H(K1)>
+    legacy_public_key: dict = field(default_factory=dict)  # JWK of K1
+    new_agent_id: str = ""  # did:alethech:<H(R)>
+    new_root_id: str = ""  # did:alethech:root:<H(R)>
+    new_root_public_key: dict = field(default_factory=dict)  # JWK of R
+    migration_timestamp: str = field(default_factory=utc_now_iso)
+    legacy_signature: str = ""  # ed25519:<base64url>  — signature of K1 over canonical bytes
+    # root_signature is the standard `signature` field from SignedObject
+
+    @staticmethod
+    def object_type() -> str:
+        return "MigrationRecord"
+
+    def to_signable_dict(self) -> dict:
+        return {
+            "type": "MigrationRecord",
+            "version": 1,
+            "legacy_agent_id": self.legacy_agent_id,
+            "legacy_public_key": self.legacy_public_key,
+            "new_agent_id": self.new_agent_id,
+            "new_root_id": self.new_root_id,
+            "new_root_public_key": self.new_root_public_key,
+            "migration_timestamp": self.migration_timestamp,
+        }
+
+    def to_signed_dict(self) -> dict:
+        d = self.to_signable_dict()
+        d["commit_id"] = self.commit_id
+        d["legacy_signature"] = self.legacy_signature
+        d["signature"] = self.signature  # root signature
+        return d
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "MigrationRecord":
+        if d.get("type") != "MigrationRecord":
+            raise ValueError(f"not a MigrationRecord: type={d.get('type')}")
+        return cls(
+            legacy_agent_id=d.get("legacy_agent_id", ""),
+            legacy_public_key=d.get("legacy_public_key", {}),
+            new_agent_id=d.get("new_agent_id", ""),
+            new_root_id=d.get("new_root_id", ""),
+            new_root_public_key=d.get("new_root_public_key", {}),
+            migration_timestamp=d.get("migration_timestamp", utc_now_iso()),
+            legacy_signature=d.get("legacy_signature", ""),
+            commit_id=d.get("commit_id", ""),
+            signature=d.get("signature", ""),
+        )
+
+    def sign_both(self, legacy_keypair: crypto.KeyPair, root_keypair: crypto.KeyPair) -> None:
+        """Sign with both the legacy key and the new root key."""
+        self.commit_id = self.compute_commit_id()
+        msg = self.canonical_bytes_for_signing()
+        # Legacy signature
+        legacy_sig = legacy_keypair.sign(msg)
+        self.legacy_signature = "ed25519:" + crypto.b64url(legacy_sig)
+        # Root signature
+        root_sig = root_keypair.sign(msg)
+        self.signature = "ed25519:" + crypto.b64url(root_sig)
+
+    def verify_both(self, legacy_public_jwk: dict, root_public_jwk: dict) -> bool:
+        """Verify both signatures. Returns True only if both pass."""
+        if not self.commit_id:
+            return False
+        if not self.signature.startswith("ed25519:"):
+            return False
+        if not self.legacy_signature.startswith("ed25519:"):
+            return False
+        msg = self.canonical_bytes_for_signing()
+        try:
+            legacy_pub = crypto.KeyPair.public_from_jwk(legacy_public_jwk)
+            root_pub = crypto.KeyPair.public_from_jwk(root_public_jwk)
+        except Exception:
+            return False
+        legacy_sig = crypto.b64url_decode(self.legacy_signature[len("ed25519:"):])
+        root_sig = crypto.b64url_decode(self.signature[len("ed25519:"):])
+        return (crypto.KeyPair.verify(legacy_pub, legacy_sig, msg) and
+                crypto.KeyPair.verify(root_pub, root_sig, msg))

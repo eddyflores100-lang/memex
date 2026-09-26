@@ -59,6 +59,7 @@ class Store:
         path.write_text(json.dumps(identity.to_dict(), indent=2), encoding="utf-8")
 
     def load_identities(self) -> dict[str, Identity]:
+        """Load legacy Identity records (v0.1). Skips IdentityRecordV2 files."""
         ids = {}
         idir = self.root / "identities"
         if not idir.is_dir():
@@ -66,6 +67,9 @@ class Store:
         for path in idir.glob("*.json"):
             try:
                 data = json.loads(path.read_text(encoding="utf-8"))
+                # Skip non-legacy identity types
+                if data.get("type") != "Identity":
+                    continue
                 ident = Identity.from_dict(data)
                 ids[ident.agent_id] = ident
             except Exception as e:
@@ -181,3 +185,118 @@ class Store:
         if not adir.is_dir():
             return set()
         return {p.name for p in adir.iterdir() if p.is_file()}
+
+
+# ============================================================================
+# rev 3 — Identity layer storage
+# ============================================================================
+
+def write_root_authority(self, root: "RootAuthority") -> None:
+    """Store the RootAuthority record."""
+    path = self.root / "root_authority.json"
+    path.write_text(json.dumps(root.to_signed_dict(), indent=2), encoding="utf-8")
+
+def load_root_authority(self) -> "RootAuthority":
+    """Load the RootAuthority record. Raises StoreError if missing."""
+    path = self.root / "root_authority.json"
+    if not path.is_file():
+        raise StoreError("root_authority.json not found")
+    from .objects import RootAuthority
+    return RootAuthority.from_dict(json.loads(path.read_text(encoding="utf-8")))
+
+def write_identity_record_v2(self, identity: "IdentityRecordV2") -> None:
+    """Store the IdentityRecordV2."""
+    path = self.root / "identities" / f"{identity.agent_id}.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(identity.to_signed_dict(), indent=2), encoding="utf-8")
+
+def load_identity_records_v2(self) -> dict:
+    """Load all IdentityRecordV2 objects. Returns {agent_id: IdentityRecordV2}."""
+    from .objects import IdentityRecordV2
+    records = {}
+    idir = self.root / "identities"
+    if not idir.is_dir():
+        return records
+    for path in idir.glob("*.json"):
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            # Only load IdentityRecordV2 objects (skip legacy Identity)
+            if data.get("type") == "IdentityRecordV2":
+                rec = IdentityRecordV2.from_dict(data)
+                records[rec.agent_id] = rec
+        except Exception as e:
+            raise StoreError(f"corrupted identity v2 {path.name}: {e}") from e
+    return records
+
+def write_control_event(self, event: "ControlEvent") -> None:
+    """Store a ControlEvent."""
+    path = self.root / "control_events" / f"{event.commit_id}.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(event.to_signed_dict(), indent=2), encoding="utf-8")
+
+def load_control_events(self) -> dict:
+    """Load all ControlEvents. Returns {commit_id: ControlEvent}."""
+    from .objects import ControlEvent
+    events = {}
+    edir = self.root / "control_events"
+    if not edir.is_dir():
+        return events
+    for path in edir.glob("*.json"):
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            ev = ControlEvent.from_dict(data)
+            events[ev.commit_id] = ev
+        except Exception as e:
+            raise StoreError(f"corrupted control event {path.name}: {e}") from e
+    return events
+
+def write_migration_record(self, mig: "MigrationRecord") -> None:
+    """Store a MigrationRecord."""
+    path = self.root / "migrations" / f"{mig.commit_id}.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(mig.to_signed_dict(), indent=2), encoding="utf-8")
+
+def load_migration_records(self) -> dict:
+    """Load all MigrationRecords. Returns {commit_id: MigrationRecord}."""
+    from .objects import MigrationRecord
+    records = {}
+    mdir = self.root / "migrations"
+    if not mdir.is_dir():
+        return records
+    for path in mdir.glob("*.json"):
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            rec = MigrationRecord.from_dict(data)
+            records[rec.commit_id] = rec
+        except Exception as e:
+            raise StoreError(f"corrupted migration {path.name}: {e}") from e
+    return records
+
+def write_root_key(self, keypair: "crypto.KeyPair") -> None:
+    """Store the root authority private key (PEM, 0600)."""
+    path = self.root / "keys" / "root.key"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd = os.open(str(path), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    try:
+        os.write(fd, keypair.private_pem())
+    finally:
+        os.close(fd)
+
+def load_root_key(self) -> "crypto.KeyPair":
+    """Load the root authority private key."""
+    path = self.root / "keys" / "root.key"
+    if not path.is_file():
+        raise StoreError("root key not found")
+    return crypto.KeyPair.from_private_pem(path.read_bytes())
+
+# Attach methods to Store class
+Store.write_root_authority = write_root_authority
+Store.load_root_authority = load_root_authority
+Store.write_identity_record_v2 = write_identity_record_v2
+Store.load_identity_records_v2 = load_identity_records_v2
+Store.write_control_event = write_control_event
+Store.load_control_events = load_control_events
+Store.write_migration_record = write_migration_record
+Store.load_migration_records = load_migration_records
+Store.write_root_key = write_root_key
+Store.load_root_key = load_root_key
